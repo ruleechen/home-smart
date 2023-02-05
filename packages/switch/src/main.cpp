@@ -74,8 +74,8 @@ void setup(void) {
   onState.setter = [](const homekit_value_t value) { setOnState(value.bool_value, connective); };
   arduino_homekit_setup(&serverConfig);
 
-  // setup switch io
-  binaryIO = new BinaryIO("/switch.json");
+  // setup binary io
+  binaryIO = new BinaryIO("/binary.json");
   setOnState(binaryIO->getOutputState(), false);
   binaryIO->onInputAction = [](const ButtonAction action) {
     console.log()

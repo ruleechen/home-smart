@@ -14,7 +14,7 @@ const {
 const DIR_PACKAGES = "packages";
 const DIR_DATA = "data";
 
-const PATH_DEPS = path.resolve(__dirname, "./.pio/libdeps", pioEnv);
+const PATH_DEPS = path.resolve(__dirname, ".pio/libdeps", pioEnv);
 const PATH_PROJ = path.resolve(__dirname, DIR_PACKAGES, pioEnv);
 
 const PATH_DATA = path.resolve(PATH_PROJ, DIR_DATA);
@@ -40,7 +40,7 @@ function clean() {
   return del([PATH_DATA_WEB], { force: true });
 }
 
-function buildDeps() {
+async function buildDeps() {
   if (fse.existsSync(PATH_DEPS)) {
     const libDir = path.resolve(PATH_DEPS, "home-esp8266", DIR_DATA);
     if (fse.existsSync(libDir)) {
@@ -54,7 +54,6 @@ function buildDeps() {
       });
     }
   }
-  return Promise.resolve();
 }
 
 const build = gulp.series(clean, buildDeps);
