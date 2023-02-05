@@ -26,17 +26,17 @@ homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
   },
 );
 
-// format: uint8; HAP section 9.67; 0 = Occupancy is not detected, 1 = Occupancy is detected
-homekit_characteristic_t occupancyState = HOMEKIT_CHARACTERISTIC_(OCCUPANCY_DETECTED, false);
+// format: uint8; HAP section 9.50; 0 = Leak is not detected, 1 = Leak is detected
+homekit_characteristic_t leakState = HOMEKIT_CHARACTERISTIC_(LEAK_DETECTED, false);
 // format: bool; HAP section 9.96; true or false
 homekit_characteristic_t activeState = HOMEKIT_CHARACTERISTIC_(STATUS_ACTIVE, false);
 // format: string; HAP section 9.62; maximum length 64
-homekit_characteristic_t nameState = HOMEKIT_CHARACTERISTIC_(NAME, "Occupancy Sensor");
+homekit_characteristic_t nameState = HOMEKIT_CHARACTERISTIC_(NAME, "Leak Sensor");
 
-homekit_service_t stateService = HOMEKIT_SERVICE_(OCCUPANCY_SENSOR,
+homekit_service_t stateService = HOMEKIT_SERVICE_(LEAK_SENSOR,
   .primary = true,
   .characteristics = (homekit_characteristic_t*[]) {
-    &occupancyState,
+    &leakState,
     &activeState,
     &nameState,
     NULL,
