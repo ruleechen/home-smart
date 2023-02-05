@@ -1,5 +1,5 @@
 # Home Smart
-Some Apple HomeKit firmwares for Victoria 9# (base on esp8266)
+Some Apple HomeKit firmwares for Victoria 9#
 
 ### Monorepo for projects
 - air-quality-sensor
