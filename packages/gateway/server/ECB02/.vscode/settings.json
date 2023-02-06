@@ -1,0 +1,35 @@
+{
+    "debug.allowBreakpointsEverywhere": true,
+    "files.autoGuessEncoding": true,
+    "esls.clang.extraArgs": [
+        "  "
+    ],
+    "[c]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "C_Cpp.errorSquiggles": "disabled",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "files.associations": {
+        "ec_core.h": "c",
+        "ec_core_ble.h": "c",
+        "ec_core_ble_peripheral.h": "c",
+        "ec_core_gpio.h": "c",
+        "string.h": "c",
+        "ec_app_wdg.h": "c",
+        "ec_app_led.h": "c",
+        "main.h": "c",
+        "RsBle.h": "c",
+        "RsBlePeripheral.h": "c",
+        "ec_core_timer.h": "c",
+        "ec_core_key.h": "c",
+        "ec_app_i2c.h": "c",
+        "ec_core_printf.h": "c",
+        "ec_core_wdg.h": "c",
+        "stdint.h": "c"
+    }
+}

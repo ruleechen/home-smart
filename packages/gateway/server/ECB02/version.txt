@@ -1,0 +1,26 @@
+V1.0.3
+        优化led驱动
+        新增delay示例
+        新增串口烧录工具
+        软件定时器增加到21个
+
+V1.0.2  
+        优化PWM驱动
+        优化PWM示例
+
+V1.0.1  
+        优化adc驱动，睡眠模式可以使用adc
+        优化程序注释，蓝牙名字最长20字节
+        优化ec_app_flash_test.c注释
+        优化ec_core_ble_printf函数    
+        新增printf示例 ec_app_printf_test.c      
+        新增RAM测试示例 ec_app_ram_test.c
+        新增LED驱动和示例
+        新增按键驱动和示例   
+        新增I2C驱动 
+        新增ec_app_i2c_eeprom_test示例
+        新增spi ssd1306 oled 驱动和示例 
+        新增看门狗示例 
+
+V1.0.0  
+        首个版本
