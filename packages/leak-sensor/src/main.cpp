@@ -11,6 +11,7 @@ using namespace Victor;
 using namespace Victor::Components;
 
 extern "C" homekit_characteristic_t leakState;
+extern "C" homekit_characteristic_t levelState;
 extern "C" homekit_characteristic_t activeState;
 extern "C" homekit_characteristic_t accessoryNameInfo;
 extern "C" homekit_characteristic_t accessorySerialNumber;
@@ -37,8 +38,6 @@ String toLeakName(const uint8_t state) {
 }
 
 void setLeakState(const bool value, const bool notify) {
-  ESP.wdtFeed();
-  builtinLed.flash();
   const auto leak = value ? LEAK_DETECTED : LEAK_NOT_DETECTED;
   leakState.value.uint8_value = leak;
   if (notify) {
@@ -47,13 +46,19 @@ void setLeakState(const bool value, const bool notify) {
   console.log().section(F("leak"), toLeakName(leak));
 }
 
+void setLevelState(const int analog, const bool notify) {
+  const auto percentage = map(analog, 0, 1023, 0, 100);
+  levelState.value.int_value = percentage;
+  if (notify) {
+    homekit_characteristic_notify(&levelState, levelState.value);
+  }
+}
+
 void setActiveState(const bool value, const bool notify) {
-  builtinLed.flash();
   activeState.value.bool_value = value;
   if (notify) {
     homekit_characteristic_notify(&activeState, activeState.value);
   }
-  console.log().section(F("active"), GlobalHelpers::toYesNoName(value));
 }
 
 void setup(void) {
@@ -65,6 +70,7 @@ void setup(void) {
     // states
     states.push_back({ .text = F("Service"), .value = VICTOR_ACCESSORY_SERVICE_NAME });
     states.push_back({ .text = F("Leak"),    .value = toLeakName(leakState.value.uint8_value) });
+    states.push_back({ .text = F("Level"),   .value = String(leakState.value.int_value) + F("%")  });
     states.push_back({ .text = F("Active"),  .value = GlobalHelpers::toYesNoName(activeState.value.bool_value) });
     states.push_back({ .text = F("Paired"),  .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"), .value = String(arduino_homekit_connected_clients_count()) });
@@ -89,9 +95,14 @@ void setup(void) {
   const auto leakSetting = leakStorage.load();
   if (leakSetting->sensorPin > -1) {
     sensor = new LeakSensor();
-    sensor->onStateChange = [](const bool state) {
-      setLeakState(state, connective);
+    sensor->onLoop = [](const int analog) {
+      builtinLed.flash();
+      setLevelState(analog, connective);
       setActiveState(true, connective);
+    };
+    sensor->onStateChange = [](const bool state) {
+      builtinLed.flash();
+      setLeakState(state, connective);
     };
     setLeakState(sensor->readState(), connective);
   }

@@ -28,6 +28,8 @@ homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
 
 // format: uint8; HAP section 9.50; 0 = Leak is not detected, 1 = Leak is detected
 homekit_characteristic_t leakState = HOMEKIT_CHARACTERISTIC_(LEAK_DETECTED, false);
+// format: float; HAP section 9.128; minimum 0, maximum 100, step 1, unit percentage
+homekit_characteristic_t levelState = HOMEKIT_CHARACTERISTIC_(WATER_LEVEL, 0);
 // format: bool; HAP section 9.96; true or false
 homekit_characteristic_t activeState = HOMEKIT_CHARACTERISTIC_(STATUS_ACTIVE, false);
 // format: string; HAP section 9.62; maximum length 64
@@ -37,6 +39,7 @@ homekit_service_t stateService = HOMEKIT_SERVICE_(LEAK_SENSOR,
   .primary = true,
   .characteristics = (homekit_characteristic_t*[]) {
     &leakState,
+    &levelState,
     &activeState,
     &nameState,
     NULL,

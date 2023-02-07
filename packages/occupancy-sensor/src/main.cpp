@@ -37,8 +37,6 @@ String toOccupancyName(const uint8_t state) {
 }
 
 void setOccupancyState(const bool value, const bool notify) {
-  ESP.wdtFeed();
-  builtinLed.flash();
   const auto occupancy = value ? OCCUPANCY_DETECTED : OCCUPANCY_NOT_DETECTED;
   occupancyState.value.uint8_value = occupancy;
   if (notify) {
@@ -48,7 +46,6 @@ void setOccupancyState(const bool value, const bool notify) {
 }
 
 void setActiveState(const bool value, const bool notify) {
-  builtinLed.flash();
   activeState.value.bool_value = value;
   if (notify) {
     homekit_characteristic_notify(&activeState, activeState.value);
@@ -90,6 +87,7 @@ void setup(void) {
   if (occupancySetting->sensorPin > -1) {
     sensor = new OccupancySensor();
     sensor->onStateChange = [](const bool state) {
+      builtinLed.flash();
       setOccupancyState(state, connective);
       setActiveState(true, connective);
     };

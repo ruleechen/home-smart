@@ -12,6 +12,7 @@ namespace Victor::Components {
     sensorArr[0] = model->sensorPin;
     sensorArr[1] = model->sensorTrueValue;
     // others
+    doc[F("loop")]     = model->loop;
     doc[F("debounce")] = model->debounce;
   }
 
@@ -21,6 +22,7 @@ namespace Victor::Components {
     model->sensorPin       = sensorArr[0];
     model->sensorTrueValue = sensorArr[1];
     // others
+    model->loop     = doc[F("loop")];
     model->debounce = doc[F("debounce")];
   }
 

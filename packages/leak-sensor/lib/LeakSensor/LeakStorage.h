@@ -16,6 +16,9 @@ namespace Victor::Components {
 
     // ms debounce time to avoid fast changes
     uint16_t debounce = 0; // (0~65535)
+
+    // ms loop interval
+    uint16_t loop = 0; // (0~65535)
   };
 
   class LeakStorage : public FileStorage<LeakSetting> {
