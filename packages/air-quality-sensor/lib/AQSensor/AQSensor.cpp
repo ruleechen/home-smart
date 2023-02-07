@@ -3,7 +3,7 @@
 namespace Victor::Components {
 
   AQSensor::AQSensor() {
-    _sgp30 = new SGP30();
+    _sgp30 = new Adafruit_SGP30();
   }
 
   AQSensor::~AQSensor() {
@@ -47,14 +47,14 @@ namespace Victor::Components {
         _storeInterval = new IntervalOver(setting->aqBaseline->storeHours * 60 * 60 * 1000);
       }
     }
-    _sgp30->initAirQuality();
+    // _sgp30->IAQinit();
     if (
       setting != nullptr &&
       setting->aqBaseline->load &&
       setting->aqBaseline->co2 > 0 &&
       setting->aqBaseline->tvoc > 0
     ) {
-      _sgp30->setBaseline(
+      _sgp30->setIAQBaseline(
         setting->aqBaseline->co2,
         setting->aqBaseline->tvoc
       );
@@ -66,7 +66,7 @@ namespace Victor::Components {
   }
 
   void AQSensor::reset() {
-    _sgp30->generalCallReset();
+    _sgp30->softReset();
     _init();
   }
 
@@ -80,32 +80,33 @@ namespace Victor::Components {
       return MEASURE_SKIPPED;
     }
     ESP.wdtFeed();
-    const auto readSuccess = _sgp30->measureAirQuality() == SGP30_SUCCESS;
+    const auto readSuccess = _sgp30->IAQmeasure();
     if (
       readSuccess &&
       _storeInterval != nullptr &&
       _storeInterval->isOver(now)
     ) {
-      if (_sgp30->getBaseline() == SGP30_SUCCESS) {
+      uint16_t co2, tvoc;
+      if (_sgp30->getIAQBaseline(&co2, &tvoc)) {
         _storeInterval->start(now);
         auto setting = climateStorage.load();
         if (setting != nullptr) {
-          setting->aqBaseline->load = true; // once we have aq baseline generated, enable load for next boot
-          setting->aqBaseline->co2 = _sgp30->baselineCO2;
-          setting->aqBaseline->tvoc = _sgp30->baselineTVOC;
+          setting->aqBaseline->load = true; // once we have baseline generated, enable load for next boot
+          setting->aqBaseline->co2 = co2;
+          setting->aqBaseline->tvoc = tvoc;
           climateStorage.save(setting);
         }
         console.log()
           .bracket(F("store"))
-          .section(F("co2"), String(_sgp30->baselineCO2))
-          .section(F("tvoc"), String(_sgp30->baselineTVOC));
+          .section(F("co2"), String(co2))
+          .section(F("tvoc"), String(tvoc));
       }
     }
     return readSuccess ? MEASURE_SUCCESS : MEASURE_FAILED;
   }
 
   float AQSensor::getCO2() {
-    return _sgp30->CO2;
+    return _sgp30->eCO2;
   }
 
   float AQSensor::getTVOC() {
