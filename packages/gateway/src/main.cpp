@@ -4,17 +4,24 @@
 #include <BLEDevice.h>
 #include "IntervalOverAuto.h"
 #include "VictorBleClient.h"
+#include "DoorSensor.h"
 
 using namespace Victor;
 using namespace Victor::Components;
 
+DoorSensor* accessory = nullptr;
+
 bool ledOn = false;
 void turnLedOn() {
-  digitalWrite(LED_BUILTIN, HIGH);
+  #ifdef LED_BUILTIN
+    digitalWrite(LED_BUILTIN, HIGH);
+  #endif
   ledOn = true;
 }
 void turnLedOff() {
-  digitalWrite(LED_BUILTIN, LOW);
+  #ifdef LED_BUILTIN
+    digitalWrite(LED_BUILTIN, LOW);
+  #endif
   ledOn = false;
 }
 void toggleLed() {
@@ -73,8 +80,14 @@ void startScan() {
 
 void setup() {
   Serial.begin(115200);
-  pinMode(BUILTIN_LED, OUTPUT);
+  accessory = new DoorSensor();
+  accessory->setup();
+
+  #ifdef LED_BUILTIN
+    pinMode(LED_BUILTIN, OUTPUT);
+  #endif
   turnLedOn();
+
   // ble init
   BLEDevice::init("Victor-Gateway");
   BLEDevice::setPower(ESP_PWR_LVL_P9); // max +9dbm
@@ -106,8 +119,10 @@ void onServerNotify(VictorBleClient* client, ServerCommand* notification) {
   Serial.printf("[%s] OUTPUT:%s", serverAddress, output); Serial.println();
   if (notification->command == RS_SERVER_COMMAND_NOTIFY_STATES) {
     if (client->stateInput()) {
+      accessory->setOpen();
       turnLedOn();
     } else {
+      accessory->setClosed();
       turnLedOff();
     }
   }
@@ -116,6 +131,8 @@ void onServerNotify(VictorBleClient* client, ServerCommand* notification) {
 static String message = "";
 
 void loop() {
+  accessory->loop();
+
   const auto now = millis();
   if (scanInterval->isOver(now)) {
     startScan();
