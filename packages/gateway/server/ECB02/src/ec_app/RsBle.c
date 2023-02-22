@@ -16,7 +16,7 @@ void rsBleInit(void) {
   uint8_t mac[6] = {0};
   ec_core_ble_get_mac(mac); // 获取MAC地址
   char peripheralName[16] = {0};
-  sprintf(peripheralName, "RS030_%02X%02X%02X", mac[3], mac[4], mac[5]);
+  sprintf(peripheralName, "RS031_%02X%02X%02X", mac[3], mac[4], mac[5]);
   ec_core_ble_peripheral_set_name((uint8_t*)peripheralName, 12); // strlen("BT_123")
 
   // 厂商自定义数据 - "RuleeSmart-V01"
@@ -25,10 +25,13 @@ void rsBleInit(void) {
   ec_core_ble_peripheral_set_manufacturer_data((uint8_t*)manufacturerData, RS_PROTOCOL_MANUFACTURER_DATA_LENGTH);
 
   // 设置广播间隔
-  // 1600*0.625=1s
-  ec_core_ble_peripheral_set_adv_int(1600);
+  // 3200*0.625=2s
+  ec_core_ble_peripheral_set_adv_int(3200);
 
-  // 低功耗，延迟大
+  // 低功耗，延迟大（理论平均电流50uA）
+  // 160*1.25=200ms, 180*1.25=225ms, 4, 600*10=6s
+  ec_core_ble_peripheral_set_connect_param(160, 180, 4, 600);
+  // 折中方案（理论平均电流100uA）
   // 80*1.25=100ms, 120*1.25=150ms, 4, 300*10=3s
-  ec_core_ble_peripheral_set_connect_param(80, 120, 4, 300);
+  // ec_core_ble_peripheral_set_connect_param(80, 120, 4, 300);
 }

@@ -69,7 +69,7 @@ void startScan() {
   } else {
     scan->clearResults();
   }
-  scan->start(5, true); // scan for 5s (server broadcast every 1s)
+  scan->start(5, true); // scan for 5s (server broadcast every 2s)
   Serial.println("End scanning...");
   isScanning = false;
 }
