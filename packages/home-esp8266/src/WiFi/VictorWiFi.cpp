@@ -53,6 +53,9 @@ namespace Victor::Components {
     if (getMode() != mode) {
       WiFi.mode(mode);
       _log().section(F("mode"), modeName(mode));
+      if (MDNS.isRunning()) {
+        MDNS.notifyAPChange();
+      }
     }
   }
 
