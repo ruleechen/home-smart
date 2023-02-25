@@ -2,17 +2,17 @@
 #define DigitalOutput_h
 
 #include <Arduino.h>
+#include "Pin/PinModels.h"
 
 namespace Victor::Components {
   class DigitalOutput {
    public:
-    DigitalOutput(uint8_t pin, uint8_t trueValue, uint8_t mode = OUTPUT);
+    DigitalOutput(PinConfig* config, uint8_t mode = OUTPUT);
     void setValue(bool value);
     bool lastValue() const;
 
    private:
-    uint8_t _pin;
-    uint8_t _trueValue;
+    PinConfig* _config;
     bool _lastValue = false;
   };
 

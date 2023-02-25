@@ -2,10 +2,10 @@
 
 namespace Victor::Components {
 
-  ActionButtonInterrupt::ActionButtonInterrupt(uint8_t inputPin, uint8_t inputTrueValue) : ActionButtonInput(inputPin, inputTrueValue) {
+  ActionButtonInterrupt::ActionButtonInterrupt(PinConfig* config) : ActionButtonInput(config) {
     _inputRef = _input;
     _lastInputValue = _input->getValue();
-    attachInterrupt(digitalPinToInterrupt(inputPin), _interruptHandler, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(config->pin), _interruptHandler, CHANGE);
   }
 
   ActionButtonInterrupt::~ActionButtonInterrupt() {

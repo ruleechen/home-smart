@@ -20,7 +20,7 @@ namespace Victor::Components {
 
   class ActionButtonInterrupt : public ActionButtonInput {
    public:
-    ActionButtonInterrupt(uint8_t inputPin, uint8_t inputTrueValue);
+    ActionButtonInterrupt(PinConfig* config);
     ~ActionButtonInterrupt();
     void loop() override;
 

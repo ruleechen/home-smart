@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 #include <Ticker.h>
-#include "DigitalOutput.h"
+#include "Pin/PinStorage.h"
+#include "Pin/DigitalOutput.h"
 #include "AppMain/AppStorage.h"
 
 #ifndef VICTOR_BUILTIN_LED_FLASH
@@ -19,7 +20,7 @@ namespace Victor::Components {
    public:
     BuiltinLed();
     ~BuiltinLed();
-    void setup(LedSetting* setting);
+    void setup(const char* configFile = "/led.json");
     void turnOn();
     void turnOff();
     void toggle();

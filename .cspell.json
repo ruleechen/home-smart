@@ -15,6 +15,7 @@
     "ssid",
     "pswd",
     "rssi",
+    "DTIM",
     "mDNS",
     "mithril",
     "oninit",

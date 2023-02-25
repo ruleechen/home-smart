@@ -2,16 +2,16 @@
 #define DigitalInput_h
 
 #include <Arduino.h>
+#include "Pin/PinModels.h"
 
 namespace Victor::Components {
   class DigitalInput {
    public:
-    DigitalInput(uint8_t pin, uint8_t trueValue, uint8_t mode = INPUT_PULLUP);
+    DigitalInput(PinConfig* config, uint8_t mode = INPUT_PULLUP);
     bool getValue();
 
    private:
-    uint8_t _pin;
-    uint8_t _trueValue;
+    PinConfig* _config;
   };
 
 } // namespace Victor::Components

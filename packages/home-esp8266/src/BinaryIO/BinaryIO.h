@@ -1,10 +1,10 @@
 #ifndef BinaryIO_h
 #define BinaryIO_h
 
-#include "DigitalInput.h"
-#include "DigitalOutput.h"
-#include "BinaryStorage.h"
+#include "Pin/DigitalInput.h"
+#include "Pin/DigitalOutput.h"
 #include "Button/ActionButtonInput.h"
+#include "BinaryStorage.h"
 
 namespace Victor::Components {
   class BinaryIO {

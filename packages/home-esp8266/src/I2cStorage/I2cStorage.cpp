@@ -9,19 +9,21 @@ namespace Victor::Components {
   void I2cStorage::_serializeTo(const I2cSetting* model, DynamicJsonDocument& doc) {
     doc[F("sda")] = model->sdaPin;
     doc[F("scl")] = model->sclPin;
-    // enable pin
-    const JsonArray enableArr = doc.createNestedArray(F("en"));
-    enableArr[0] = model->enablePin;
-    enableArr[1] = model->enableTrueValue;
+    // chip select pin
+    const JsonArray enArr = doc.createNestedArray(F("en"));
+    enArr[0] = model->chipSelect->pin;
+    enArr[1] = model->chipSelect->trueValue;
   }
 
   void I2cStorage::_deserializeFrom(I2cSetting* model, const DynamicJsonDocument& doc) {
     model->sdaPin = doc[F("sda")];
     model->sclPin = doc[F("scl")];
-    // enable pin
-    const auto enableArr   = doc[F("en")];
-    model->enablePin       = enableArr[0];
-    model->enableTrueValue = enableArr[1];
+    // chip select pin
+    const auto enArr   = doc[F("en")];
+    model->chipSelect = new PinConfig({
+      .pin = enArr[0],
+      .trueValue = enArr[1],
+    });
   }
 
 } // namespace Victor::Components

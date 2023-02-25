@@ -2,6 +2,7 @@
 #define I2cStorage_h
 
 #include "FileStorage.h"
+#include "Pin/PinModels.h"
 
 namespace Victor::Components {
 
@@ -15,12 +16,7 @@ namespace Victor::Components {
     uint8_t sclPin = 5; // (0~255)
 
     // chip select signal for power on/off i2c bus
-    // 0~127 = gpio
-    //    -1 = disabled
-    int8_t enablePin = -1; // (-128~127)
-    // 0 = LOW
-    // 1 = HIGH
-    uint8_t enableTrueValue = 0; // (0~255)
+    PinConfig* chipSelect = nullptr;
   };
 
   class I2cStorage : public FileStorage<I2cSetting> {

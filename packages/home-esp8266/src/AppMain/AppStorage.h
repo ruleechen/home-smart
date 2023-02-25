@@ -2,18 +2,9 @@
 #define AppStorage_h
 
 #include "FileStorage.h"
+#include "Pin/PinModels.h"
 
 namespace Victor::Components {
-
-  struct LedSetting {
-    // led gpio pin
-    uint8_t pin = 2; // (0~255)
-    // false = LOW
-    //  true = HIGH
-    bool onHigh = false;
-    // led enabled or not
-    bool enabled = true;
-  };
 
   struct AppSetting {
     String name;
@@ -22,7 +13,6 @@ namespace Victor::Components {
     // 0         = disabled
     // 1 ~ 65535 = delay ms
     uint16_t sleepMillis = 20;
-    LedSetting* led = nullptr;
   };
 
   class AppStorage : public FileStorage<AppSetting> {

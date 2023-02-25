@@ -39,7 +39,10 @@ void setup(void) {
 
   // input button
   // button = new ActionButtonInput(0, 0);
-  button = new ActionButtonInterrupt(0, 0);
+  button = new ActionButtonInterrupt(new PinConfig({
+    .pin = 0,
+    .trueValue = 0,
+  }));
   button->onAction = [](const ButtonAction action) {
     console.log()
       .bracket(F("button"))

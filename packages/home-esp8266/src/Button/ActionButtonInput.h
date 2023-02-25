@@ -1,14 +1,14 @@
 #ifndef ActionButtonInput_h
 #define ActionButtonInput_h
 
-#include "DigitalInput.h"
+#include "Pin/DigitalInput.h"
 #include "Button/ActionButton.h"
 
 namespace Victor::Components {
 
   class ActionButtonInput {
    public:
-    ActionButtonInput(uint8_t inputPin, uint8_t inputTrueValue);
+    ActionButtonInput(PinConfig* config);
     virtual ~ActionButtonInput();
     virtual void loop();
     // events

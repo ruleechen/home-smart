@@ -17,10 +17,11 @@ namespace Victor::Components {
     }
   }
 
-  void BuiltinLed::setup(LedSetting* setting) {
-    if (setting->enabled) {
-      const auto trueValue = setting->onHigh ? HIGH : LOW;
-      _outputPin = new DigitalOutput(setting->pin, trueValue);
+  void BuiltinLed::setup(const char* configFile) {
+    const auto storage = new PinStorage(configFile);
+    const auto config = storage->load();
+    if (config->enable) {
+      _outputPin = new DigitalOutput(config);
     }
   }
 
