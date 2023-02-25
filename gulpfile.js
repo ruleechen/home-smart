@@ -1,3 +1,4 @@
+const cp = require("child_process");
 const yargs = require("yargs");
 const path = require("path");
 const fse = require("fs-extra");
@@ -40,7 +41,7 @@ function clean() {
   return del([PATH_DATA_WEB], { force: true });
 }
 
-async function buildDeps() {
+function buildDeps() {
   if (fse.existsSync(PATH_DEPS)) {
     const libDir = path.resolve(PATH_DEPS, "home-esp8266", DIR_DATA);
     if (fse.existsSync(libDir)) {
@@ -56,7 +57,15 @@ async function buildDeps() {
   }
 }
 
-const build = gulp.series(clean, buildDeps);
+async function build() {
+  if (pioEnv === "home-esp8266") {
+    cp.execSync(`yarn workspace ${pioEnv} build --buildEnv=release`, {
+      stdio: "inherit",
+    });
+  } else {
+    return gulp.series(clean, buildDeps);
+  }
+}
 
 // export gulp tasks
 exports.build = build;

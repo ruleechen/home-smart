@@ -9,6 +9,10 @@ Some Apple HomeKit firmwares for Victoria 9#
 - outlet
 - switch
 
+### PlatformIO CLI
+pio run --environment air-quality-sensor
+pio run --environment air-quality-sensor --target buildfs
+
 ### Development Tools
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [PlatformIO IDE for VSCode](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide)
