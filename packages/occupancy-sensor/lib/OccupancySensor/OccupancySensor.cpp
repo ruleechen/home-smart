@@ -4,11 +4,11 @@ namespace Victor::Components {
 
   OccupancySensor::OccupancySensor() {
     const auto setting = occupancyStorage.load();
-    _input = new DigitalInput(setting->sensorPin, setting->sensorTrueValue);
+    _input = new DigitalInput(setting->sensor);
     _debounce = new IntervalOver(setting->debounce);
     _currentState = readState();
     // register interrupt
-    attachInterrupt(digitalPinToInterrupt(setting->sensorPin), _interruptHandler, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(setting->sensor->pin), _interruptHandler, CHANGE);
   }
 
   OccupancySensor::~OccupancySensor() {

@@ -2,6 +2,7 @@
 #define ClimateStorage_h
 
 #include <FileStorage.h>
+#include <Pin/PinModels.h>
 
 namespace Victor::Components {
 
@@ -53,14 +54,7 @@ namespace Victor::Components {
   };
 
   struct ClimateSetting {
-    // button input pin
-    // 0~127 = gpio
-    //    -1 = disabled
-    int8_t buttonPin = -1; // (-128~127)
-    // 0 = LOW
-    // 1 = HIGH
-    uint8_t buttonTrueValue = 0; // (0~255)
-
+    PinConfig* button = nullptr;
     HTConfig* ht = nullptr;
     AQConfig* aq = nullptr;
     AQBaseline* aqBaseline = nullptr;

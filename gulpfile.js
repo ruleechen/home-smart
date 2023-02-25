@@ -38,7 +38,7 @@ const ig = ignore();
 ig.add(fse.readFileSync(PATH_ROOT_IG).toString());
 
 function clean() {
-  return del([PATH_DATA_WEB], { force: true });
+  del.sync([PATH_DATA_WEB], { force: true });
 }
 
 function buildDeps() {
@@ -63,10 +63,10 @@ async function build() {
       stdio: "inherit",
     });
   } else {
-    return gulp.series(clean, buildDeps);
+    clean();
+    buildDeps();
   }
 }
 
 // export gulp tasks
 exports.build = build;
-exports.default = build;

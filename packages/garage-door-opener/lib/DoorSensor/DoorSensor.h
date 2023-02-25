@@ -2,7 +2,7 @@
 #define DoorSensor_h
 
 #include <Arduino.h>
-#include <DigitalInput.h>
+#include <Pin/DigitalInput.h>
 #include <Timer/IntervalOver.h>
 #include "DoorStorage.h"
 

@@ -2,23 +2,19 @@
 #define LeakStorage_h
 
 #include <FileStorage.h>
+#include <Pin/PinModels.h>
 
 namespace Victor::Components {
 
   struct LeakSetting {
     // sensor input pin
-    // 0~127 = gpio
-    //    -1 = disabled
-    int8_t sensorPin = -1; // (-128~127)
-    // 0 = LOW
-    // 1 = HIGH
-    uint8_t sensorTrueValue = 0; // (0~255)
+    PinConfig* sensor = nullptr;
+
+    // ms heartbeat interval
+    uint16_t heartbeat = 0; // (0~65535)
 
     // ms debounce time to avoid fast changes
     uint16_t debounce = 0; // (0~65535)
-
-    // ms loop interval
-    uint16_t loop = 0; // (0~65535)
   };
 
   class LeakStorage : public FileStorage<LeakSetting> {

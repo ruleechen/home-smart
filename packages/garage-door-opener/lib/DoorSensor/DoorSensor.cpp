@@ -4,13 +4,13 @@ namespace Victor::Components {
 
   DoorSensor::DoorSensor() {
     const auto setting = doorStorage.load();
-    _openSensor = new DigitalInput(setting->doorOpenPin, setting->doorOpenTrueValue);
-    _closedSensor = new DigitalInput(setting->doorClosedPin, setting->doorClosedTrueValue);
+    _openSensor = new DigitalInput(setting->doorOpen);
+    _closedSensor = new DigitalInput(setting->doorClosed);
     _debounce = new IntervalOver(setting->debounce);
     _currentState = readState();
     // register interrupt
-    attachInterrupt(digitalPinToInterrupt(setting->doorOpenPin), _interruptHandler, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(setting->doorClosedPin), _interruptHandler, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(setting->doorOpen->pin), _interruptHandler, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(setting->doorClosed->pin), _interruptHandler, CHANGE);
   }
 
   DoorSensor::~DoorSensor() {

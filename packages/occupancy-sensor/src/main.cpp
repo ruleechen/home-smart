@@ -84,7 +84,7 @@ void setup(void) {
 
   // connect occupancy sensor
   const auto occupancySetting = occupancyStorage.load();
-  if (occupancySetting->sensorPin > -1) {
+  if (occupancySetting->sensor->pin > -1) {
     sensor = new OccupancySensor();
     sensor->onStateChange = [](const bool state) {
       builtinLed.flash();

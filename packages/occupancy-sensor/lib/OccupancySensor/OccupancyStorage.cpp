@@ -9,8 +9,8 @@ namespace Victor::Components {
   void OccupancyStorage::_serializeTo(const OccupancySetting* model, DynamicJsonDocument& doc) {
     // sensor
     const JsonArray sensorArr = doc.createNestedArray(F("sensor"));
-    sensorArr[0] = model->sensorPin;
-    sensorArr[1] = model->sensorTrueValue;
+    sensorArr[0] = model->sensor->pin;
+    sensorArr[1] = model->sensor->trueValue;
     // others
     doc[F("debounce")] = model->debounce;
   }
@@ -18,8 +18,10 @@ namespace Victor::Components {
   void OccupancyStorage::_deserializeFrom(OccupancySetting* model, const DynamicJsonDocument& doc) {
     // sensor
     const auto sensorArr   = doc[F("sensor")];
-    model->sensorPin       = sensorArr[0];
-    model->sensorTrueValue = sensorArr[1];
+    model->sensor = new PinConfig({
+      .pin = sensorArr[0],
+      .trueValue = sensorArr[1],
+    });
     // others
     model->debounce = doc[F("debounce")];
   }

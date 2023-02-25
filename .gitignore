@@ -6,6 +6,7 @@
 
 node_modules
 packages/*/data/app.json
+packages/*/data/led.json
 packages/*/data/ota.json
 packages/*/data/radio.json
 packages/*/data/wifi.json

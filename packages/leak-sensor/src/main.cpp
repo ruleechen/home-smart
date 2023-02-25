@@ -93,9 +93,9 @@ void setup(void) {
 
   // connect leak sensor
   const auto leakSetting = leakStorage.load();
-  if (leakSetting->sensorPin > -1) {
+  if (leakSetting->sensor->pin > -1) {
     sensor = new LeakSensor();
-    sensor->onLoop = [](const int analog) {
+    sensor->onHeartbeat = [](const int analog) {
       builtinLed.flash();
       setLevelState(analog, connective);
       setActiveState(true, connective);

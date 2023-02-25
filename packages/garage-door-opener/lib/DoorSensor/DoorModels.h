@@ -2,8 +2,9 @@
 #define DoorModels_h
 
 #include <Arduino.h>
+#include <Pin/PinModels.h>
 
-namespace Victor {
+namespace Victor::Components {
 
   // HAP section 9.118; 0 = opened, 1 = closed
   enum TargetDoorState {
@@ -28,20 +29,10 @@ namespace Victor {
 
   struct DoorSetting {
     // door open sensor input
-    // 0~128 = gpio
-    //    -1 = disabled
-    int8_t doorOpenPin = -1; // (-128~127)
-    // 0 = LOW
-    // 1 = HIGH
-    uint8_t doorOpenTrueValue = 0; // (0~255) LOW
+    PinConfig* doorOpen = nullptr;
 
     // door closed sensor input
-    // 0~128 = gpio
-    //    -1 = disabled
-    int8_t doorClosedPin = -1; // (-128~127)
-    // 0 = LOW
-    // 1 = HIGH
-    uint8_t doorClosedTrueValue = 0; // (0~255) LOW
+    PinConfig* doorClosed = nullptr;
 
     // ms debounce time to avoid fast changes
     uint16_t debounce = 0; // (0~65535)
@@ -53,6 +44,6 @@ namespace Victor {
     uint16_t autoStop = 0; // (0~65535)
   };
 
-} // namespace Victor
+} // namespace Victor::Components
 
 #endif // DoorModels_h

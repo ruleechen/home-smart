@@ -1,1 +1,1 @@
-{"sensor":[4,0],"debounce":500,"loop":5000}
+{"sensor":[4,0],"debounce":500,"heartbeat":5000}

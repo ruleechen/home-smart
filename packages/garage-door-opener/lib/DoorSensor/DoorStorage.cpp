@@ -9,12 +9,12 @@ namespace Victor::Components {
   void DoorStorage::_serializeTo(const DoorSetting* model, DynamicJsonDocument& doc) {
     // door open
     const JsonArray openArr = doc.createNestedArray(F("open"));
-    openArr[0] = model->doorOpenPin;
-    openArr[1] = model->doorOpenTrueValue;
+    openArr[0] = model->doorOpen->pin;
+    openArr[1] = model->doorOpen->trueValue;
     // door closed
     const JsonArray closedArr = doc.createNestedArray(F("closed"));
-    closedArr[0] = model->doorClosedPin;
-    closedArr[1] = model->doorClosedTrueValue;
+    closedArr[0] = model->doorClosed->pin;
+    closedArr[1] = model->doorClosed->trueValue;
     // others
     doc[F("debounce")] = model->debounce;
     doc[F("autoStop")] = model->autoStop;
@@ -22,13 +22,17 @@ namespace Victor::Components {
 
   void DoorStorage::_deserializeFrom(DoorSetting* model, const DynamicJsonDocument& doc) {
     // door open
-    const auto openArr       = doc[F("open")];
-    model->doorOpenPin       = openArr[0];
-    model->doorOpenTrueValue = openArr[1];
+    const auto openArr = doc[F("open")];
+    model->doorOpen = new PinConfig({
+      .pin = openArr[0],
+      .trueValue = openArr[1],
+    });
     // door closed
-    const auto closedArr       = doc[F("closed")];
-    model->doorClosedPin       = closedArr[0];
-    model->doorClosedTrueValue = closedArr[1];
+    const auto closedArr = doc[F("closed")];
+    model->doorClosed = new PinConfig({
+      .pin = closedArr[0],
+      .trueValue = closedArr[1],
+    });
     // others
     model->debounce = doc[F("debounce")];
     model->autoStop = doc[F("autoStop")];

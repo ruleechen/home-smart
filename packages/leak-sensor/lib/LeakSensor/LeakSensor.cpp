@@ -4,12 +4,12 @@ namespace Victor::Components {
 
   LeakSensor::LeakSensor() {
     const auto setting = leakStorage.load();
-    _input = new DigitalInput(setting->sensorPin, setting->sensorTrueValue);
-    _loop = new IntervalOverAuto(setting->loop);
+    _input = new DigitalInput(setting->sensor);
+    _heartbeat = new IntervalOverAuto(setting->heartbeat);
     _debounce = new IntervalOver(setting->debounce);
     _currentState = readState();
     // register interrupt
-    attachInterrupt(digitalPinToInterrupt(setting->sensorPin), _interruptHandler, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(setting->sensor->pin), _interruptHandler, CHANGE);
   }
 
   LeakSensor::~LeakSensor() {
@@ -17,15 +17,15 @@ namespace Victor::Components {
       delete _input;
       _input = nullptr;
     }
-    if (_loop != nullptr) {
-      free(_loop);
-      _loop = nullptr;
+    if (_heartbeat != nullptr) {
+      free(_heartbeat);
+      _heartbeat = nullptr;
     }
     if (_debounce != nullptr) {
       free(_debounce);
       _debounce = nullptr;
     }
-    onLoop = nullptr;
+    onHeartbeat = nullptr;
     onStateChange = nullptr;
     // unregister interrupt
     // detachInterrupt(digitalPinToInterrupt(1));
@@ -33,11 +33,11 @@ namespace Victor::Components {
 
   void LeakSensor::loop() {
     const auto now = millis();
-    if (_hasChanges || _loop->isOver(now)) {
+    if (_hasChanges || _heartbeat->isOver(now)) {
       _hasChanges = false;
-      if (onLoop != nullptr) {
+      if (onHeartbeat != nullptr) {
         const auto analog = readAnalog();
-        onLoop(analog);
+        onHeartbeat(analog);
       }
       if (_debounce->isOver(now)) {
         const auto state = readState();

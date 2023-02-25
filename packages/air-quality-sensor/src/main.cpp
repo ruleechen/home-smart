@@ -241,8 +241,8 @@ void setup(void) {
 
   // climate
   const auto climate = climateStorage.load();
-  if (climate->buttonPin > -1) {
-    button = new ActionButtonInterrupt(climate->buttonPin, climate->buttonTrueValue);
+  if (climate->button->pin > -1) {
+    button = new ActionButtonInterrupt(climate->button);
     button->onAction = [](const ButtonAction action) {
       console.log()
         .bracket(F("button"))
@@ -265,13 +265,13 @@ void setup(void) {
   // setup i2c
   const auto i2cStorage = new I2cStorage("/i2c.json");
   const auto i2c = i2cStorage->load();
-  if (i2c->enablePin > -1) {
-    const auto enableI2c = new DigitalOutput(i2c->enablePin, i2c->enableTrueValue);
-    enableI2c->setValue(false);
+  if (i2c->chipSelect->pin > -1) {
+    const auto csI2c = new DigitalOutput(i2c->chipSelect);
+    csI2c->setValue(false);
     delay(200);
-    enableI2c->setValue(true);
+    csI2c->setValue(true);
     delay(200);
-    delete enableI2c;
+    delete csI2c;
   }
   Wire.begin(   // https://zhuanlan.zhihu.com/p/137568249
     i2c->sdaPin, // Inter-Integrated Circuit - Serial Data (I2C-SDA)

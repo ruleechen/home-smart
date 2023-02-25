@@ -2,7 +2,7 @@
 #define LeakSensor_h
 
 #include <Arduino.h>
-#include <DigitalInput.h>
+#include <Pin/DigitalInput.h>
 #include <Timer/IntervalOver.h>
 #include <Timer/IntervalOverAuto.h>
 #include "LeakStorage.h"
@@ -18,12 +18,12 @@ namespace Victor::Components {
     // events
     typedef std::function<void(const bool state)> TStateHandler;
     TStateHandler onStateChange = nullptr;
-    typedef std::function<void(const int analog)> TLoopHandler;
-    TLoopHandler onLoop = nullptr;
+    typedef std::function<void(const int analog)> THeartbeatHandler;
+    THeartbeatHandler onHeartbeat = nullptr;
 
    private:
     DigitalInput* _input = nullptr;
-    IntervalOver* _loop = nullptr;
+    IntervalOver* _heartbeat = nullptr;
     IntervalOver* _debounce = nullptr;
     bool _currentState = false;
     // interrupt
