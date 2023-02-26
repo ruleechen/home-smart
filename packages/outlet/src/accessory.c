@@ -28,8 +28,10 @@ homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
 
 // format: bool; HAP section 9.70; true = On, false = Off
 homekit_characteristic_t onState = HOMEKIT_CHARACTERISTIC_(ON, false);
-// format: bool; HAP section 9.69; true = On, false = Off
-homekit_characteristic_t inUseState = HOMEKIT_CHARACTERISTIC_(OUTLET_IN_USE, false);
+#if VICTOR_FEATURES_OUTLET_INUSE
+  // format: bool; HAP section 9.69; true = On, false = Off
+  homekit_characteristic_t inUseState = HOMEKIT_CHARACTERISTIC_(OUTLET_IN_USE, false);
+#endif
 // format: string; HAP section 9.62; maximum length 64
 homekit_characteristic_t nameState = HOMEKIT_CHARACTERISTIC_(NAME, "Outlet");
 
@@ -37,7 +39,9 @@ homekit_service_t stateService = HOMEKIT_SERVICE_(OUTLET,
   .primary = true,
   .characteristics = (homekit_characteristic_t*[]) {
     &onState,
-    &inUseState,
+    #if VICTOR_FEATURES_OUTLET_INUSE
+      &inUseState,
+    #endif
     &nameState,
     NULL,
   },

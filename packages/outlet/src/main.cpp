@@ -6,11 +6,17 @@
 #include <Timer/TimesCounter.h>
 #include <BinaryIO/BinaryIO.h>
 
+#if VICTOR_FEATURES_OUTLET_INUSE
+  #include "OutletInUse.h"
+#endif
+
 using namespace Victor;
 using namespace Victor::Components;
 
 extern "C" homekit_characteristic_t onState;
-extern "C" homekit_characteristic_t inUseState;
+#if VICTOR_FEATURES_OUTLET_INUSE
+  extern "C" homekit_characteristic_t inUseState;
+#endif
 extern "C" homekit_characteristic_t accessoryNameInfo;
 extern "C" homekit_characteristic_t accessorySerialNumber;
 extern "C" homekit_server_config_t serverConfig;
@@ -20,6 +26,9 @@ bool connective = false;
 
 TimesCounter times(1000);
 BinaryIO* binaryIO = nullptr;
+#if VICTOR_FEATURES_OUTLET_INUSE
+  OutletInUse* outletInUse = nullptr;
+#endif
 
 String hostName;
 String serialNumber;
@@ -35,14 +44,16 @@ void setOnState(const bool value, const bool notify) {
   console.log().section(F("state"), GlobalHelpers::toOnOffName(value));
 }
 
-void setInUseState(const bool value, const bool notify) {
-  builtinLed.flash();
-  inUseState.value.bool_value = value;
-  if (notify) {
-    homekit_characteristic_notify(&inUseState, inUseState.value);
+#if VICTOR_FEATURES_OUTLET_INUSE
+  void setInUseState(const bool value, const bool notify) {
+    builtinLed.flash();
+    inUseState.value.bool_value = value;
+    if (notify) {
+      homekit_characteristic_notify(&inUseState, inUseState.value);
+    }
+    console.log().section(F("in use"), GlobalHelpers::toYesNoName(value));
   }
-  console.log().section(F("in use"), GlobalHelpers::toYesNoName(value));
-}
+#endif
 
 void setup(void) {
   appMain = new AppMain();
@@ -61,7 +72,9 @@ void setup(void) {
     // states
     states.push_back({ .text = F("Service"), .value = VICTOR_ACCESSORY_SERVICE_NAME });
     states.push_back({ .text = F("State"),   .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
-    states.push_back({ .text = F("In Use"),  .value = GlobalHelpers::toYesNoName(inUseState.value.bool_value) });
+    #if VICTOR_FEATURES_OUTLET_INUSE
+      states.push_back({ .text = F("In Use"),  .value = GlobalHelpers::toYesNoName(inUseState.value.bool_value) });
+    #endif
     states.push_back({ .text = F("Paired"),  .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"), .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
@@ -85,7 +98,7 @@ void setup(void) {
   onState.setter = [](const homekit_value_t value) { setOnState(value.bool_value, connective); };
   arduino_homekit_setup(&serverConfig);
 
-  // setup binary io
+  // setup BinaryIO
   binaryIO = new BinaryIO("/binary.json");
   setOnState(binaryIO->getOutputState(), false);
   binaryIO->onInputAction = [](const ButtonAction action) {
@@ -109,6 +122,13 @@ void setup(void) {
     }
   };
 
+  #if VICTOR_FEATURES_OUTLET_INUSE
+    // setup OutletInUse
+    outletInUse = new OutletInUse();
+    setInUseState(outletInUse->getState(), connective);
+    outletInUse->onStateChange = [](const bool state) { setInUseState(state, connective); };
+  #endif
+
   // done
   console.log()
     .bracket(F("setup"))
@@ -121,4 +141,7 @@ void loop(void) {
   connective = victorWifi.isLightSleepMode() && isPaired;
   appMain->loop(connective);
   binaryIO->loop();
+  #if VICTOR_FEATURES_OUTLET_INUSE
+    outletInUse->loop();
+  #endif
 }
