@@ -3,6 +3,18 @@
 namespace Victor::Components {
 
   OutletInUse::OutletInUse() {
+    const auto irSendJson = new PinStorage("/irSend.json");
+    const auto irRecvJson = new PinStorage("/irRecv.json");
+    const auto sendPin = irSendJson->load();
+    const auto recvPin = irRecvJson->load();
+    if (sendPin->enable) {
+      _irSend = new IRsend(sendPin->pin);
+      _irSend->begin();
+    }
+    if (recvPin->enable) {
+      _irRecv = new IRrecv(recvPin->pin);
+      _irRecv->enableIRIn();
+    }
   }
 
   OutletInUse::~OutletInUse() {
@@ -18,6 +30,11 @@ namespace Victor::Components {
   }
 
   void OutletInUse::loop() {
+    decode_results results;
+    if (_irRecv->decode(&results)) {
+      console.log(String(results.command));
+      _irRecv->resume();
+    }
   }
 
 } // namespace Victor::Components

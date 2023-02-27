@@ -2,8 +2,13 @@
 #define OutletInUse_h
 
 #include <Arduino.h>
-#include <Pin/DigitalInput.h>
+#include <Console.h>
+#include <Pin/PinStorage.h>
 #include <Timer/IntervalOver.h>
+
+#include <IRsend.h>
+#include <IRrecv.h>
+#include <IRutils.h>
 
 namespace Victor::Components {
   class OutletInUse {
@@ -17,6 +22,8 @@ namespace Victor::Components {
     TStateHandler onStateChange = nullptr;
 
    private:
+    IRsend* _irSend = nullptr;
+    IRrecv* _irRecv = nullptr;
     IntervalOver* _debounce = nullptr;
   };
 
