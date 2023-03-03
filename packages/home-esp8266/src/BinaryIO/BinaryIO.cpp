@@ -2,36 +2,42 @@
 
 namespace Victor::Components {
 
-  BinaryIO::BinaryIO(const char* settingFile) {
-    _storage = new BinaryStorage(settingFile);
-    const auto setting = _storage->load();
-    if (setting->input != nullptr && setting->input->enable) {
-      _input = new ActionButtonInput(setting->input);
-      _input->onAction = [&](ButtonAction action) {
-        if (onInputAction != nullptr) {
-          onInputAction(action);
+  BinaryIO::BinaryIO() {
+    // button
+    const auto buttonJson = new PinStorage("/button.json");
+    const auto buttonPin = buttonJson->load();
+    if (buttonPin->enable) {
+      _button = new ActionButtonInput(buttonPin);
+      _button->onAction = [&](ButtonAction action) {
+        if (onButtonAction != nullptr) {
+          onButtonAction(action);
         }
       };
     }
-    if (setting->output != nullptr && setting->output->enable) {
-      _output = new DigitalOutput(setting->output);
+    // output
+    const auto outputJson = new PinStorage("/output.json");
+    const auto outputPin = outputJson->load();
+    if (outputPin->enable) {
+      _output = new DigitalOutput(outputPin);
     }
-    if (setting->output2 != nullptr && setting->output2->enable) {
-      _output2 = new DigitalOutput(setting->output2);
+    // output2
+    const auto outputJson2 = new PinStorage("/output2.json");
+    const auto outputPin2 = outputJson2->load();
+    if (outputPin2->enable) {
+      _output2 = new DigitalOutput(outputPin2);
     }
-    if (setting->saveOutput) {
-      setOutputState(setting->outputIsOn);
+    // state
+    _stateStorage = new BinaryStateStorage("/state.json");
+    const auto state = _stateStorage->load();
+    if (state->save) {
+      setOutputState(state->isOn);
     }
   }
 
   BinaryIO::~BinaryIO() {
-    if (_storage != nullptr) {
-      free(_storage);
-      _storage = nullptr;
-    }
-    if (_input != nullptr) {
-      delete _input;
-      _input = nullptr;
+    if (_button != nullptr) {
+      delete _button;
+      _button = nullptr;
     }
     if (_output != nullptr) {
       delete _output;
@@ -41,11 +47,15 @@ namespace Victor::Components {
       delete _output2;
       _output2 = nullptr;
     }
+    if (_stateStorage != nullptr) {
+      free(_stateStorage);
+      _stateStorage = nullptr;
+    }
   }
 
   void BinaryIO::loop() {
-    if (_input != nullptr) {
-      _input->loop();
+    if (_button != nullptr) {
+      _button->loop();
     }
   }
 
@@ -62,14 +72,14 @@ namespace Victor::Components {
     if (_output2 != nullptr) {
       _output2->setValue(value);
     }
-    // save output state
-    auto setting = _storage->load();
+    // save state
+    auto state = _stateStorage->load();
     if (
-      setting->saveOutput &&
-      setting->outputIsOn != value
+      state->save &&
+      state->isOn != value
     ) {
-      setting->outputIsOn = value;
-      _storage->save(setting);
+      state->isOn = value;
+      _stateStorage->save(state);
     }
   }
 
