@@ -75,9 +75,9 @@ void setup(void) {
   arduino_homekit_setup(&serverConfig);
 
   // setup binary io
-  binaryIO = new BinaryIO("/binary.json");
+  binaryIO = new BinaryIO();
   setOnState(binaryIO->getOutputState(), false);
-  binaryIO->onInputAction = [](const ButtonAction action) {
+  binaryIO->onButtonAction = [](const ButtonAction action) {
     console.log()
       .bracket(F("button"))
       .section(F("action"), String(action));
