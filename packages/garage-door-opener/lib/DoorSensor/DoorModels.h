@@ -2,7 +2,6 @@
 #define DoorModels_h
 
 #include <Arduino.h>
-#include <Pin/PinModels.h>
 
 namespace Victor::Components {
 
@@ -28,12 +27,6 @@ namespace Victor::Components {
   };
 
   struct DoorSetting {
-    // door open sensor input
-    PinConfig* doorOpen = nullptr;
-
-    // door closed sensor input
-    PinConfig* doorClosed = nullptr;
-
     // ms debounce time to avoid fast changes
     uint16_t debounce = 0; // (0~65535)
 

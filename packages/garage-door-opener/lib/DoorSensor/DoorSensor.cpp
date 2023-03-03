@@ -3,14 +3,24 @@
 namespace Victor::Components {
 
   DoorSensor::DoorSensor() {
+    // open sensor
+    const auto openJson = new PinStorage("/doorOpen.json");
+    const auto openPin = openJson->load();
+    if (openPin->enable) {
+      _openSensor = new DigitalInput(openPin);
+      attachInterrupt(digitalPinToInterrupt(openPin->pin), _interruptHandler, CHANGE);
+    }
+    // closed sensor
+    const auto closedJson = new PinStorage("/doorClosed.json");
+    const auto closedPin = closedJson->load();
+    if (closedPin->enable) {
+      _closedSensor = new DigitalInput(closedPin);
+      attachInterrupt(digitalPinToInterrupt(closedPin->pin), _interruptHandler, CHANGE);
+    }
+    // other settings
     const auto setting = doorStorage.load();
-    _openSensor = new DigitalInput(setting->doorOpen);
-    _closedSensor = new DigitalInput(setting->doorClosed);
     _debounce = new IntervalOver(setting->debounce);
     _currentState = readState();
-    // register interrupt
-    attachInterrupt(digitalPinToInterrupt(setting->doorOpen->pin), _interruptHandler, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(setting->doorClosed->pin), _interruptHandler, CHANGE);
   }
 
   DoorSensor::~DoorSensor() {
