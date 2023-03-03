@@ -7,10 +7,6 @@ namespace Victor::Components {
   }
 
   void ClimateStorage::_serializeTo(const ClimateSetting* model, DynamicJsonDocument& doc) {
-    // button
-    const JsonArray buttonArr = doc.createNestedArray(F("button"));
-    buttonArr[0] = model->button->pin;
-    buttonArr[1] = model->button->trueValue;
     // ht
     const JsonObject htObj = doc.createNestedObject(F("ht"));
     htObj[F("loop")]   = model->ht->loopSeconds;
@@ -36,12 +32,6 @@ namespace Victor::Components {
   }
 
   void ClimateStorage::_deserializeFrom(ClimateSetting* model, const DynamicJsonDocument& doc) {
-    // button
-    const auto buttonArr = doc[F("button")];
-    model->button = new PinConfig({
-      .pin       = buttonArr[0],
-      .trueValue = buttonArr[1],
-    });
     // ht
     const auto htObj = doc[F("ht")];
     model->ht = new HTConfig({

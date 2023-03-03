@@ -54,7 +54,6 @@ namespace Victor::Components {
   };
 
   struct ClimateSetting {
-    PinConfig* button = nullptr;
     HTConfig* ht = nullptr;
     AQConfig* aq = nullptr;
     AQBaseline* aqBaseline = nullptr;

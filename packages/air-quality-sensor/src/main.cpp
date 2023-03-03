@@ -4,6 +4,7 @@
 
 #include <AppMain/AppMain.h>
 #include <GlobalHelpers.h>
+#include <Pin/PinStorage.h>
 #include <I2cStorage/I2cStorage.h>
 #include <Button/ActionButtonInterrupt.h>
 
@@ -239,10 +240,11 @@ void setup(void) {
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   arduino_homekit_setup(&serverConfig);
 
-  // climate
-  const auto climate = climateStorage.load();
-  if (climate->button->pin > -1) {
-    button = new ActionButtonInterrupt(climate->button);
+  // button
+  const auto buttonJson = new PinStorage("/button.json");
+  const auto buttonPin = buttonJson->load();
+  if (buttonPin->enable) {
+    button = new ActionButtonInterrupt(buttonPin);
     button->onAction = [](const ButtonAction action) {
       console.log()
         .bracket(F("button"))
@@ -279,6 +281,7 @@ void setup(void) {
   );
 
   // setup ht sensor
+  const auto climate = climateStorage.load();
   if (climate->ht->enable) {
     if (climate->ht->reportSeconds > 0) {
       const auto offsetFactor = random(1, 10);

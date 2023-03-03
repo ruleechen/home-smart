@@ -1,1 +1,1 @@
-{"button":[0,0],"ht":{"loop":5,"report":120,"reset":0,"enable":1,"h+":20,"t+":-6},"aq":{"loop":1,"report":60,"reset":0,"enable":1,"co2+":0,"tvoc+":0},"aqBaseline":{"load":0,"store":12,"co2":36897,"tvoc":38836}}
+{"ht":{"loop":5,"report":120,"reset":0,"enable":1,"h+":20,"t+":-6},"aq":{"loop":1,"report":60,"reset":0,"enable":1,"co2+":0,"tvoc+":0},"aqBaseline":{"load":0,"store":12,"co2":36897,"tvoc":38836}}
