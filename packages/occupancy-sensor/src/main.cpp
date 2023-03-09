@@ -3,9 +3,7 @@
 
 #include <AppMain/AppMain.h>
 #include <GlobalHelpers.h>
-
-#include "OccupancyStorage.h"
-#include "OccupancySensor.h"
+#include <Sensor/DigitalSensor.h>
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -19,7 +17,7 @@ extern "C" homekit_server_config_t serverConfig;
 AppMain* appMain = nullptr;
 bool connective = false;
 
-OccupancySensor* sensor = nullptr;
+DigitalSensor* sensor = nullptr;
 
 String hostName;
 String serialNumber;
@@ -83,16 +81,13 @@ void setup(void) {
   arduino_homekit_setup(&serverConfig);
 
   // connect occupancy sensor
-  const auto occupancySetting = occupancyStorage.load();
-  if (occupancySetting->sensor->pin > -1) {
-    sensor = new OccupancySensor();
-    sensor->onStateChange = [](const bool state) {
-      builtinLed.flash();
-      setOccupancyState(state, connective);
-      setActiveState(true, connective);
-    };
-    setOccupancyState(sensor->readState(), connective);
-  }
+  sensor = new DigitalSensor("/occupancy.json");
+  sensor->onStateChange = [](const bool state) {
+    builtinLed.flash();
+    setOccupancyState(state, connective);
+    setActiveState(true, connective);
+  };
+  setOccupancyState(sensor->readState(), connective);
 
   // done
   console.log()
@@ -105,8 +100,5 @@ void loop(void) {
   const auto isPaired = arduino_homekit_get_running_server()->paired;
   connective = victorWifi.isLightSleepMode() && isPaired;
   appMain->loop(connective);
-  // sensor
-  if (sensor != nullptr) {
-    sensor->loop();
-  }
+  sensor->loop();
 }
