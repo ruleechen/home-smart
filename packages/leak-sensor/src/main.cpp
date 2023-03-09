@@ -3,9 +3,7 @@
 
 #include <AppMain/AppMain.h>
 #include <GlobalHelpers.h>
-
-#include "LeakStorage.h"
-#include "LeakSensor.h"
+#include <Sensor/DigitalSensor.h>
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -20,7 +18,7 @@ extern "C" homekit_server_config_t serverConfig;
 AppMain* appMain = nullptr;
 bool connective = false;
 
-LeakSensor* sensor = nullptr;
+DigitalSensor* sensor = nullptr;
 
 String hostName;
 String serialNumber;
@@ -92,20 +90,17 @@ void setup(void) {
   arduino_homekit_setup(&serverConfig);
 
   // connect leak sensor
-  const auto leakSetting = leakStorage.load();
-  if (leakSetting->sensor->pin > -1) {
-    sensor = new LeakSensor();
-    sensor->onHeartbeat = [](const int analog) {
-      builtinLed.flash();
-      setLevelState(analog, connective);
-      setActiveState(true, connective);
-    };
-    sensor->onStateChange = [](const bool state) {
-      builtinLed.flash();
-      setLeakState(state, connective);
-    };
-    setLeakState(sensor->readState(), connective);
-  }
+  sensor = new DigitalSensor("/leak.json");
+  sensor->onHeartbeat = [](const int analog) {
+    builtinLed.flash();
+    setLevelState(analog, connective);
+    setActiveState(true, connective);
+  };
+  sensor->onStateChange = [](const bool state) {
+    builtinLed.flash();
+    setLeakState(state, connective);
+  };
+  setLeakState(sensor->readState(), connective);
 
   // done
   console.log()
@@ -118,8 +113,5 @@ void loop(void) {
   const auto isPaired = arduino_homekit_get_running_server()->paired;
   connective = victorWifi.isLightSleepMode() && isPaired;
   appMain->loop(connective);
-  // sensor
-  if (sensor != nullptr) {
-    sensor->loop();
-  }
+  sensor->loop();
 }

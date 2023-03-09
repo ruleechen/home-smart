@@ -1,1 +1,1 @@
-{"sensor":[4,0],"debounce":500,"heartbeat":5000}
+{"pin":[4,0],"debounce":500,"heartbeat":5000,"enable":true}
