@@ -7,7 +7,7 @@
 #include <BinaryIO/BinaryIO.h>
 
 #if VICTOR_FEATURES_OUTLET_INUSE
-  #include "OutletInUse.h"
+  #include <Sensor/DigitalSensor.h>
 #endif
 
 using namespace Victor;
@@ -27,7 +27,7 @@ bool connective = false;
 TimesCounter times(1000);
 BinaryIO* binaryIO = nullptr;
 #if VICTOR_FEATURES_OUTLET_INUSE
-  OutletInUse* outletInUse = nullptr;
+  DigitalSensor* outletInUse = nullptr;
 #endif
 
 String hostName;
@@ -124,8 +124,8 @@ void setup(void) {
 
   #if VICTOR_FEATURES_OUTLET_INUSE
     // setup OutletInUse
-    outletInUse = new OutletInUse();
-    setInUseState(outletInUse->getState(), connective);
+    outletInUse = new DigitalSensor("/inUse.json");
+    setInUseState(outletInUse->readState(), connective);
     outletInUse->onStateChange = [](const bool state) { setInUseState(state, connective); };
   #endif
 
