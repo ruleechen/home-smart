@@ -9,6 +9,7 @@ namespace Victor::Components {
       _input = new DigitalInput(config);
       attachInterrupt(digitalPinToInterrupt(config->pin), _interruptHandler, CHANGE);
       setDebounce(config->debounce);
+      setHeartbeat(config->heartbeat);
     }
   }
 
