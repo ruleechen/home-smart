@@ -13,7 +13,16 @@ namespace Victor::Components {
     // 1 = HIGH
     uint8_t trueValue = 0; // (0~255) LOW
 
+    // ms debounce time to avoid fast changes
+    // optional, default 0
+    uint16_t debounce = 0; // (0~65535)
+
+    // ms heartbeat time
+    // optional, default 0
+    uint16_t heartbeat = 0; // (0~65535)
+
     // is enable
+    // optional, default yes
     bool enable = true;
   };
 
