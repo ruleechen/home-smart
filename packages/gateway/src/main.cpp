@@ -55,10 +55,8 @@ class AdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 };
 
 static BLEScan* scan = nullptr;
-static bool isScanning = false;
 
 void startScan() {
-  isScanning = true;
   Serial.println("Start scanning...");
   if (scan == nullptr) {
     scan = BLEDevice::getScan();
@@ -71,7 +69,6 @@ void startScan() {
   }
   scan->start(5, true); // scan for 5s (server broadcast every 2s)
   Serial.println("End scanning...");
-  isScanning = false;
 }
 
 void setup() {
@@ -116,16 +113,16 @@ void onServerNotify(VictorBleClient* client, ServerCommand* notification) {
   }
 }
 
-static bool isEnterPressed = false;
 static String message = "";
 
 void loop() {
   const auto now = millis();
   if (scanInterval->isOver(now)) {
     startScan();
+    return;
   }
 
-  isEnterPressed = false;
+  auto isEnterPressed = false;
   while (Serial.available()) {
     const auto ch = Serial.read();
     isEnterPressed = (ch == '\r');
@@ -162,21 +159,24 @@ void loop() {
     }
     flashLed();
     message = "";
+    return;
   }
 
-  if (!isScanning && cleanInterval->isOver(now)) {
-    if (devicesMatched.size() > 0) {
-      for (auto device : devicesMatched) {
-        const auto client = new VictorBleClient(new BLEAdvertisedDevice(device));
-        client->onConnectivityChange = onConnectivityChange;
-        client->onNotify = onServerNotify;
-        const auto address = device.getAddress().toString();
-        clients[address] = client;
-        Serial.printf("[%s] connecting", address.c_str()); Serial.println();
-        client->connectServer();
-      }
-      devicesMatched.clear();
-    }
+  if (!devicesMatched.empty()) {
+    const auto firstMatch = devicesMatched[0];
+    const auto device = new BLEAdvertisedDevice(firstMatch);
+    const auto client = new VictorBleClient(device);
+    client->onConnectivityChange = onConnectivityChange;
+    client->onNotify = onServerNotify;
+    const auto address = device->getAddress().toString();
+    clients[address] = client;
+    Serial.printf("[%s] connecting", address.c_str()); Serial.println();
+    client->connectServer();
+    devicesMatched.erase(devicesMatched.begin());
+    return;
+  }
+
+  if (cleanInterval->isOver(now)) {
     std::vector<std::string> disconnectedAddresses = {};
     for (auto it = clients.begin(); it != clients.end(); ++it) {
       const auto client = clients[it->first];
