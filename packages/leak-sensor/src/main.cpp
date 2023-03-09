@@ -91,9 +91,10 @@ void setup(void) {
 
   // connect leak sensor
   sensor = new DigitalSensor("/leak.json");
-  sensor->onHeartbeat = [](const int analog) {
+  sensor->onHeartbeat = [](const bool state) {
     builtinLed.flash();
-    setLevelState(analog, connective);
+    const auto level = analogRead(A0);
+    setLevelState(level, connective);
     setActiveState(true, connective);
   };
   sensor->onStateChange = [](const bool state) {
