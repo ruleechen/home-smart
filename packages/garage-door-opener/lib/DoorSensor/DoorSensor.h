@@ -4,27 +4,19 @@
 #include <Arduino.h>
 #include <Pin/PinStorage.h>
 #include <Pin/DigitalInput.h>
-#include <Timer/IntervalOver.h>
+#include <Sensor/StateSensor.h>
 #include "DoorStorage.h"
 
 namespace Victor::Components {
-  class DoorSensor {
+  class DoorSensor : public StateSensor<CurrentDoorState> {
    public:
     DoorSensor();
     ~DoorSensor();
-    void loop();
-    CurrentDoorState readState();
-    // events
-    typedef std::function<void(const CurrentDoorState currentState)> TStateHandler;
-    TStateHandler onStateChange = nullptr;
+    CurrentDoorState readState() override;
 
    private:
     DigitalInput* _openSensor = nullptr;
     DigitalInput* _closedSensor = nullptr;
-    IntervalOver* _debounce = nullptr;
-    CurrentDoorState _currentState = CURRENT_DOOR_STATE_STOPPED;
-    // interrupt
-    volatile static bool _hasChanges;
     static void IRAM_ATTR _interruptHandler();
   };
 
