@@ -267,7 +267,10 @@ void setup(void) {
   // setup i2c
   const auto i2cStorage = new I2cStorage("/i2c.json");
   const auto i2c = i2cStorage->load();
-  if (i2c->chipSelect->pin > -1) {
+  if (
+    i2c->chipSelect != nullptr &&
+    i2c->chipSelect->pin > -1
+  ) {
     const auto csI2c = new DigitalOutput(i2c->chipSelect);
     csI2c->setValue(false);
     delay(200);

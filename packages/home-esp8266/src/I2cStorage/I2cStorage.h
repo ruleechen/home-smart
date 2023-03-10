@@ -16,6 +16,7 @@ namespace Victor::Components {
     uint8_t sclPin = 5; // (0~255)
 
     // chip select signal for power on/off i2c bus
+    // optional
     PinConfig* chipSelect = nullptr;
   };
 
