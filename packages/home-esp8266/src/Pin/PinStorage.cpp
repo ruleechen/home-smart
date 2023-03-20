@@ -11,6 +11,9 @@ namespace Victor::Components {
     const JsonArray pinArr = doc.createNestedArray(F("pin"));
     pinArr[0] = model->pin;
     pinArr[1] = model->trueValue;
+    if (model->interruptMode > 0) {
+      pinArr[2] = model->interruptMode;
+    }
     // debounce
     doc[F("debounce")] = model->debounce;
     // heartbeat
@@ -23,7 +26,11 @@ namespace Victor::Components {
     // pin
     const auto pinArr = doc[F("pin")];
     model->pin = pinArr[0];
-    model->trueValue  = pinArr[1];
+    model->trueValue = pinArr[1];
+    const auto interruptMode = pinArr[2];
+    if (!interruptMode.isNull()) {
+      model->interruptMode = interruptMode;
+    }
     // debounce
     const auto debounce = doc[F("debounce")];
     if (!debounce.isNull()) {
@@ -37,7 +44,7 @@ namespace Victor::Components {
     // enable
     const auto enable = doc[F("enable")];
     if (!enable.isNull()) {
-      model->enable = enable;
+      model->enable = enable == 1;
     }
   }
 

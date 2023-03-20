@@ -7,9 +7,12 @@ namespace Victor::Components {
     const auto config = storage->load();
     if (config->enable) {
       _input = new DigitalInput(config);
-      attachInterrupt(digitalPinToInterrupt(config->pin), _interruptHandler, CHANGE);
       setDebounce(config->debounce);
       setHeartbeat(config->heartbeat);
+      if (config->interruptMode > 0) {
+        const auto interruptPin = digitalPinToInterrupt(config->pin);
+        attachInterrupt(interruptPin, _interruptHandler, config->interruptMode);
+      }
     }
   }
 
