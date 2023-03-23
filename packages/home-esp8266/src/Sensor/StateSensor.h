@@ -20,7 +20,6 @@ namespace Victor::Components {
     ~StateSensor();
     void setDebounce(const uint16_t ms);
     void setHeartbeat(const uint16_t ms);
-    static void reportChange();
     virtual TState readState();
     void loop();
     // events
@@ -124,11 +123,6 @@ namespace Victor::Components {
 
   template <typename TState>
   volatile StateSensorChange StateSensor<TState>::_changed = STATE_CHANGE_NONE;
-
-  template <typename TState>
-  void StateSensor<TState>::reportChange() {
-    _changed = STATE_CHANGE_YES;
-  }
 
 } // namespace Victor::Components
 

@@ -9,6 +9,7 @@ namespace Victor::Components {
     if (openPin->enable) {
       _openSensor = new DigitalInput(openPin);
       if (openPin->interruptMode > 0) {
+        _changed = STATE_CHANGE_NO;
         const auto interruptPin = digitalPinToInterrupt(openPin->pin);
         attachInterrupt(interruptPin, _interruptHandler, openPin->interruptMode);
       }
@@ -19,6 +20,7 @@ namespace Victor::Components {
     if (closedPin->enable) {
       _closedSensor = new DigitalInput(closedPin);
       if (closedPin->interruptMode > 0) {
+        _changed = STATE_CHANGE_NO;
         const auto interruptPin = digitalPinToInterrupt(closedPin->pin);
         attachInterrupt(interruptPin, _interruptHandler, closedPin->interruptMode);
       }
@@ -58,7 +60,7 @@ namespace Victor::Components {
   }
 
   void IRAM_ATTR DoorSensor::_interruptHandler() {
-    reportChange();
+    _changed = STATE_CHANGE_YES;
   }
 
 } // namespace Victor::Components

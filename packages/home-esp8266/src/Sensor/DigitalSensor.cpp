@@ -10,6 +10,7 @@ namespace Victor::Components {
       setDebounce(config->debounce);
       setHeartbeat(config->heartbeat);
       if (config->interruptMode > 0) {
+        _changed = STATE_CHANGE_NO;
         const auto interruptPin = digitalPinToInterrupt(config->pin);
         attachInterrupt(interruptPin, _interruptHandler, config->interruptMode);
       }
@@ -32,7 +33,7 @@ namespace Victor::Components {
   }
 
   void IRAM_ATTR DigitalSensor::_interruptHandler() {
-    reportChange();
+    _changed = STATE_CHANGE_YES;
   }
 
 } // namespace Victor::Components
