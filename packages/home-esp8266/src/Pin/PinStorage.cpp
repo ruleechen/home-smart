@@ -3,7 +3,7 @@
 namespace Victor::Components {
 
   PinStorage::PinStorage(const char* filePath) : FileStorage(filePath) {
-    _maxSize = 128;
+    _maxSize = 192;
   }
 
   void PinStorage::_serialize(const PinConfig* model, DynamicJsonDocument& doc) {
