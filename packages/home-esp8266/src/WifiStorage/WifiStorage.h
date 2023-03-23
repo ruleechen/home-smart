@@ -21,8 +21,8 @@ namespace Victor::Components {
     WifiStorage(const char* filePath = "/wifi.json");
 
    protected:
-    void _serializeTo(const WifiSetting* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(WifiSetting* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const WifiSetting* model, DynamicJsonDocument& doc) override;
+    void _deserialize(WifiSetting* model, const DynamicJsonDocument& doc) override;
   };
 
 } // namespace Victor::Components

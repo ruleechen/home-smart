@@ -17,8 +17,8 @@ namespace Victor::Components {
     BinaryStateStorage(const char* filePath);
 
    protected:
-    void _serializeTo(const BinaryStateConfig* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(BinaryStateConfig* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const BinaryStateConfig* model, DynamicJsonDocument& doc) override;
+    void _deserialize(BinaryStateConfig* model, const DynamicJsonDocument& doc) override;
   };
 
 } // namespace Victor::Components

@@ -6,11 +6,11 @@ namespace Victor::Components {
     _maxSize = 256;
   }
 
-  void OtaStorage::_serializeTo(const OtaSetting* model, DynamicJsonDocument& doc) {
+  void OtaStorage::_serialize(const OtaSetting* model, DynamicJsonDocument& doc) {
     doc[F("remote")] = model->remote;
   }
 
-  void OtaStorage::_deserializeFrom(OtaSetting* model, const DynamicJsonDocument& doc) {
+  void OtaStorage::_deserialize(OtaSetting* model, const DynamicJsonDocument& doc) {
     model->remote = String(doc[F("remote")]);
   }
 

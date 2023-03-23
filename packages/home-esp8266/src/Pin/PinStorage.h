@@ -10,8 +10,8 @@ namespace Victor::Components {
     PinStorage(const char* filePath);
 
    protected:
-    void _serializeTo(const PinConfig* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(PinConfig* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const PinConfig* model, DynamicJsonDocument& doc) override;
+    void _deserialize(PinConfig* model, const DynamicJsonDocument& doc) override;
   };
 
 } // namespace Victor::Components

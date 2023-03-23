@@ -13,8 +13,8 @@ namespace Victor::Components {
 
    protected:
     RadioMessage* _lastReceived = nullptr;
-    void _serializeTo(const RadioModel* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(RadioModel* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const RadioModel* model, DynamicJsonDocument& doc) override;
+    void _deserialize(RadioModel* model, const DynamicJsonDocument& doc) override;
   };
 
   // global

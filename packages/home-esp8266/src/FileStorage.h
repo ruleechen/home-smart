@@ -49,8 +49,8 @@ namespace Victor::Components {
     bool _cache = true;
     TModel* _model = nullptr;
     Console _error();
-    virtual void _serializeTo(const TModel* model, DynamicJsonDocument& doc);
-    virtual void _deserializeFrom(TModel* model, const DynamicJsonDocument& doc);
+    virtual void _serialize(const TModel* model, DynamicJsonDocument& doc);
+    virtual void _deserialize(TModel* model, const DynamicJsonDocument& doc);
   };
 
   template <typename TModel>
@@ -83,7 +83,7 @@ namespace Victor::Components {
         const auto error = deserializeJson(doc, file);
         if (!error) {
           // convert
-          _deserializeFrom(model, doc);
+          _deserialize(model, doc);
         } else {
           _error().section(F("parse failed"), error.f_str());
         }
@@ -116,7 +116,7 @@ namespace Victor::Components {
     // convert
     DynamicJsonDocument doc(_maxSize); // Store data in the heap - Dynamic Memory Allocation
     // StaticJsonDocument<DEFAULT_FILE_SIZE> doc; // Store data in the stack - Fixed Memory Allocation
-    _serializeTo(model, doc);
+    _serialize(model, doc);
     auto success = false;
     // open file
     auto file = LittleFS.open(_filePath, "w+");
@@ -140,10 +140,10 @@ namespace Victor::Components {
   }
 
   // template <typename TModel>
-  // void FileStorage<TModel>::_serializeTo(const TModel& model, DynamicJsonDocument& doc) {}
+  // void FileStorage<TModel>::_serialize(const TModel& model, DynamicJsonDocument& doc) {}
 
   // template <typename TModel>
-  // void FileStorage<TModel>::_deserializeFrom(TModel& model, const DynamicJsonDocument& doc) {}
+  // void FileStorage<TModel>::_deserialize(TModel& model, const DynamicJsonDocument& doc) {}
 
 } // namespace Victor::Components
 

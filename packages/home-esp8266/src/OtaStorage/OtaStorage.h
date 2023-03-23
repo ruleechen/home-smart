@@ -15,8 +15,8 @@ namespace Victor::Components {
     OtaStorage(const char* filePath = "/ota.json");
 
    protected:
-    void _serializeTo(const OtaSetting* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(OtaSetting* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const OtaSetting* model, DynamicJsonDocument& doc) override;
+    void _deserialize(OtaSetting* model, const DynamicJsonDocument& doc) override;
   };
 
 } // namespace Victor::Components

@@ -20,8 +20,8 @@ namespace Victor::Components {
     AppStorage(const char* filePath = "/app.json");
 
    protected:
-    void _serializeTo(const AppSetting* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(AppSetting* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const AppSetting* model, DynamicJsonDocument& doc) override;
+    void _deserialize(AppSetting* model, const DynamicJsonDocument& doc) override;
   };
 
   // global

@@ -6,7 +6,7 @@ namespace Victor::Components {
     _maxSize = 128;
   }
 
-  void I2cStorage::_serializeTo(const I2cSetting* model, DynamicJsonDocument& doc) {
+  void I2cStorage::_serialize(const I2cSetting* model, DynamicJsonDocument& doc) {
     doc[F("sda")] = model->sdaPin;
     doc[F("scl")] = model->sclPin;
     // chip select pin
@@ -17,7 +17,7 @@ namespace Victor::Components {
     }
   }
 
-  void I2cStorage::_deserializeFrom(I2cSetting* model, const DynamicJsonDocument& doc) {
+  void I2cStorage::_deserialize(I2cSetting* model, const DynamicJsonDocument& doc) {
     model->sdaPin = doc[F("sda")];
     model->sclPin = doc[F("scl")];
     // chip select pin

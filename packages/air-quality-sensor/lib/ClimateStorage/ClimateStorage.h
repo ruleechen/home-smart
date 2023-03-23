@@ -64,8 +64,8 @@ namespace Victor::Components {
     ClimateStorage(const char* filePath = "/climate.json");
 
    protected:
-    void _serializeTo(const ClimateSetting* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(ClimateSetting* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const ClimateSetting* model, DynamicJsonDocument& doc) override;
+    void _deserialize(ClimateSetting* model, const DynamicJsonDocument& doc) override;
   };
 
   // global

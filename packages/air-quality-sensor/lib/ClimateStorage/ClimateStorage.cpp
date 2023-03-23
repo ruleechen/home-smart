@@ -6,7 +6,7 @@ namespace Victor::Components {
     _maxSize = 512;
   }
 
-  void ClimateStorage::_serializeTo(const ClimateSetting* model, DynamicJsonDocument& doc) {
+  void ClimateStorage::_serialize(const ClimateSetting* model, DynamicJsonDocument& doc) {
     // ht
     const JsonObject htObj = doc.createNestedObject(F("ht"));
     htObj[F("loop")]   = model->ht->loopSeconds;
@@ -31,7 +31,7 @@ namespace Victor::Components {
     aqBaselineObj[F("tvoc")]  = model->aqBaseline->tvoc;
   }
 
-  void ClimateStorage::_deserializeFrom(ClimateSetting* model, const DynamicJsonDocument& doc) {
+  void ClimateStorage::_deserialize(ClimateSetting* model, const DynamicJsonDocument& doc) {
     // ht
     const auto htObj = doc[F("ht")];
     model->ht = new HTConfig({

@@ -6,12 +6,12 @@ namespace Victor::Components {
     _maxSize = 128;
   }
 
-  void BinaryStateStorage::_serializeTo(const BinaryStateConfig* model, DynamicJsonDocument& doc) {
+  void BinaryStateStorage::_serialize(const BinaryStateConfig* model, DynamicJsonDocument& doc) {
     doc[F("save")] = model->save ? 1 : 0;
     doc[F("isOn")] = model->isOn ? 1 : 0;
   }
 
-  void BinaryStateStorage::_deserializeFrom(BinaryStateConfig* model, const DynamicJsonDocument& doc) {
+  void BinaryStateStorage::_deserialize(BinaryStateConfig* model, const DynamicJsonDocument& doc) {
     model->save = doc[F("save")] == 1;
     model->isOn = doc[F("isOn")] == 1;
   }

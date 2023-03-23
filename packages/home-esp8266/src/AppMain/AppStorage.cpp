@@ -6,13 +6,13 @@ namespace Victor::Components {
     _maxSize = 256;
   }
 
-  void AppStorage::_serializeTo(const AppSetting* model, DynamicJsonDocument& doc) {
+  void AppStorage::_serialize(const AppSetting* model, DynamicJsonDocument& doc) {
     doc[F("name")]  = model->name;
     doc[F("brand")] = model->brand;
     doc[F("sleep")] = model->sleepMillis;
   }
 
-  void AppStorage::_deserializeFrom(AppSetting* model, const DynamicJsonDocument& doc) {
+  void AppStorage::_deserialize(AppSetting* model, const DynamicJsonDocument& doc) {
     const char* name = doc[F("name")];
     model->name        = String(name);
     model->brand       = String(doc[F("brand")]);

@@ -18,7 +18,7 @@ namespace Victor::Components {
     return _lastReceived;
   }
 
-  void RadioStorage::_serializeTo(const RadioModel* model, DynamicJsonDocument& doc) {
+  void RadioStorage::_serialize(const RadioModel* model, DynamicJsonDocument& doc) {
     doc[F("input")] = model->inputPin;
     doc[F("output")] = model->outputPin;
     const JsonArray emitItems = doc.createNestedArray(F("emits"));
@@ -46,7 +46,7 @@ namespace Victor::Components {
     }
   }
 
-  void RadioStorage::_deserializeFrom(RadioModel* model, const DynamicJsonDocument& doc) {
+  void RadioStorage::_deserialize(RadioModel* model, const DynamicJsonDocument& doc) {
     model->inputPin = doc[F("input")];
     model->outputPin = doc[F("output")];
     const auto emitItems = doc[F("emits")];

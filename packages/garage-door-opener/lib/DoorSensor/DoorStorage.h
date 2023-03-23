@@ -10,8 +10,8 @@ namespace Victor::Components {
     DoorStorage(const char* filePath = "/door.json");
 
    protected:
-    void _serializeTo(const DoorSetting* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(DoorSetting* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const DoorSetting* model, DynamicJsonDocument& doc) override;
+    void _deserialize(DoorSetting* model, const DynamicJsonDocument& doc) override;
   };
 
   // global

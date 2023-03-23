@@ -25,8 +25,8 @@ namespace Victor::Components {
     I2cStorage(const char* filePath = "/i2c.json");
 
    protected:
-    void _serializeTo(const I2cSetting* model, DynamicJsonDocument& doc) override;
-    void _deserializeFrom(I2cSetting* model, const DynamicJsonDocument& doc) override;
+    void _serialize(const I2cSetting* model, DynamicJsonDocument& doc) override;
+    void _deserialize(I2cSetting* model, const DynamicJsonDocument& doc) override;
   };
 
 } // namespace Victor::Components
