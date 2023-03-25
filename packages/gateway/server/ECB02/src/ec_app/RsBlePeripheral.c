@@ -1,37 +1,42 @@
 #include "RsBlePeripheral.h"
 
-#define OUTPUT_LEVEL_ON  EC_CORE_GPIO_LEVEL_H
-#define OUTPUT_LEVEL_OFF EC_CORE_GPIO_LEVEL_L
-#define READY_LEVEL_ON  EC_CORE_GPIO_LEVEL_L
-#define READY_LEVEL_OFF EC_CORE_GPIO_LEVEL_H
+#define DEF_INPUT_LEVEL_ON   EC_CORE_GPIO_LEVEL_L
+#define DEF_INPUT_LEVEL_OFF  EC_CORE_GPIO_LEVEL_H
 
-ec_core_gpio_pin_e RS_GPIO_INPUT  = EC_CORE_GPIO_P3;     // switch on/off input pin
-ec_core_gpio_pin_e RS_GPIO_OUTPUT = EC_CORE_GPIO_P4;     // alarm on/off output pin
-ec_core_gpio_pin_e RS_GPIO_READY  = EC_CORE_GPIO_P5;     // signal for ble ready
-ec_core_adc_ch_e   RS_GPIO_ADC    = EC_CORE_ADC_CH4_P10; // battery detection
+#define DEF_OUTPUT_LEVEL_ON  EC_CORE_GPIO_LEVEL_H
+#define DEF_OUTPUT_LEVEL_OFF EC_CORE_GPIO_LEVEL_L
+
+#define DEF_READY_LEVEL_ON   EC_CORE_GPIO_LEVEL_L
+#define DEF_READY_LEVEL_OFF  EC_CORE_GPIO_LEVEL_H
+
+ec_core_gpio_pin_e  RS_GPIO_INPUT_PIN  = EC_CORE_GPIO_P3;     // switch on/off input pin
+ec_core_gpio_pin_e  RS_GPIO_OUTPUT_PIN = EC_CORE_GPIO_P4;     // alarm on/off output pin
+ec_core_gpio_pin_e  RS_GPIO_READY_PIN  = EC_CORE_GPIO_P5;     // signal for ble ready
+ec_core_adc_ch_e    RS_GPIO_ADC_PIN    = EC_CORE_ADC_CH4_P10; // battery detection
+ec_core_gpio_pull_e RS_GPIO_INPUT_PULL = DEF_INPUT_LEVEL_OFF == EC_CORE_GPIO_LEVEL_H ? EC_CORE_GPIO_PULL_UP_S : EC_CORE_GPIO_PULL_DOWN;
 
 ec_core_gpio_level_e rsInputLevel; // default value will be initialized on startup
-ec_core_gpio_level_e rsOutputLevel = OUTPUT_LEVEL_OFF;
+ec_core_gpio_level_e rsOutputLevel = DEF_OUTPUT_LEVEL_OFF;
 ec_core_gpio_level_e rsGetReadyLevel(void) {
-  return rsAuthenticated ? READY_LEVEL_ON : READY_LEVEL_OFF;
+  return rsAuthenticated ? DEF_READY_LEVEL_ON : DEF_READY_LEVEL_OFF;
 }
 static void updateReadyState() {
-  ec_core_gpio_write(RS_GPIO_READY, rsGetReadyLevel());
+  ec_core_gpio_write(RS_GPIO_READY_PIN, rsGetReadyLevel());
 }
 
 static void notifyStates(RsServerCommandType command) {
   uint16_t value, voltage; // 寄存器值和电压值
-  ec_core_adc_get(RS_GPIO_ADC, EC_CORE_ADC_RANGE_3200MV, EC_CORE_ADC_CALIBRATION_ENABLED, &value, &voltage);
+  ec_core_adc_get(RS_GPIO_ADC_PIN, EC_CORE_ADC_RANGE_3200MV, EC_CORE_ADC_CALIBRATION_ENABLED, &value, &voltage);
   rsEmitStates(
-    command,                                                                                     // command
-    (uint8_t)((voltage & 0xFF00) >> 8),                                                          // data1
-    (uint8_t)(voltage & 0x00FF),                                                                 // data2
-    rsOtaEnabled                          ? RS_SERVER_STATE_OTA_ON    : RS_SERVER_STATE_UNKNOWN, // data3
-    rsInputLevel  == EC_CORE_GPIO_LEVEL_L ? RS_SERVER_STATE_INPUT_ON  : RS_SERVER_STATE_UNKNOWN, // data4
-    rsOutputLevel == EC_CORE_GPIO_LEVEL_L ? RS_SERVER_STATE_OUTPUT_ON : RS_SERVER_STATE_UNKNOWN, // data5
-    RS_SERVER_STATE_UNKNOWN,                                                                     // data6
-    RS_SERVER_STATE_UNKNOWN,                                                                     // data7
-    RS_SERVER_STATE_UNKNOWN                                                                      // data8
+    command,                                                                                    // command
+    (uint8_t)((voltage & 0xFF00) >> 8),                                                         // data1
+    (uint8_t)(voltage & 0x00FF),                                                                // data2
+    rsOtaEnabled                         ? RS_SERVER_STATE_OTA_ON    : RS_SERVER_STATE_UNKNOWN, // data3
+    rsInputLevel  == DEF_INPUT_LEVEL_ON  ? RS_SERVER_STATE_INPUT_ON  : RS_SERVER_STATE_UNKNOWN, // data4
+    rsOutputLevel == DEF_OUTPUT_LEVEL_ON ? RS_SERVER_STATE_OUTPUT_ON : RS_SERVER_STATE_UNKNOWN, // data5
+    RS_SERVER_STATE_UNKNOWN,                                                                    // data6
+    RS_SERVER_STATE_UNKNOWN,                                                                    // data7
+    RS_SERVER_STATE_UNKNOWN                                                                     // data8
   );
 }
 
@@ -97,10 +102,10 @@ static void commandHandler(uint8_t* payload, size_t length) {
         ec_core_sys_soft_reset();       // 系统复位
       }
       // output
-      ec_core_gpio_level_e outputLevel = payload[RS_PROTOCOL_INDEX_DATA5] == RS_SERVER_STATE_OUTPUT_ON ? OUTPUT_LEVEL_ON : OUTPUT_LEVEL_OFF;
+      ec_core_gpio_level_e outputLevel = payload[RS_PROTOCOL_INDEX_DATA5] == RS_SERVER_STATE_OUTPUT_ON ? DEF_OUTPUT_LEVEL_ON : DEF_OUTPUT_LEVEL_OFF;
       if (rsOutputLevel != outputLevel) {
         rsOutputLevel = outputLevel;
-        ec_core_gpio_write(RS_GPIO_OUTPUT, rsOutputLevel);
+        ec_core_gpio_write(RS_GPIO_OUTPUT_PIN, rsOutputLevel);
       }
       // notify
       notifyStates(command);

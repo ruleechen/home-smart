@@ -84,8 +84,8 @@ namespace Victor::Components {
           notification->command == RS_SERVER_COMMAND_NOTIFY_STATES
         ) {
           _stateBattery = ((uint16_t)notification->data1 << 8) | notification->data2;
-          _stateOTA = notification->data3 == RS_SERVER_STATE_OTA_ON;
-          _stateInput = notification->data4 == RS_SERVER_STATE_INPUT_ON;
+          _stateOTA    = notification->data3 == RS_SERVER_STATE_OTA_ON;
+          _stateInput  = notification->data4 == RS_SERVER_STATE_INPUT_ON;
           _stateOutput = notification->data5 == RS_SERVER_STATE_OUTPUT_ON;
         }
         if (notification->command == RS_SERVER_COMMAND_AUTHENTICATE) {
