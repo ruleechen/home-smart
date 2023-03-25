@@ -149,15 +149,30 @@ void rsBlePeripheralInit(void) {
   ec_core_ble_peripheral_set_receive_cb(onPeripheralReceive);                                           // 注册蓝牙数据接收的回调
 }
 
-static void debouncedInputNotify() {
+static bool inputThrottled = false;
+static ec_core_gpio_level_e cachedLevel;
+static bool cachedNotify = false;
+
+static void stopThrottling() {
   ec_core_sw_timer_stop(EC_CORE_SW_TIMER2);
-  notifyStates(RS_SERVER_COMMAND_NOTIFY_STATES);
+  inputThrottled = false;
+  rsSetInputLevel(cachedLevel, cachedNotify);
 }
 
 void rsSetInputLevel(ec_core_gpio_level_e level, bool notify) {
+  if (inputThrottled) {
+    cachedLevel = level;
+    cachedNotify = notify;
+    return;
+  }
+  if (rsInputLevel == level) {
+    return;
+  }
   rsInputLevel = level;
   if (notify) {
-    ec_core_sw_timer_stop(EC_CORE_SW_TIMER2);
-    ec_core_sw_timer_start(EC_CORE_SW_TIMER2, 100, debouncedInputNotify);
+    inputThrottled = true;
+    cachedLevel = rsInputLevel;
+    notifyStates(RS_SERVER_COMMAND_NOTIFY_STATES);
+    ec_core_sw_timer_start(EC_CORE_SW_TIMER2, 100, stopThrottling);
   }
 }

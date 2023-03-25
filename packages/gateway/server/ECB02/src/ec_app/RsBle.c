@@ -16,7 +16,7 @@ void rsBleInit(void) {
   uint8_t mac[6] = {0};
   ec_core_ble_get_mac(mac); // 获取MAC地址
   char peripheralName[16] = {0};
-  sprintf(peripheralName, "RS031_%02X%02X%02X", mac[3], mac[4], mac[5]);
+  sprintf(peripheralName, "RS032_%02X%02X%02X", mac[3], mac[4], mac[5]);
   ec_core_ble_peripheral_set_name((uint8_t*)peripheralName, 12); // strlen("BT_123")
 
   // 厂商自定义数据 - "RuleeSmart-V01"
