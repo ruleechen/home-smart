@@ -13,6 +13,12 @@ namespace Victor::Components {
     STATE_CHANGE_NONE = 2,
   };
 
+  template<typename TState>
+  struct ReadStateEvent {
+    TState state;
+    bool cancel = false;
+  };
+
   template <typename TState>
   class StateSensor {
    public:
@@ -25,8 +31,10 @@ namespace Victor::Components {
     // events
     typedef std::function<void(const TState state)> TStateHandler;
     TStateHandler onStateChange = nullptr;
-    typedef std::function<void(const TState state)> THeartbeatHandler;
-    THeartbeatHandler onHeartbeat = nullptr;
+    TStateHandler onHeartbeat = nullptr;
+    TStateHandler onAfterReadState = nullptr;
+    typedef std::function<void(ReadStateEvent<TState>* ev)> TReadStateHandler;
+    TReadStateHandler onBeforeReadState = nullptr;
 
    protected:
     TState _state;
@@ -49,6 +57,8 @@ namespace Victor::Components {
   StateSensor<TState>::~StateSensor() {
     _cancelDebounce();
     _cancelHeartbeat();
+    onBeforeReadState = nullptr;
+    onAfterReadState = nullptr;
     onStateChange = nullptr;
     onHeartbeat = nullptr;
   }
@@ -102,7 +112,19 @@ namespace Victor::Components {
         if (_debounce != nullptr) {
           _debounce->start(now);
         }
+        if (onBeforeReadState != nullptr) {
+          const auto ev = new ReadStateEvent<TState>({
+            .state = _state,
+          });
+          onBeforeReadState(ev);
+          if (ev->cancel) {
+            return;
+          }
+        }
         const auto state = readState();
+        if (onAfterReadState != nullptr) {
+          onAfterReadState(state);
+        }
         if (state != _state) {
           _state = state;
           if (onStateChange != nullptr) {

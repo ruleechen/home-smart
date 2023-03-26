@@ -125,8 +125,10 @@ void setup(void) {
   #if VICTOR_FEATURES_OUTLET_INUSE
     // setup OutletInUse
     outletInUse = new DigitalSensor("/inUse.json");
-    setInUseState(outletInUse->readState(), connective);
     outletInUse->onStateChange = [](const bool state) { setInUseState(state, connective); };
+    outletInUse->onBeforeReadState = [](ReadStateEvent<bool>* ev) { ev->cancel = false; };
+    outletInUse->onAfterReadState = [](const bool state) { };
+    setInUseState(outletInUse->readState(), connective);
   #endif
 
   // done
