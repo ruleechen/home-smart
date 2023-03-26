@@ -7,9 +7,10 @@ namespace Victor::Components {
   }
 
   void AppStorage::_serialize(const AppSetting* model, DynamicJsonDocument& doc) {
-    doc[F("name")]  = model->name;
-    doc[F("brand")] = model->brand;
-    doc[F("sleep")] = model->sleepMillis;
+    doc[F("name")]      = model->name;
+    doc[F("brand")]     = model->brand;
+    doc[F("sleep")]     = model->sleepMillis;
+    doc[F("heartbeat")] = model->heartbeat;
   }
 
   void AppStorage::_deserialize(AppSetting* model, const DynamicJsonDocument& doc) {
@@ -17,6 +18,11 @@ namespace Victor::Components {
     model->name        = String(name);
     model->brand       = String(doc[F("brand")]);
     model->sleepMillis = doc[F("sleep")];
+    // heartbeat
+    const auto heartbeat = doc[F("heartbeat")];
+    if (!heartbeat.isNull()) {
+      model->heartbeat = heartbeat;
+    }
   }
 
   // global

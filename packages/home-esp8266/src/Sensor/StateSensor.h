@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <Timer/IntervalOver.h>
-#include <Timer/IntervalOverAuto.h>
 
 namespace Victor::Components {
 
@@ -25,13 +24,11 @@ namespace Victor::Components {
     StateSensor(const TState defaultState);
     ~StateSensor();
     void setDebounce(const uint16_t ms);
-    void setHeartbeat(const uint16_t ms);
     virtual TState readState();
     void loop();
     // events
     typedef std::function<void(const TState state)> TStateHandler;
     TStateHandler onStateChange = nullptr;
-    TStateHandler onHeartbeat = nullptr;
     TStateHandler onAfterReadState = nullptr;
     typedef std::function<void(ReadStateEvent<TState>* ev)> TReadStateHandler;
     TReadStateHandler onBeforeReadState = nullptr;
@@ -39,13 +36,11 @@ namespace Victor::Components {
    protected:
     TState _state;
     IntervalOver* _debounce = nullptr;
-    IntervalOverAuto* _heartbeat = nullptr;
     // interrupt
     volatile static StateSensorChange _changed;
 
    private:
     void _cancelDebounce();
-    void _cancelHeartbeat();
   };
 
   template <typename TState>
@@ -56,11 +51,9 @@ namespace Victor::Components {
   template <typename TState>
   StateSensor<TState>::~StateSensor() {
     _cancelDebounce();
-    _cancelHeartbeat();
     onBeforeReadState = nullptr;
     onAfterReadState = nullptr;
     onStateChange = nullptr;
-    onHeartbeat = nullptr;
   }
 
   template <typename TState>
@@ -72,26 +65,10 @@ namespace Victor::Components {
   }
 
   template <typename TState>
-  void StateSensor<TState>::setHeartbeat(const uint16_t ms) {
-    _cancelHeartbeat();
-    if (ms > 0) {
-      _heartbeat = new IntervalOverAuto(ms);
-    }
-  }
-
-  template <typename TState>
   void StateSensor<TState>::_cancelDebounce() {
     if (_debounce != nullptr) {
       free(_debounce);
       _debounce = nullptr;
-    }
-  }
-
-  template <typename TState>
-  void StateSensor<TState>::_cancelHeartbeat() {
-    if (_heartbeat != nullptr) {
-      free(_heartbeat);
-      _heartbeat = nullptr;
     }
   }
 
@@ -131,14 +108,6 @@ namespace Victor::Components {
             onStateChange(_state);
           }
         }
-      }
-    }
-    if (
-      _heartbeat != nullptr &&
-      _heartbeat->isOver(now)
-    ) {
-      if (onHeartbeat != nullptr) {
-        onHeartbeat(_state);
       }
     }
   }

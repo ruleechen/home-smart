@@ -16,8 +16,6 @@ namespace Victor::Components {
     }
     // debounce
     doc[F("debounce")] = model->debounce;
-    // heartbeat
-    doc[F("heartbeat")] = model->heartbeat;
     // enable
     doc[F("enable")] = model->enable ? 1 : 0;
   }
@@ -35,11 +33,6 @@ namespace Victor::Components {
     const auto debounce = doc[F("debounce")];
     if (!debounce.isNull()) {
       model->debounce = debounce;
-    }
-    // heartbeat
-    const auto heartbeat = doc[F("heartbeat")];
-    if (!heartbeat.isNull()) {
-      model->heartbeat = heartbeat;
     }
     // enable
     const auto enable = doc[F("enable")];

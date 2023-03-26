@@ -5,6 +5,10 @@ namespace Victor::Components {
   AppMain::AppMain() {}
 
   AppMain::~AppMain() {
+    if (_heartbeat != nullptr) {
+      free(_heartbeat);
+      _heartbeat = nullptr;
+    }
     #if VICTOR_FEATURES_WEB
       if (webPortal != nullptr) {
         delete webPortal;
@@ -30,6 +34,9 @@ namespace Victor::Components {
 
     const auto appSetting = appStorage.load();
     _sleepMillis = appSetting->sleepMillis;
+    if (appSetting->heartbeat > 0) {
+      _heartbeat = new IntervalOverAuto(appSetting->heartbeat);
+    }
 
     builtinLed.setup("/led.json");
     builtinLed.turnOn();
@@ -63,6 +70,15 @@ namespace Victor::Components {
     }
     if (sleepMode && _sleepMillis > 0) {
       delay(_sleepMillis);
+    }
+    // heartbeat
+    if (
+      _heartbeat != nullptr &&
+      _heartbeat->isOver()
+    ) {
+      if (onHeartbeat != nullptr) {
+        onHeartbeat();
+      }
     }
   }
 

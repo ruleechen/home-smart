@@ -33,10 +33,6 @@ namespace Victor::Components {
     // optional, default 0
     uint16_t debounce = 0; // (0~65535)
 
-    // ms heartbeat interval
-    // optional, default 0
-    uint16_t heartbeat = 0; // (0~65535)
-
     // is enable
     // optional, default yes
     bool enable = true;

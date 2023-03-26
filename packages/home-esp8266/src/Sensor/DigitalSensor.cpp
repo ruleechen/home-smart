@@ -8,7 +8,6 @@ namespace Victor::Components {
     if (config->enable) {
       _input = new DigitalInput(config);
       setDebounce(config->debounce);
-      setHeartbeat(config->heartbeat);
       if (config->interruptMode > 0) {
         _changed = STATE_CHANGE_NO;
         const auto interruptPin = digitalPinToInterrupt(config->pin);

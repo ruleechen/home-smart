@@ -81,6 +81,12 @@ void setup(void) {
       ESP.restart();
     }
   };
+  appMain->onHeartbeat = []() {
+    builtinLed.flash();
+    const auto level = analogRead(A0);
+    setLevelState(level, connective);
+    setActiveState(true, connective);
+  };
 
   // setup homekit server
   hostName     = victorWifi.getHostName();
@@ -91,12 +97,6 @@ void setup(void) {
 
   // connect leak sensor
   sensor = new DigitalSensor("/leak.json");
-  sensor->onHeartbeat = [](const bool state) {
-    builtinLed.flash();
-    const auto level = analogRead(A0);
-    setLevelState(level, connective);
-    setActiveState(true, connective);
-  };
   sensor->onStateChange = [](const bool state) {
     builtinLed.flash();
     setLeakState(state, connective);

@@ -72,6 +72,12 @@ void setup(void) {
       ESP.restart();
     }
   };
+  appMain->onHeartbeat = []() {
+    builtinLed.flash();
+    // const auto level = analogRead(A0);
+    // setLevelState(level, connective);
+    setActiveState(true, connective);
+  };
 
   // setup homekit server
   hostName     = victorWifi.getHostName();
@@ -82,12 +88,6 @@ void setup(void) {
 
   // connect occupancy sensor
   sensor = new DigitalSensor("/occupancy.json");
-  sensor->onHeartbeat = []() {
-    builtinLed.flash();
-    // const auto level = analogRead(A0);
-    // setLevelState(level, connective);
-    setActiveState(true, connective);
-  };
   sensor->onStateChange = [](const bool state) {
     builtinLed.flash();
     setOccupancyState(state, connective);
