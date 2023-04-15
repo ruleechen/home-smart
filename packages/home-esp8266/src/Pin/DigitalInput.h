@@ -11,7 +11,7 @@ namespace Victor::Components {
     bool getValue();
 
    private:
-    PinConfig* _config;
+    PinConfig* _config = nullptr;
   };
 
 } // namespace Victor::Components

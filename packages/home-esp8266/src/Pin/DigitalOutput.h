@@ -12,7 +12,7 @@ namespace Victor::Components {
     bool lastValue() const;
 
    private:
-    PinConfig* _config;
+    PinConfig* _config = nullptr;
     bool _lastValue = false;
   };
 
