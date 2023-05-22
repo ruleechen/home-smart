@@ -6,6 +6,7 @@
 #include <ESP8266mDNS.h>
 #include "Console.h"
 #include "BuiltinLed.h"
+#include "AppMain/AppStorage.h"
 #include "WifiStorage/WifiStorage.h"
 
 namespace Victor::Components {

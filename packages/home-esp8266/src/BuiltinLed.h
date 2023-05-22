@@ -5,7 +5,6 @@
 #include <Ticker.h>
 #include "Pin/PinStorage.h"
 #include "Pin/DigitalOutput.h"
-#include "AppMain/AppStorage.h"
 
 #ifndef VICTOR_BUILTIN_LED_FLASH
 #define VICTOR_BUILTIN_LED_FLASH 10
