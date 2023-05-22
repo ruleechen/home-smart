@@ -5,6 +5,7 @@
 #include "BuiltinLed.h"
 #include "VictorOTA.h"
 #include "VictorWifi.h"
+#include <AppStorage/AppStorage.h>
 #include <Timer/IntervalOverAuto.h>
 
 #if VICTOR_FEATURES_WEB
