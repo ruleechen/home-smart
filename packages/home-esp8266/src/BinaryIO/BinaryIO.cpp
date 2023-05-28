@@ -31,6 +31,8 @@ namespace Victor::Components {
     const auto state = _stateStorage->load();
     if (state->save) {
       setOutputState(state->isOn);
+    } else {
+      setOutputState(state->initOn);
     }
   }
 

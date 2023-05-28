@@ -6,6 +6,8 @@
 namespace Victor::Components {
 
   struct BinaryStateConfig {
+    // initial value
+    bool initOn = false;
     // save state or not
     bool save = false;
     // state value saved
