@@ -324,11 +324,12 @@ void loop(void) {
   const auto now = millis();
   const auto climate = climateStorage.load();
   const auto isPaired = arduino_homekit_get_running_server()->paired;
-  const auto connective = victorWifi.isLightSleepMode() && isPaired;
+  const auto connective = victorWifi.isConnective() && isPaired;
+  const auto isLightSleep = victorWifi.isLightSleepMode() && isPaired;
   if (ht != nullptr) { measureHT(climate->ht, connective, now); }
-  if (aq != nullptr) { measureAQ(climate->aq ,connective, now); }
+  if (aq != nullptr) { measureAQ(climate->aq, connective, now); }
   // sleep
-  appMain->loop(connective);
+  appMain->loop(isLightSleep);
   // button
   if (button != nullptr) {
     button->loop();

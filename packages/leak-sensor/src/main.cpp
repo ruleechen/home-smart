@@ -112,7 +112,8 @@ void setup(void) {
 void loop(void) {
   arduino_homekit_loop();
   const auto isPaired = arduino_homekit_get_running_server()->paired;
-  connective = victorWifi.isLightSleepMode() && isPaired;
-  appMain->loop(connective);
+  connective = victorWifi.isConnective() && isPaired;
+  const auto isLightSleep = victorWifi.isLightSleepMode() && isPaired;
+  appMain->loop(isLightSleep);
   sensor->loop();
 }

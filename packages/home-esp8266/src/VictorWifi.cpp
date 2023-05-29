@@ -71,9 +71,15 @@ namespace Victor::Components {
     _log().section(F("sleepMode"), sleepModeName(sleepMode));
   }
 
+  bool VictorWifi::isConnective() {
+    // no other logic here to keep it fast
+    // as this is being called heavily by arduino loop
+    return _connective;
+  }
+
   bool VictorWifi::isLightSleepMode() {
     // no other logic here to keep it fast
-    // as this is being called by arduino loop for detecting delay or not
+    // as this is being called heavily by arduino loop
     return _lightSleepEnabled;
   }
 
@@ -143,6 +149,7 @@ namespace Victor::Components {
   }
 
   void VictorWifi::_handleStaGotIP(const WiFiEventStationModeGotIP& args) {
+    _connective = true;
     builtinLed.stop();
     _log().section(F("station")).section(F("got ip"), args.ip.toString());
     auto setting = _storage->load();
@@ -166,6 +173,7 @@ namespace Victor::Components {
   }
 
   void VictorWifi::_handleStaDisconnected(const WiFiEventStationModeDisconnected& args) {
+    _connective = false;
     builtinLed.twinkle();
     _log().section(F("station"), F("disconnected"));
     const auto setting = _storage->load();

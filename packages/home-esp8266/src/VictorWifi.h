@@ -18,6 +18,7 @@ namespace Victor::Components {
     void setMode(WiFiMode_t mode);
     void enableAP(bool enable);
     void enableLightSleep(bool enable);
+    bool isConnective();
     bool isLightSleepMode();
     static String modeName(WiFiMode_t mode);
     static String sleepModeName(WiFiSleepType_t mode);
@@ -37,6 +38,7 @@ namespace Victor::Components {
     static Console _log();
     String _joiningSsid;
     String _joiningPswd;
+    bool _connective = false;
     bool _lightSleepEnabled = false;
   };
 
