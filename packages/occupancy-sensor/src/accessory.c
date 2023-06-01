@@ -1,8 +1,15 @@
 #include <homekit/homekit.h>
 #include <homekit/characteristics.h>
 
-void onAccessoryIdentify(homekit_value_t value) {
-  printf("accessory identify\n");
+typedef void (*IdentifyCallback)(homekit_value_t value);
+IdentifyCallback _identifyCallback = NULL;
+void onAccessoryIdentify(IdentifyCallback callback) {
+  _identifyCallback = callback;
+}
+void accessoryIdentifyHandler(homekit_value_t value) {
+  if (_identifyCallback != NULL) {
+    _identifyCallback(value);
+  }
 }
 
 // format: string; max length 64
@@ -10,7 +17,7 @@ homekit_characteristic_t accessoryManufacturer = HOMEKIT_CHARACTERISTIC_(MANUFAC
 homekit_characteristic_t accessorySerialNumber = HOMEKIT_CHARACTERISTIC_(SERIAL_NUMBER, VICTOR_ACCESSORY_INFORMATION_SERIAL_NUMBER);
 homekit_characteristic_t accessoryModel        = HOMEKIT_CHARACTERISTIC_(MODEL, VICTOR_ACCESSORY_INFORMATION_MODEL);
 homekit_characteristic_t accessoryVersion      = HOMEKIT_CHARACTERISTIC_(FIRMWARE_REVISION, VICTOR_FIRMWARE_VERSION);
-homekit_characteristic_t accessoryIdentify     = HOMEKIT_CHARACTERISTIC_(IDENTIFY, onAccessoryIdentify);
+homekit_characteristic_t accessoryIdentify     = HOMEKIT_CHARACTERISTIC_(IDENTIFY, accessoryIdentifyHandler);
 homekit_characteristic_t accessoryNameInfo     = HOMEKIT_CHARACTERISTIC_(NAME, VICTOR_ACCESSORY_SERVICE_NAME); // change on setup
 
 homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,

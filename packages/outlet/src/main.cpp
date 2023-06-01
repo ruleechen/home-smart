@@ -20,6 +20,7 @@ extern "C" homekit_characteristic_t onState;
 extern "C" homekit_characteristic_t accessoryNameInfo;
 extern "C" homekit_characteristic_t accessorySerialNumber;
 extern "C" homekit_server_config_t serverConfig;
+extern "C" void onAccessoryIdentify(void (*callback)(const homekit_value_t value));
 
 AppMain* appMain = nullptr;
 bool connective = false;
@@ -97,6 +98,7 @@ void setup(void) {
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   onState.setter = [](const homekit_value_t value) { setOnState(value.bool_value, connective); };
   arduino_homekit_setup(&serverConfig);
+  onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
 
   // setup BinaryIO
   binaryIO = new BinaryIO();
