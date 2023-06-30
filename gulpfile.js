@@ -3,17 +3,17 @@ const yargs = require("yargs");
 const path = require("path");
 const fse = require("fs-extra");
 const del = require("del");
-const gulp = require("gulp");
 const ignore = require("ignore");
 
 // argv
 const {
-  argv: { pioEnv },
-} = yargs.string("pioEnv");
+  argv: { pioEnv, varietas },
+} = yargs.string("pioEnv").string("varietas");
 
 // paths
 const DIR_PACKAGES = "packages";
 const DIR_DATA = "data";
+const DIR_VARIETAS = "varietas";
 
 const PATH_DEPS = path.resolve(__dirname, ".pio/libdeps", pioEnv);
 const PATH_PROJ = path.resolve(__dirname, DIR_PACKAGES, pioEnv);
@@ -25,9 +25,10 @@ const PATH_MAIN = path.resolve(PATH_PROJ, "src/main.cpp");
 console.log(`********************
 * [env:${pioEnv}]
 *
-* deps ${PATH_DEPS}
-* proj ${PATH_PROJ}
-* main ${PATH_MAIN}
+* deps: '${PATH_DEPS}'
+* proj: '${PATH_PROJ}'
+* main: '${PATH_MAIN}'
+* varietas: '${varietas}'
 *
 ********************`);
 
@@ -57,6 +58,22 @@ function buildDeps() {
   }
 }
 
+function mergeVarietas() {
+  if (!varietas) {
+    return;
+  }
+  const varietasPath = path.resolve(PATH_PROJ, DIR_VARIETAS, varietas);
+  if (fse.pathExistsSync(varietasPath)) {
+    // merge configuration
+    const varietasDataPath = path.resolve(varietasPath, DIR_DATA);
+    if (fse.pathExistsSync(varietasDataPath)) {
+      fse.copySync(varietasDataPath, PATH_DATA, {
+        overwrite: true,
+      });
+    }
+  }
+}
+
 async function build() {
   if (pioEnv === "home-esp8266") {
     cp.execSync(`yarn workspace ${pioEnv} build --buildEnv=release`, {
@@ -65,6 +82,7 @@ async function build() {
   } else {
     clean();
     buildDeps();
+    mergeVarietas();
   }
 }
 
