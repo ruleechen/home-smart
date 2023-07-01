@@ -5,10 +5,6 @@
 .vscode/ipch
 
 node_modules
-packages/*/data/app.json
-packages/*/data/led.json
-packages/*/data/ota.json
-packages/*/data/radio.json
-packages/*/data/wifi.json
+packages/*/data
 !packages/home-esp8266/data/*
-packages/*/data/web
+packages/home-esp8266/data/web

@@ -5,16 +5,18 @@ const fse = require("fs-extra");
 const del = require("del");
 const ignore = require("ignore");
 
-// argv
-const {
-  argv: { pioEnv, varietas },
-} = yargs.string("pioEnv").string("varietas");
-
-// paths
+// dirs
 const DIR_PACKAGES = "packages";
 const DIR_DATA = "data";
 const DIR_VARIETAS = "varietas";
+const DIR_DEFAULT = ".default";
 
+// argv
+const {
+  argv: { pioEnv, varietas },
+} = yargs.string("pioEnv").string("varietas").default("varietas", DIR_DEFAULT);
+
+// paths
 const PATH_DEPS = path.resolve(__dirname, ".pio/libdeps", pioEnv);
 const PATH_PROJ = path.resolve(__dirname, DIR_PACKAGES, pioEnv);
 
@@ -59,9 +61,6 @@ function buildDeps() {
 }
 
 function mergeVarietas() {
-  if (!varietas) {
-    return;
-  }
   const varietasPath = path.resolve(PATH_PROJ, DIR_VARIETAS, varietas);
   if (fse.pathExistsSync(varietasPath)) {
     // merge configuration
@@ -76,7 +75,7 @@ function mergeVarietas() {
 
 async function build() {
   if (pioEnv === "home-esp8266") {
-    cp.execSync(`yarn workspace ${pioEnv} build --buildEnv=release`, {
+    cp.execSync(`yarn workspace ${pioEnv} build --buildEnv release`, {
       stdio: "inherit",
     });
   } else {
