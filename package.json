@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "",
   "scripts": {
-    "build": "gulp build"
+    "build-fs": "gulp buildFS"
   },
   "author": {
     "name": "Rulee Chen",

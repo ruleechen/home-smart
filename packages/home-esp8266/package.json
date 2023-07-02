@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "ESP8266 foundation associated web resource",
   "scripts": {
-    "build": "gulp build",
-    "watch": "gulp watch"
+    "build-web": "gulp buildWeb",
+    "watch-web": "gulp watchWeb"
   },
   "devDependencies": {
     "del": "^6.1.0",

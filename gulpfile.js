@@ -73,9 +73,9 @@ function mergeVarietas() {
   }
 }
 
-async function build() {
+async function buildFS() {
   if (pioEnv === "home-esp8266") {
-    cp.execSync(`yarn workspace ${pioEnv} build --buildEnv release`, {
+    cp.execSync(`yarn workspace ${pioEnv} build-web --buildEnv release`, {
       stdio: "inherit",
     });
   } else {
@@ -85,5 +85,4 @@ async function build() {
   }
 }
 
-// export gulp tasks
-exports.build = build;
+exports.buildFS = buildFS;
