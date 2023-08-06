@@ -37,12 +37,15 @@ homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
 homekit_characteristic_t eventState = HOMEKIT_CHARACTERISTIC_(PROGRAMMABLE_SWITCH_EVENT, 0);
 // format: string; HAP section 9.62; maximum length 64
 homekit_characteristic_t nameState = HOMEKIT_CHARACTERISTIC_(NAME, "Stateless Programmable Switch");
+// format: uint8; HAP section 9.88; minimum value 1, step value 1
+homekit_characteristic_t levelIndex = HOMEKIT_CHARACTERISTIC_(SERVICE_LABEL_INDEX, 1);
 
 homekit_service_t stateService = HOMEKIT_SERVICE_(STATELESS_PROGRAMMABLE_SWITCH,
   .primary = true,
   .characteristics = (homekit_characteristic_t*[]) {
     &eventState,
     &nameState,
+    &levelIndex,
     NULL,
   },
 );
