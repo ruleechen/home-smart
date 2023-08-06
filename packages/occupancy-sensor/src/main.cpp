@@ -41,7 +41,9 @@ void setOccupancyState(const bool value, const bool notify) {
   if (notify) {
     homekit_characteristic_notify(&occupancyState, occupancyState.value);
   }
-  console.log().section(F("occupancy"), toOccupancyName(occupancy));
+  console.log()
+    .section(F("occupancy"), toOccupancyName(occupancy))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 void setActiveState(const bool value, const bool notify) {
@@ -49,7 +51,9 @@ void setActiveState(const bool value, const bool notify) {
   if (notify) {
     homekit_characteristic_notify(&activeState, activeState.value);
   }
-  console.log().section(F("active"), GlobalHelpers::toYesNoName(value));
+  console.log()
+    .section(F("active"), GlobalHelpers::toYesNoName(value))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 void setup(void) {

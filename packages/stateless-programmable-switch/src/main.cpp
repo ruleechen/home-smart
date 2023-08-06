@@ -39,13 +39,20 @@ String toProgrammableSwitchEventName(const uint8_t state) {
 }
 
 void setEventState(const ProgrammableSwitchEvent value, const bool notify) {
-  ESP.wdtFeed();
   builtinLed.flash();
   eventState.value.uint8_value = value;
   if (notify) {
     homekit_characteristic_notify(&eventState, eventState.value);
   }
-  console.log().section(F("state"), toProgrammableSwitchEventName(value));
+  console.log()
+    .section(F("state"), toProgrammableSwitchEventName(value))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+}
+
+homekit_value_t getEventState() {
+  // See HAP section 9.75
+  // Should always return "null" for reading
+  return HOMEKIT_NULL_CPP();
 }
 
 void setup(void) {
@@ -92,7 +99,7 @@ void setup(void) {
   serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWifi.getHostId();
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
-  eventState.getter = []() { return HOMEKIT_NULL_CPP(); };
+  eventState.getter = getEventState;
   arduino_homekit_setup(&serverConfig);
   onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
 
@@ -106,13 +113,11 @@ void setup(void) {
         .bracket(F("button"))
         .section(F("action"), String(action));
       if (action == BUTTON_ACTION_PRESSED) {
-        builtinLed.flash();
         setEventState(BUTTON_EVENT_SINGLE_PRESS, connective);
+        builtinLed.flash();
       } else if (action == BUTTON_ACTION_DOUBLE_PRESSED) {
-        builtinLed.flash(500);
         setEventState(BUTTON_EVENT_DOUBLE_PRESS, connective);
-        const auto enable = victorWifi.isLightSleepMode();
-        victorWifi.enableAP(enable); // toggle enabling ap
+        builtinLed.flash(500);
       } else if (action == BUTTON_ACTION_PRESSED_HOLD_L1) {
         setEventState(BUTTON_EVENT_LONG_PRESS, connective);
         builtinLed.flash(1000);

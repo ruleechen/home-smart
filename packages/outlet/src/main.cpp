@@ -42,7 +42,9 @@ void setOnState(const bool value, const bool notify) {
     homekit_characteristic_notify(&onState, onState.value);
   }
   binaryIO->setOutputState(value);
-  console.log().section(F("state"), GlobalHelpers::toOnOffName(value));
+  console.log()
+    .section(F("state"), GlobalHelpers::toOnOffName(value))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 #if VICTOR_FEATURES_OUTLET_INUSE
@@ -52,7 +54,9 @@ void setOnState(const bool value, const bool notify) {
     if (notify) {
       homekit_characteristic_notify(&inUseState, inUseState.value);
     }
-    console.log().section(F("in use"), GlobalHelpers::toYesNoName(value));
+    console.log()
+      .section(F("in use"), GlobalHelpers::toYesNoName(value))
+      .section(F("notify"), GlobalHelpers::toYesNoName(notify));
   }
 #endif
 

@@ -49,6 +49,10 @@ namespace Victor {
       return state ? F("On") : F("Off");
     }
 
+    static String toPercentage(float state) {
+      return String(state) + F("%");
+    }
+
   };
 
 } // namespace Victor

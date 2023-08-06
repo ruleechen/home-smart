@@ -93,7 +93,8 @@ void setTargetDoorState(const TargetDoorState targetState, const bool notify) {
   // log
   console.log()
     .bracket(F("door"))
-    .section(F("target"), toDoorStateName(targetState));
+    .section(F("target"), toDoorStateName(targetState))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 void setCurrentDoorState(const CurrentDoorState newState, const bool notify) {
@@ -145,7 +146,8 @@ void setCurrentDoorState(const CurrentDoorState newState, const bool notify) {
   // log
   console.log()
     .bracket(F("door"))
-    .section(F("current"), toDoorStateName(newState));
+    .section(F("current"), toDoorStateName(newState))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 void setup(void) {

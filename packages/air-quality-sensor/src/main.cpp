@@ -141,7 +141,8 @@ void measureHT(const HTConfig* config, const bool connective, const unsigned lon
     console.log()
       .bracket(F("ht"))
       .section(F("h"), String(humidity))
-      .section(F("t"), String(temperature));
+      .section(F("t"), String(temperature))
+      .section(F("notify"), GlobalHelpers::toYesNoName(notify));
     // write to AQ
     if (aq != nullptr) {
       aq->setRelHumidity(humidity, temperature);
@@ -194,7 +195,8 @@ void measureAQ(const AQConfig* config, const bool connective, const unsigned lon
     console.log()
       .bracket(F("aq"))
       .section(F("co2"), String(co2))
-      .section(F("tvoc"), String(tvoc));
+      .section(F("tvoc"), String(tvoc))
+      .section(F("notify"), GlobalHelpers::toYesNoName(notify));
   }
 }
 

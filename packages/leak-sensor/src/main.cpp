@@ -42,7 +42,9 @@ void setLeakState(const bool value, const bool notify) {
   if (notify) {
     homekit_characteristic_notify(&leakState, leakState.value);
   }
-  console.log().section(F("leak"), toLeakName(leak));
+  console.log()
+    .section(F("leak"), toLeakName(leak))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 void setLevelState(const int analog, const bool notify) {
@@ -51,6 +53,9 @@ void setLevelState(const int analog, const bool notify) {
   if (notify) {
     homekit_characteristic_notify(&levelState, levelState.value);
   }
+  console.log()
+    .section(F("percentage"), String(percentage))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 void setActiveState(const bool value, const bool notify) {
@@ -58,6 +63,9 @@ void setActiveState(const bool value, const bool notify) {
   if (notify) {
     homekit_characteristic_notify(&activeState, activeState.value);
   }
+  console.log()
+    .section(F("active"), GlobalHelpers::toYesNoName(value))
+    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 void setup(void) {
