@@ -49,12 +49,6 @@ void setEventState(const ProgrammableSwitchEvent value, const bool notify) {
     .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
-homekit_value_t getEventState() {
-  // See HAP section 9.75
-  // Should always return "null" for reading
-  return HOMEKIT_NULL_CPP();
-}
-
 void setup(void) {
   appMain = new AppMain();
   appMain->setup();
@@ -99,7 +93,8 @@ void setup(void) {
   serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWifi.getHostId();
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
-  eventState.getter = getEventState;
+  eventState.getter = []() { return HOMEKIT_NULL_CPP(); }; // See HAP section 9.75; Should always return "null" for reading
+  // eventState.setter = [](const homekit_value_t value) { setEventState(ProgrammableSwitchEvent(value.uint8_value), connective); };
   arduino_homekit_setup(&serverConfig);
   onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
 
