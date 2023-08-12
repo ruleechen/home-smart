@@ -50,7 +50,7 @@ homekit_service_t stateService = HOMEKIT_SERVICE_(STATELESS_PROGRAMMABLE_SWITCH,
 homekit_accessory_t* accessories[] = {
   HOMEKIT_ACCESSORY(
     .id = 1,
-    .category = homekit_accessory_category_switch,
+    .category = homekit_accessory_category_programmable_switch,
     .services = (homekit_service_t*[]) {
       &informationService,
       &stateService,
