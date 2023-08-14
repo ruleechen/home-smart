@@ -34,15 +34,52 @@ homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
 );
 
 // format: uint8; HAP section 9.75; 0 = Single Press, 1 = Double Press, 2 = Long Press
-homekit_characteristic_t eventState = HOMEKIT_CHARACTERISTIC_(PROGRAMMABLE_SWITCH_EVENT, 0);
+homekit_characteristic_t eventState1 = HOMEKIT_CHARACTERISTIC_(PROGRAMMABLE_SWITCH_EVENT, 0);
 // format: string; HAP section 9.62; maximum length 64
-homekit_characteristic_t nameState = HOMEKIT_CHARACTERISTIC_(NAME, "Stateless Programmable Switch");
+homekit_characteristic_t nameState1 = HOMEKIT_CHARACTERISTIC_(NAME, "Stateless Programmable Switch");
+// format: uint8; HAP section 9.88; minimum value 1, step value 1
+homekit_characteristic_t levelIndex1 = HOMEKIT_CHARACTERISTIC_(SERVICE_LABEL_INDEX, 1);
 
-homekit_service_t stateService = HOMEKIT_SERVICE_(STATELESS_PROGRAMMABLE_SWITCH,
+homekit_service_t stateService1 = HOMEKIT_SERVICE_(STATELESS_PROGRAMMABLE_SWITCH,
   .primary = true,
   .characteristics = (homekit_characteristic_t*[]) {
-    &eventState,
-    &nameState,
+    &eventState1,
+    &nameState1,
+    &levelIndex1,
+    NULL,
+  },
+);
+
+// format: uint8; HAP section 9.75; 0 = Single Press, 1 = Double Press, 2 = Long Press
+homekit_characteristic_t eventState2 = HOMEKIT_CHARACTERISTIC_(PROGRAMMABLE_SWITCH_EVENT, 0);
+// format: string; HAP section 9.62; maximum length 64
+homekit_characteristic_t nameState2 = HOMEKIT_CHARACTERISTIC_(NAME, "Stateless Programmable Switch");
+// format: uint8; HAP section 9.88; minimum value 1, step value 1
+homekit_characteristic_t levelIndex2 = HOMEKIT_CHARACTERISTIC_(SERVICE_LABEL_INDEX, 2);
+
+homekit_service_t stateService2 = HOMEKIT_SERVICE_(STATELESS_PROGRAMMABLE_SWITCH,
+  .primary = true,
+  .characteristics = (homekit_characteristic_t*[]) {
+    &eventState2,
+    &nameState2,
+    &levelIndex2,
+    NULL,
+  },
+);
+
+// format: uint8; HAP section 9.75; 0 = Single Press, 1 = Double Press, 2 = Long Press
+homekit_characteristic_t eventState3 = HOMEKIT_CHARACTERISTIC_(PROGRAMMABLE_SWITCH_EVENT, 0);
+// format: string; HAP section 9.62; maximum length 64
+homekit_characteristic_t nameState3 = HOMEKIT_CHARACTERISTIC_(NAME, "Stateless Programmable Switch");
+// format: uint8; HAP section 9.88; minimum value 1, step value 1
+homekit_characteristic_t levelIndex3 = HOMEKIT_CHARACTERISTIC_(SERVICE_LABEL_INDEX, 3);
+
+homekit_service_t stateService3 = HOMEKIT_SERVICE_(STATELESS_PROGRAMMABLE_SWITCH,
+  .primary = true,
+  .characteristics = (homekit_characteristic_t*[]) {
+    &eventState3,
+    &nameState3,
+    &levelIndex3,
     NULL,
   },
 );
@@ -53,7 +90,9 @@ homekit_accessory_t* accessories[] = {
     .category = homekit_accessory_category_programmable_switch,
     .services = (homekit_service_t*[]) {
       &informationService,
-      &stateService,
+      &stateService1,
+      &stateService2,
+      &stateService3,
       NULL,
     },
   ),
