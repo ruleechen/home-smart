@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <ESP8266httpUpdate.h>
 #include "Console.h"
+#include "GlobalHelpers.h"
 #include "OtaStorage/OtaStorage.h"
 
 namespace Victor::Components {

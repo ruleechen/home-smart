@@ -209,7 +209,7 @@ void setup(void) {
     // states
     states.push_back({ .text = F("Service"),      .value = VICTOR_ACCESSORY_SERVICE_NAME });
     states.push_back({ .text = F("Temperature"),  .value = String(temperatureState.value.float_value) + F("°C") });
-    states.push_back({ .text = F("Humidity"),     .value = String(humidityState.value.float_value) + F("%") });
+    states.push_back({ .text = F("Humidity"),     .value = GlobalHelpers::toPercentage(humidityState.value.float_value) });
     states.push_back({ .text = F("eCO2 Level"),   .value = String(carbonDioxideLevelState.value.float_value) + F("ppm/㎥") });
     states.push_back({ .text = F("eCO2"),         .value = toCarbonDioxideName(carbonDioxideState.value.uint8_value) });
     states.push_back({ .text = F("TVOC Density"), .value = String(vocDensityState.value.float_value) + F("ppb/㎥") });

@@ -77,7 +77,7 @@ void setup(void) {
     // states
     states.push_back({ .text = F("Service"), .value = VICTOR_ACCESSORY_SERVICE_NAME });
     states.push_back({ .text = F("Leak"),    .value = toLeakName(leakState.value.uint8_value) });
-    states.push_back({ .text = F("Level"),   .value = String(leakState.value.int_value) + F("%")  });
+    states.push_back({ .text = F("Level"),   .value = GlobalHelpers::toPercentage(leakState.value.int_value) });
     states.push_back({ .text = F("Active"),  .value = GlobalHelpers::toYesNoName(activeState.value.bool_value) });
     states.push_back({ .text = F("Paired"),  .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"), .value = String(arduino_homekit_connected_clients_count()) });
