@@ -683,7 +683,7 @@ namespace Victor::Components {
       onServiceGet(states, buttons);
     }
     // write
-    DynamicJsonDocument res(1024);
+    DynamicJsonDocument res(2048);
     const JsonArray statesArr = res.createNestedArray(F("states"));
     for (const auto& state : states) {
       const JsonArray stateArr = statesArr.createNestedArray();
