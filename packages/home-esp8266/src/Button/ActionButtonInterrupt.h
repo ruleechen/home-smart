@@ -2,6 +2,7 @@
 #define ActionButtonInterrupt_h
 
 #include <vector>
+#include <FunctionalInterrupt.h>
 #include "Console.h"
 #include "Button/ActionButtonInput.h"
 
@@ -25,10 +26,9 @@ namespace Victor::Components {
     void loop() override;
 
    private:
-   	static DigitalInput* _inputRef;
-    volatile static bool _lastInputValue;
-    static std::vector<InterruptContext*> _contexts;
-    static void IRAM_ATTR _interruptHandler();
+    bool _lastInputValue;
+    std::vector<InterruptContext*> _contexts = {};
+    void _interruptHandler(const InterruptInfo info);
   };
 
 } // namespace Victor::Components

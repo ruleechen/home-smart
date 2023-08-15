@@ -2,7 +2,7 @@
 #define StateSensor_h
 
 #include <Arduino.h>
-#include <Timer/IntervalOver.h>
+#include "Timer/IntervalOver.h"
 
 namespace Victor::Components {
 
@@ -36,8 +36,7 @@ namespace Victor::Components {
    protected:
     TState _state;
     IntervalOver* _debounce = nullptr;
-    // interrupt
-    volatile static StateSensorChange _changed;
+    StateSensorChange _changed = STATE_CHANGE_NONE;
 
    private:
     void _cancelDebounce();
@@ -111,9 +110,6 @@ namespace Victor::Components {
       }
     }
   }
-
-  template <typename TState>
-  volatile StateSensorChange StateSensor<TState>::_changed = STATE_CHANGE_NONE;
 
 } // namespace Victor::Components
 

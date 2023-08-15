@@ -3,13 +3,14 @@
 namespace Victor::Components {
 
   ActionButtonInterrupt::ActionButtonInterrupt(PinConfig* config) : ActionButtonInput(config) {
-    _inputRef = _input;
     _lastInputValue = _input->getValue();
-    attachInterrupt(digitalPinToInterrupt(config->pin), _interruptHandler, CHANGE);
+    const auto interruptPin = digitalPinToInterrupt(config->pin);
+    attachScheduledInterrupt(interruptPin, [&](const InterruptInfo info) {
+      this->_interruptHandler(info);
+    }, CHANGE);
   }
 
   ActionButtonInterrupt::~ActionButtonInterrupt() {
-    _inputRef = nullptr;
     // detachInterrupt(digitalPinToInterrupt(inputPin));
   }
 
@@ -29,13 +30,9 @@ namespace Victor::Components {
     }
   }
 
-  DigitalInput* ActionButtonInterrupt::_inputRef = nullptr;
-  volatile bool ActionButtonInterrupt::_lastInputValue = false;
-  std::vector<InterruptContext*> ActionButtonInterrupt::_contexts = std::vector<InterruptContext*>();
-
-  void IRAM_ATTR ActionButtonInterrupt::_interruptHandler() {
+  void ActionButtonInterrupt::_interruptHandler(const InterruptInfo info) {
     if (_contexts.size() < VICTOR_DIGITAL_INPUT_MAX_CHANGES) {
-      const auto inputValue = _inputRef->getValue();
+      const auto inputValue = _input->getValue();
       if (inputValue != _lastInputValue) {
         _lastInputValue = inputValue;
         _contexts.push_back(new InterruptContext({
@@ -43,8 +40,9 @@ namespace Victor::Components {
           .timestamp = millis(),
         }));
         console.log()
-          .bracket("interrupt")
-          .section(String(inputValue));
+          .bracket(F("interrupt"))
+          .section(F("pin"), String(info.pin))
+          .section(F("value"), String(info.value));
       }
     }
   }

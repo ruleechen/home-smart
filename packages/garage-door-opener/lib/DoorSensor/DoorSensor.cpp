@@ -11,7 +11,9 @@ namespace Victor::Components {
       if (openPin->interruptMode > 0) {
         _changed = STATE_CHANGE_NO;
         const auto interruptPin = digitalPinToInterrupt(openPin->pin);
-        attachInterrupt(interruptPin, _interruptHandler, openPin->interruptMode);
+        attachScheduledInterrupt(interruptPin, [&](const InterruptInfo info) {
+          this->_interruptHandler(info);
+        }, openPin->interruptMode);
       }
     }
     // closed sensor
@@ -22,7 +24,9 @@ namespace Victor::Components {
       if (closedPin->interruptMode > 0) {
         _changed = STATE_CHANGE_NO;
         const auto interruptPin = digitalPinToInterrupt(closedPin->pin);
-        attachInterrupt(interruptPin, _interruptHandler, closedPin->interruptMode);
+        attachScheduledInterrupt(interruptPin, [&](const InterruptInfo info) {
+          this->_interruptHandler(info);
+        }, closedPin->interruptMode);
       }
     }
     // debounce
@@ -59,8 +63,12 @@ namespace Victor::Components {
     return state;
   }
 
-  void IRAM_ATTR DoorSensor::_interruptHandler() {
+  void DoorSensor::_interruptHandler(const InterruptInfo info) {
     _changed = STATE_CHANGE_YES;
+    console.log()
+      .bracket(F("interrupt"))
+      .section(F("pin"), String(info.pin))
+      .section(F("value"), String(info.value));
   }
 
 } // namespace Victor::Components

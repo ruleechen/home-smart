@@ -2,9 +2,10 @@
 #define DoorSensor_h
 
 #include <Arduino.h>
-#include <Pin/PinStorage.h>
-#include <Pin/DigitalInput.h>
-#include <Sensor/StateSensor.h>
+#include <FunctionalInterrupt.h>
+#include "Pin/PinStorage.h"
+#include "Pin/DigitalInput.h"
+#include "Sensor/StateSensor.h"
 #include "DoorStorage.h"
 
 namespace Victor::Components {
@@ -17,7 +18,7 @@ namespace Victor::Components {
    private:
     DigitalInput* _openSensor = nullptr;
     DigitalInput* _closedSensor = nullptr;
-    static void IRAM_ATTR _interruptHandler();
+    void _interruptHandler(const InterruptInfo info);
   };
 
 } // namespace Victor::Components

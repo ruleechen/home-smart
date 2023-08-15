@@ -2,9 +2,11 @@
 #define DigitalSensor_h
 
 #include <Arduino.h>
-#include <Pin/PinStorage.h>
-#include <Pin/DigitalInput.h>
-#include <Sensor/StateSensor.h>
+#include <FunctionalInterrupt.h>
+#include "Console.h"
+#include "Pin/PinStorage.h"
+#include "Pin/DigitalInput.h"
+#include "Sensor/StateSensor.h"
 
 namespace Victor::Components {
   class DigitalSensor : public StateSensor<bool> {
@@ -15,7 +17,7 @@ namespace Victor::Components {
 
    private:
     DigitalInput* _input = nullptr;
-    static void IRAM_ATTR _interruptHandler();
+    void _interruptHandler(const InterruptInfo info);
   };
 
 } // namespace Victor::Components

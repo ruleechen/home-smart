@@ -11,7 +11,9 @@ namespace Victor::Components {
       if (config->interruptMode > 0) {
         _changed = STATE_CHANGE_NO;
         const auto interruptPin = digitalPinToInterrupt(config->pin);
-        attachInterrupt(interruptPin, _interruptHandler, config->interruptMode);
+        attachScheduledInterrupt(interruptPin, [&](const InterruptInfo info) {
+          this->_interruptHandler(info);
+        }, config->interruptMode);
       }
     }
   }
@@ -31,8 +33,12 @@ namespace Victor::Components {
       : false;
   }
 
-  void IRAM_ATTR DigitalSensor::_interruptHandler() {
+  void DigitalSensor::_interruptHandler(const InterruptInfo info) {
     _changed = STATE_CHANGE_YES;
+    console.log()
+      .bracket(F("interrupt"))
+      .section(F("pin"), String(info.pin))
+      .section(F("value"), String(info.value));
   }
 
 } // namespace Victor::Components
