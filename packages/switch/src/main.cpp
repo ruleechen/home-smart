@@ -86,8 +86,7 @@ void setup(void) {
       .bracket(F("button"))
       .section(F("action"), String(action));
     if (action == BUTTON_ACTION_PRESSED) {
-      const auto outputValue = binaryIO->getOutputState();
-      setOnState(!outputValue, connective); // toggle
+      setOnState(!onState.value.bool_value, connective); // toggle
     } else if (action == BUTTON_ACTION_RELEASED) {
       times.count(); // count only for real button released
     } else if (action == BUTTON_ACTION_DOUBLE_PRESSED) {

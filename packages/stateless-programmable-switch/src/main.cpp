@@ -70,7 +70,6 @@ void buttonAction(const uint8_t index, const ButtonAction action) {
     .section(F("action"), String(action));
   if (action == BUTTON_ACTION_PRESSED) {
     setEventState(index, BUTTON_EVENT_SINGLE_PRESS, connective);
-    builtinLed.flash();
   } else if (action == BUTTON_ACTION_RELEASED) {
     times.count(); // count only for real button released
   } else if (action == BUTTON_ACTION_DOUBLE_PRESSED) {
