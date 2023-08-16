@@ -59,15 +59,14 @@ void setEventState(const uint8_t index, const ProgrammableSwitchEvent value, con
     homekit_characteristic_notify(&eventState, eventState.value);
   }
   console.log()
-    .section(F("index"), String(index))
+    .section(F("button"), String(index))
     .section(F("state"), toProgrammableSwitchEventName(value))
     .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
 void buttonAction(const uint8_t index, const ButtonAction action) {
   console.log()
-    .bracket(F("button"))
-    .section(F("index"), String(index))
+    .section(F("button"), String(index))
     .section(F("action"), String(action));
   if (action == BUTTON_ACTION_PRESSED) {
     setEventState(index, BUTTON_EVENT_SINGLE_PRESS, connective);
