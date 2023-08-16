@@ -33,9 +33,11 @@ namespace Victor::Components {
     }
 
     const auto appSetting = appStorage.load();
-    _sleepMillis = appSetting->sleepMillis;
-    if (appSetting->heartbeat > 0) {
-      _heartbeat = new IntervalOverAuto(appSetting->heartbeat);
+    if (appSetting != nullptr) {
+      _sleepMillis = appSetting->sleepMillis;
+      if (appSetting->heartbeat > 0) {
+        _heartbeat = new IntervalOverAuto(appSetting->heartbeat);
+      }
     }
 
     builtinLed.setup("/led.json");

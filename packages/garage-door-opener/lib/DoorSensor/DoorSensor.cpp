@@ -6,7 +6,7 @@ namespace Victor::Components {
     // open sensor
     const auto openJson = new PinStorage("/doorOpen.json");
     const auto openPin = openJson->load();
-    if (openPin->enable) {
+    if (openPin != nullptr && openPin->enable) {
       _openSensor = new DigitalInput(openPin);
       if (openPin->interruptMode > 0) {
         _changed = STATE_CHANGE_NO;
@@ -19,7 +19,7 @@ namespace Victor::Components {
     // closed sensor
     const auto closedJson = new PinStorage("/doorClosed.json");
     const auto closedPin = closedJson->load();
-    if (closedPin->enable) {
+    if (closedPin != nullptr && closedPin->enable) {
       _closedSensor = new DigitalInput(closedPin);
       if (closedPin->interruptMode > 0) {
         _changed = STATE_CHANGE_NO;
@@ -31,7 +31,9 @@ namespace Victor::Components {
     }
     // debounce
     const auto setting = doorStorage.load();
-    setDebounce(setting->debounce);
+    if (setting != nullptr) {
+      setDebounce(setting->debounce);
+    }
     // others
     _state = readState();
   }

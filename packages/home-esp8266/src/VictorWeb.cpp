@@ -460,8 +460,8 @@ namespace Victor::Components {
       DynamicJsonDocument res(512);
       const auto setting = radioStorage.load();
       res[F("millis")] = millis();
-      res[F("inputPin")] = setting->inputPin;
-      res[F("outputPin")] = setting->outputPin;
+      res[F("inputPin")] = setting != nullptr ? setting->inputPin : -1;
+      res[F("outputPin")] = setting != nullptr ? setting->outputPin : -1;
       // last received
       const auto lastReceived = radioStorage.getLastReceived();
       if (lastReceived != nullptr) {
@@ -486,9 +486,11 @@ namespace Victor::Components {
       const int8_t outputPin = payload[F("outputPin")];
       // action
       auto setting = radioStorage.load();
-      setting->inputPin = inputPin;
-      setting->outputPin = outputPin;
-      radioStorage.save(setting);
+      if (setting != nullptr) {
+        setting->inputPin = inputPin;
+        setting->outputPin = outputPin;
+        radioStorage.save(setting);
+      }
       // res
       DynamicJsonDocument res(64);
       res[F("msg")] = F("success");
@@ -500,14 +502,16 @@ namespace Victor::Components {
       _dispatchRequestStart();
       DynamicJsonDocument res(1024 + 512);
       // emits
-      const auto setting = radioStorage.load();
       const JsonArray emitArr = res.createNestedArray(F("emits"));
-      for (const auto emit : setting->emits) {
-        const JsonObject emitObj = emitArr.createNestedObject();
-        emitObj[F("name")] = emit->name;
-        emitObj[F("value")] = emit->value;
-        emitObj[F("channel")] = emit->channel;
-        emitObj[F("press")] = emit->press;
+      const auto setting = radioStorage.load();
+      if (setting != nullptr) {
+        for (const auto emit : setting->emits) {
+          const JsonObject emitObj = emitArr.createNestedObject();
+          emitObj[F("name")] = emit->name;
+          emitObj[F("value")] = emit->value;
+          emitObj[F("channel")] = emit->channel;
+          emitObj[F("press")] = emit->press;
+        }
       }
       // last received
       const auto lastReceived = radioStorage.getLastReceived();
@@ -531,19 +535,23 @@ namespace Victor::Components {
       const auto emitItems = payload[F("emits")];
       // save
       auto setting = radioStorage.load();
-      for (auto emit : setting->emits) { delete emit; }
-      setting->emits.clear();
-      setting->emits.shrink_to_fit();
-      for (size_t i = 0; i < emitItems.size(); i++) {
-        const auto item = emitItems[i];
-        setting->emits.push_back(new RadioEmit({
-          .name = item[F("name")],
-          .value = item[F("value")],
-          .channel = item[F("channel")],
-          .press = RadioPressState(item[F("press")]),
-        }));
+      if (setting != nullptr) {
+        for (auto emit : setting->emits) {
+          delete emit;
+        }
+        setting->emits.clear();
+        setting->emits.shrink_to_fit();
+        for (size_t i = 0; i < emitItems.size(); i++) {
+          const auto item = emitItems[i];
+          setting->emits.push_back(new RadioEmit({
+            .name = item[F("name")],
+            .value = item[F("value")],
+            .channel = item[F("channel")],
+            .press = RadioPressState(item[F("press")]),
+          }));
+        }
+        radioStorage.save(setting);
       }
-      radioStorage.save(setting);
       // res
       DynamicJsonDocument res(64);
       res[F("msg")] = F("success");
@@ -574,14 +582,16 @@ namespace Victor::Components {
       _dispatchRequestStart();
       DynamicJsonDocument res(1024 + 512);
       // rules
-      const auto setting = radioStorage.load();
       const JsonArray ruleArr = res.createNestedArray(F("rules"));
-      for (const auto rule : setting->rules) {
-        const JsonObject ruleObj = ruleArr.createNestedObject();
-        ruleObj[F("value")] = rule->value;
-        ruleObj[F("channel")] = rule->channel;
-        ruleObj[F("press")] = rule->press;
-        ruleObj[F("action")] = rule->action;
+      const auto setting = radioStorage.load();
+      if (setting != nullptr) {
+        for (const auto rule : setting->rules) {
+          const JsonObject ruleObj = ruleArr.createNestedObject();
+          ruleObj[F("value")] = rule->value;
+          ruleObj[F("channel")] = rule->channel;
+          ruleObj[F("press")] = rule->press;
+          ruleObj[F("action")] = rule->action;
+        }
       }
       // last received
       const auto lastReceived = radioStorage.getLastReceived();
@@ -605,19 +615,23 @@ namespace Victor::Components {
       const auto ruleItems = payload[F("rules")];
       // save
       auto setting = radioStorage.load();
-      for (auto rule : setting->rules) { delete rule; }
-      setting->rules.clear();
-      setting->rules.shrink_to_fit();
-      for (size_t i = 0; i < ruleItems.size(); i++) {
-        const auto item = ruleItems[i];
-        setting->rules.push_back(new RadioRule({
-          .value = item[F("value")],
-          .channel = item[F("channel")],
-          .press = RadioPressState(item[F("press")]),
-          .action = RadioAction(item[F("action")]),
-        }));
+      if (setting != nullptr) {
+        for (auto rule : setting->rules) {
+          delete rule;
+        }
+        setting->rules.clear();
+        setting->rules.shrink_to_fit();
+        for (size_t i = 0; i < ruleItems.size(); i++) {
+          const auto item = ruleItems[i];
+          setting->rules.push_back(new RadioRule({
+            .value = item[F("value")],
+            .channel = item[F("channel")],
+            .press = RadioPressState(item[F("press")]),
+            .action = RadioAction(item[F("action")]),
+          }));
+        }
+        radioStorage.save(setting);
       }
-      radioStorage.save(setting);
       // res
       DynamicJsonDocument res(64);
       res[F("msg")] = F("success");
@@ -629,13 +643,15 @@ namespace Victor::Components {
       _dispatchRequestStart();
       DynamicJsonDocument res(1024 + 512);
       // commands
-      const auto setting = radioStorage.load();
       const JsonArray commandArr = res.createNestedArray(F("commands"));
-      for (const auto command : setting->commands) {
-        const JsonObject commandObj = commandArr.createNestedObject();
-        commandObj[F("entry")] = command->entry;
-        commandObj[F("action")] = command->action;
-        commandObj[F("press")] = command->press;
+      const auto setting = radioStorage.load();
+      if (setting != nullptr) {
+        for (const auto command : setting->commands) {
+          const JsonObject commandObj = commandArr.createNestedObject();
+          commandObj[F("entry")] = command->entry;
+          commandObj[F("action")] = command->action;
+          commandObj[F("press")] = command->press;
+        }
       }
       // end
       _sendJson(res);
@@ -652,18 +668,22 @@ namespace Victor::Components {
       const auto commandItems = payload[F("commands")];
       // save
       auto setting = radioStorage.load();
-      for (auto command : setting->commands) { delete command; }
-      setting->commands.clear();
-      setting->commands.shrink_to_fit();
-      for (size_t i = 0; i < commandItems.size(); i++) {
-        const auto item = commandItems[i];
-        setting->commands.push_back(new RadioCommand({
-          .entry = RadioCommandEntry(item[F("entry")]),
-          .action = item[F("action")],
-          .press = RadioPressState(item[F("press")]),
-        }));
+      if (setting != nullptr) {
+        for (auto command : setting->commands) {
+          delete command;
+        }
+        setting->commands.clear();
+        setting->commands.shrink_to_fit();
+        for (size_t i = 0; i < commandItems.size(); i++) {
+          const auto item = commandItems[i];
+          setting->commands.push_back(new RadioCommand({
+            .entry = RadioCommandEntry(item[F("entry")]),
+            .action = item[F("action")],
+            .press = RadioPressState(item[F("press")]),
+          }));
+        }
+        radioStorage.save(setting);
       }
-      radioStorage.save(setting);
       // res
       DynamicJsonDocument res(64);
       res[F("msg")] = F("success");

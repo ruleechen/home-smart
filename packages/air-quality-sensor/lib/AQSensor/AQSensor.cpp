@@ -36,17 +36,20 @@ namespace Victor::Components {
   // has to be called after every power-up or soft reset
   void AQSensor::_init() {
     const auto setting = climateStorage.load();
-    if (_measureInterval == nullptr && setting->aq->loopSeconds > 0) {
-      _measureInterval = new IntervalOverAuto(setting->aq->loopSeconds * 1000);
-    }
-    if (_resetInterval == nullptr && setting->aq->resetHours > 0) {
-      _resetInterval = new IntervalOverAuto(setting->aq->resetHours * 60 * 60 * 1000);
-    }
-    if (_storeInterval == nullptr && setting->aqBaseline->storeHours > 0) {
-      _storeInterval = new IntervalOver(setting->aqBaseline->storeHours * 60 * 60 * 1000);
+    if (setting != nullptr) {
+      if (_measureInterval == nullptr && setting->aq->loopSeconds > 0) {
+        _measureInterval = new IntervalOverAuto(setting->aq->loopSeconds * 1000);
+      }
+      if (_resetInterval == nullptr && setting->aq->resetHours > 0) {
+        _resetInterval = new IntervalOverAuto(setting->aq->resetHours * 60 * 60 * 1000);
+      }
+      if (_storeInterval == nullptr && setting->aqBaseline->storeHours > 0) {
+        _storeInterval = new IntervalOver(setting->aqBaseline->storeHours * 60 * 60 * 1000);
+      }
     }
     _sgp30->initAirQuality();
     if (
+      setting != nullptr &&
       setting->aqBaseline->load &&
       setting->aqBaseline->co2 > 0 &&
       setting->aqBaseline->tvoc > 0
@@ -86,10 +89,12 @@ namespace Victor::Components {
       if (_sgp30->getBaseline() == SGP30_SUCCESS) {
         _storeInterval->start(now);
         auto setting = climateStorage.load();
-        setting->aqBaseline->load = true; // once we have aq baseline generated, enable load for next boot
-        setting->aqBaseline->co2 = _sgp30->baselineCO2;
-        setting->aqBaseline->tvoc = _sgp30->baselineTVOC;
-        climateStorage.save(setting);
+        if (setting != nullptr) {
+          setting->aqBaseline->load = true; // once we have aq baseline generated, enable load for next boot
+          setting->aqBaseline->co2 = _sgp30->baselineCO2;
+          setting->aqBaseline->tvoc = _sgp30->baselineTVOC;
+          climateStorage.save(setting);
+        }
         console.log()
           .bracket(F("store"))
           .section(F("co2"), String(_sgp30->baselineCO2))

@@ -12,7 +12,10 @@ namespace Victor::Components {
 
   void VictorRadio::emit(const String& name) {
     const auto setting = radioStorage.load();
-    if (setting->outputPin > -1) {
+    if (
+      setting != nullptr &&
+      setting->outputPin > -1
+    ) {
       for (const auto emit : setting->emits) {
         if (emit->name == name) {
           _handleEmit(emit);
@@ -24,7 +27,11 @@ namespace Victor::Components {
 
   void VictorRadio::emit(uint8_t index) {
     const auto setting = radioStorage.load();
-    if (setting->outputPin > -1 && index < setting->emits.size()) {
+    if (
+      setting != nullptr &&
+      setting->outputPin > -1 &&
+      index < setting->emits.size()
+    ) {
       const auto emit = setting->emits[index];
       _handleEmit(emit);
     }
@@ -121,28 +128,31 @@ namespace Victor::Components {
     console.log()
       .bracket(F("radio"))
       .section(F("detected pressed"), String(press));
-    // check rules
+    // start matching
     const auto setting = radioStorage.load();
-    for (const auto rule : setting->rules) {
-      if (
-        rule->value == message->value &&
-        rule->channel == message->channel &&
-        rule->press == press
-      ) {
-        _proceedAction(rule);
-      }
-    }
-    // check commands
-    auto parsedCommand = _parseCommand(message->value);
-    if (parsedCommand != nullptr) {
-      for (const auto command : setting->commands) {
+    if (setting != nullptr) {
+      // check rules
+      for (const auto rule : setting->rules) {
         if (
-          command->entry == parsedCommand->entry &&
-          command->action == parsedCommand->action &&
-          command->press == press
+          rule->value == message->value &&
+          rule->channel == message->channel &&
+          rule->press == press
         ) {
-          _proceedCommand(parsedCommand);
-          delete parsedCommand;
+          _proceedAction(rule);
+        }
+      }
+      // check commands
+      auto parsedCommand = _parseCommand(message->value);
+      if (parsedCommand != nullptr) {
+        for (const auto command : setting->commands) {
+          if (
+            command->entry == parsedCommand->entry &&
+            command->action == parsedCommand->action &&
+            command->press == press
+          ) {
+            _proceedCommand(parsedCommand);
+            delete parsedCommand;
+          }
         }
       }
     }
@@ -229,8 +239,10 @@ namespace Victor::Components {
         switch (command->action) {
           case ENTRY_APP_NAME: {
             auto setting = appStorage.load();
-            setting->name = command->parameters;
-            appStorage.save(setting);
+            if (setting != nullptr) {
+              setting->name = command->parameters;
+              appStorage.save(setting);
+            }
             break;
           }
           case ENTRY_APP_OTA: {

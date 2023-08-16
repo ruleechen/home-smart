@@ -165,19 +165,19 @@ void setup(void) {
   const auto buttonPin1 = buttonJson1->load();
   const auto buttonPin2 = buttonJson2->load();
   const auto buttonPin3 = buttonJson3->load();
-  if (buttonPin1->enable) {
+  if (buttonPin1 != nullptr && buttonPin1->enable) {
     button1 = new ActionButtonInterrupt(buttonPin1);
     button1->onAction = [](const ButtonAction action) {
       buttonAction(1, action);
     };
   }
-  if (buttonPin2->enable) {
+  if (buttonPin2 != nullptr && buttonPin2->enable) {
     button2 = new ActionButtonInterrupt(buttonPin2);
     button2->onAction = [](const ButtonAction action) {
       buttonAction(2, action);
     };
   }
-  if (buttonPin3->enable) {
+  if (buttonPin3 != nullptr && buttonPin3->enable) {
     button3 = new ActionButtonInterrupt(buttonPin3);
     button3->onAction = [](const ButtonAction action) {
       buttonAction(3, action);

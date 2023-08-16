@@ -6,7 +6,7 @@ namespace Victor::Components {
     // button
     const auto buttonJson = new PinStorage("/button.json");
     const auto buttonPin = buttonJson->load();
-    if (buttonPin->enable) {
+    if (buttonPin != nullptr && buttonPin->enable) {
       _button = new ActionButtonInput(buttonPin);
       _button->onAction = [&](ButtonAction action) {
         if (onButtonAction != nullptr) {
@@ -17,22 +17,24 @@ namespace Victor::Components {
     // output
     const auto outputJson = new PinStorage("/output.json");
     const auto outputPin = outputJson->load();
-    if (outputPin->enable) {
+    if (outputPin != nullptr && outputPin->enable) {
       _output = new DigitalOutput(outputPin);
     }
     // output2
     const auto outputJson2 = new PinStorage("/output2.json");
     const auto outputPin2 = outputJson2->load();
-    if (outputPin2->enable) {
+    if (outputPin2 != nullptr && outputPin2->enable) {
       _output2 = new DigitalOutput(outputPin2);
     }
     // state
     _stateStorage = new BinaryStateStorage("/state.json");
     const auto state = _stateStorage->load();
-    if (state->save) {
-      setOutputState(state->isOn);
-    } else {
-      setOutputState(state->initOn);
+    if (state != nullptr) {
+      if (state->save) {
+        setOutputState(state->isOn);
+      } else {
+        setOutputState(state->initOn);
+      }
     }
   }
 
@@ -77,6 +79,7 @@ namespace Victor::Components {
     // save state
     auto state = _stateStorage->load();
     if (
+      state != nullptr &&
       state->save &&
       state->isOn != value
     ) {

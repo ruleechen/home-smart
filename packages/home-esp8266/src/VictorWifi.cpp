@@ -24,7 +24,11 @@ namespace Victor::Components {
     _disconnectedHandler = WiFi.onStationModeDisconnected(std::bind(&VictorWifi::_handleStaDisconnected, this, std::placeholders::_1));
 
     const auto setting = _storage->load();
-    WiFi.begin(setting->ssid, setting->pswd);
+    if (setting != nullptr) {
+      WiFi.begin(setting->ssid, setting->pswd);
+    } else {
+      WiFi.begin();
+    }
 
     builtinLed.twinkle();
     _log().section(F("begin"))
@@ -63,7 +67,8 @@ namespace Victor::Components {
     _lightSleepEnabled = enable;
     if (enable) {
       const auto setting = _storage->load();
-      WiFi.setSleepMode(WIFI_LIGHT_SLEEP, setting->dtimMultiplier);
+      const auto dtimMultiplier = setting != nullptr ? setting->dtimMultiplier : 5;
+      WiFi.setSleepMode(WIFI_LIGHT_SLEEP, dtimMultiplier);
     } else {
       WiFi.setSleepMode(WIFI_MODEM_SLEEP);
     }
@@ -140,7 +145,7 @@ namespace Victor::Components {
 
   String VictorWifi::getHostName() {
     const auto setting = appStorage.load();
-    auto service = setting->brand.isEmpty()
+    auto service = (setting == nullptr || setting->brand.isEmpty())
       ? VICTOR_FIRMWARE_SERVICE
       : setting->brand;
     service.trim();
@@ -155,11 +160,11 @@ namespace Victor::Components {
     auto setting = _storage->load();
     if (_joiningSsid.isEmpty()) {
       // turn off AP only when it is not a new join
-      if (setting->autoMode) {
+      if (setting == nullptr || setting->autoMode) {
         setMode(WIFI_STA);
         enableLightSleep(true);
       }
-    } else {
+    } else if (setting != nullptr) {
       // save new wifi credential
       if (
         setting->ssid != _joiningSsid ||
@@ -177,7 +182,7 @@ namespace Victor::Components {
     builtinLed.twinkle();
     _log().section(F("station"), F("disconnected"));
     const auto setting = _storage->load();
-    if (setting->autoMode) {
+    if (setting == nullptr || setting->autoMode) {
       setMode(WIFI_AP_STA);
       enableLightSleep(false);
     }

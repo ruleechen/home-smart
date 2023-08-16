@@ -3,18 +3,20 @@
 namespace Victor::Components {
 
   HTSensor::HTSensor() {
-    const auto setting = climateStorage.load();
     #if VICTOR_FEATURES_SENSOR_HT_AHT10
       _aht10 = new AHT10();
     #endif
     #if VICTOR_FEATURES_SENSOR_HT_SHT3X
       _sht30 = new SHT31();
     #endif
-    if (setting->ht->loopSeconds > 0) {
-      _measureInterval = new IntervalOverAuto(setting->ht->loopSeconds * 1000);
-    }
-    if (setting->ht->resetHours > 0) {
-      _resetInterval = new IntervalOverAuto(setting->ht->resetHours * 60 * 60 * 1000);
+    const auto setting = climateStorage.load();
+    if (setting != nullptr) {
+      if (setting->ht->loopSeconds > 0) {
+        _measureInterval = new IntervalOverAuto(setting->ht->loopSeconds * 1000);
+      }
+      if (setting->ht->resetHours > 0) {
+        _resetInterval = new IntervalOverAuto(setting->ht->resetHours * 60 * 60 * 1000);
+      }
     }
   }
 

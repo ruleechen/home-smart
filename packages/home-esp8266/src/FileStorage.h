@@ -85,14 +85,17 @@ namespace Victor::Components {
           // convert
           _deserialize(model, doc);
         } else {
+          // model = nullptr;
           _error().section(F("parse failed"), error.f_str());
         }
         // close
         file.close();
       } else {
+        // model = nullptr;
         _error().section(F("open failed"));
       }
     } else {
+      model = nullptr;
       _error().section(F("notfound"), _filePath);
     }
     // set cache

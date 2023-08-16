@@ -60,17 +60,21 @@ namespace Victor::Components {
   }
 
   void VictorOTA::_updateSketch() {
-    WiFiClient client;
     const auto setting = _storage->load();
-    const auto currentVersion = getCurrentVersion();
-    ESPhttpUpdate.update(client, setting->remote, currentVersion);
+    if (setting != nullptr) {
+      WiFiClient client;
+      const auto currentVersion = getCurrentVersion();
+      ESPhttpUpdate.update(client, setting->remote, currentVersion);
+    }
   }
 
   void VictorOTA::_updateFileSystem() {
-    WiFiClient client;
     const auto setting = _storage->load();
-    const auto currentVersion = getCurrentVersion();
-    ESPhttpUpdate.updateFS(client, setting->remote, currentVersion);
+    if (setting != nullptr) {
+      WiFiClient client;
+      const auto currentVersion = getCurrentVersion();
+      ESPhttpUpdate.updateFS(client, setting->remote, currentVersion);
+    }
   }
 
   void VictorOTA::_handleStart() {

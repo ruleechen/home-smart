@@ -247,7 +247,7 @@ void setup(void) {
   // button
   const auto buttonJson = new PinStorage("/button.json");
   const auto buttonPin = buttonJson->load();
-  if (buttonPin->enable) {
+  if (buttonPin != nullptr && buttonPin->enable) {
     button = new ActionButtonInterrupt(buttonPin);
     button->onAction = [](const ButtonAction action) {
       console.log()
@@ -272,6 +272,7 @@ void setup(void) {
   const auto i2cStorage = new I2cStorage("/i2c.json");
   const auto i2c = i2cStorage->load();
   if (
+    i2c != nullptr &&
     i2c->chipSelect != nullptr &&
     i2c->chipSelect->pin > -1
   ) {
@@ -289,7 +290,7 @@ void setup(void) {
 
   // setup ht sensor
   const auto climate = climateStorage.load();
-  if (climate->ht->enable) {
+  if (climate != nullptr && climate->ht->enable) {
     if (climate->ht->reportSeconds > 0) {
       const auto offsetFactor = random(1, 10);
       htReportInt = new IntervalOverAuto((climate->ht->reportSeconds + offsetFactor) * 1000);
@@ -303,7 +304,7 @@ void setup(void) {
   }
 
   // setup aq sensor
-  if (climate->aq->enable) {
+  if (climate != nullptr && climate->aq->enable) {
     if (climate->aq->reportSeconds > 0) {
       const auto offsetFactor = random(1, 10);
       aqReportInt = new IntervalOverAuto((climate->aq->reportSeconds + offsetFactor) * 1000);
@@ -324,16 +325,17 @@ void setup(void) {
 
 void loop(void) {
   arduino_homekit_loop();
-  // loop sensor
-  const auto now = millis();
-  const auto climate = climateStorage.load();
   const auto isPaired = arduino_homekit_get_running_server()->paired;
   const auto connective = victorWifi.isConnective() && isPaired;
   const auto isLightSleep = victorWifi.isLightSleepMode() && isPaired;
-  if (ht != nullptr) { measureHT(climate->ht, connective, now); }
-  if (aq != nullptr) { measureAQ(climate->aq, connective, now); }
-  // sleep
   appMain->loop(isLightSleep);
+  // sensor
+  const auto climate = climateStorage.load();
+  if (climate != nullptr) {
+    const auto now = millis();
+    if (ht != nullptr) { measureHT(climate->ht, connective, now); }
+    if (aq != nullptr) { measureAQ(climate->aq, connective, now); }
+  }
   // button
   if (button != nullptr) {
     button->loop();

@@ -130,7 +130,7 @@ void setCurrentDoorState(const CurrentDoorState newState, const bool notify) {
     newState == CURRENT_DOOR_STATE_CLOSED
   ) {
     const auto setting = doorStorage.load();
-    if (setting->autoStop > 0) {
+    if (setting != nullptr && setting->autoStop > 0) {
       // pause some time before emit stop command to wait for door really stopped
       if (setting->autoStop > 1) { delay(setting->autoStop); }
       // emit stop command
@@ -156,11 +156,13 @@ void setup(void) {
 
   // setup radio
   const auto radioJson = radioStorage.load();
-  if (radioJson->inputPin > 0) {
-    rf.enableReceive(radioJson->inputPin);
-  }
-  if (radioJson->outputPin > 0) {
-    rf.enableTransmit(radioJson->outputPin);
+  if (radioJson != nullptr) {
+    if (radioJson->inputPin > 0) {
+      rf.enableReceive(radioJson->inputPin);
+    }
+    if (radioJson->outputPin > 0) {
+      rf.enableTransmit(radioJson->outputPin);
+    }
   }
   appMain->radioPortal->onEmit = [](const RadioEmit* emit) {
     const auto value = emit->value.toInt();
