@@ -1,6 +1,6 @@
 {
   "name": "home-esp8266",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "description": "ESP8266 foundation on Arduino",
   "keywords": [
     "esp8266",
