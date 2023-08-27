@@ -30,11 +30,10 @@ namespace Victor::Components {
     _stateStorage = new BinaryStateStorage("/state.json");
     const auto state = _stateStorage->load();
     if (state != nullptr) {
-      if (state->save) {
-        setOutputState(state->isOn);
-      } else {
-        setOutputState(state->initOn);
-      }
+      const auto savedState = state->save
+        ? state->isOn
+        : state->initOn;
+      setOutputState(savedState);
     }
   }
 
@@ -64,9 +63,19 @@ namespace Victor::Components {
   }
 
   bool BinaryIO::getOutputState() {
-    return _output != nullptr
-      ? _output->lastValue()
-      : false;
+    // read actual output state prior
+    if (_output != nullptr) {
+      return _output->lastValue();
+    }
+    // read saved output state secondly
+    const auto state = _stateStorage->load();
+    if (state != nullptr) {
+      return state->save
+        ? state->isOn
+        : state->initOn;
+    }
+    // default
+    return false;
   }
 
   void BinaryIO::setOutputState(bool value) {
