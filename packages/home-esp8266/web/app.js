@@ -153,6 +153,21 @@ vic.mSelect = (name, value, options) => {
   );
 };
 
+function fc(cell) {
+  if (typeof cell !== "string") {
+    return cell;
+  }
+  const parts = cell.split("|");
+  if (parts.length !== 2) {
+    return cell;
+  }
+  if (parts[0] === "ago") {
+    const millis = parseFloat(parts[1], 10);
+    return vic.ago(millis, 0);
+  }
+  return cell;
+}
+
 vic.mTable = (data) => {
   let rows = [];
   let cols = 0;
@@ -161,7 +176,7 @@ vic.mTable = (data) => {
     rows.push(
       m(
         "tr",
-        data.header.map((c) => m("th", [c]))
+        data.header.map((c) => m("th", [fc(c)]))
       )
     );
   }
@@ -173,7 +188,7 @@ vic.mTable = (data) => {
       data.rows.map((row) =>
         m(
           "tr",
-          row.map((cell) => m("td", [cell]))
+          row.map((cell) => m("td", [fc(cell)]))
         )
       )
     );

@@ -53,6 +53,10 @@ namespace Victor {
       return String(state) + F("%");
     }
 
+    static String toMillisAgo(unsigned long state) {
+      return F("ago|") + String(state);
+    }
+
   };
 
 } // namespace Victor
