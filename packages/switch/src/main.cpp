@@ -24,7 +24,12 @@ BinaryIO* binaryIO = nullptr;
 String hostName;
 String serialNumber;
 
-void setOnState(const bool value, const bool notify) {
+String lastActName;
+unsigned long lastActMillis = 0;
+
+void setOnState(const String actName, const bool value, const bool notify) {
+  lastActName = actName;
+  lastActMillis = millis();
   ESP.wdtFeed();
   builtinLed.flash();
   onState.value.bool_value = value;
@@ -33,6 +38,7 @@ void setOnState(const bool value, const bool notify) {
   }
   binaryIO->setOutputState(value);
   console.log()
+    .section(F("act"), actName)
     .section(F("state"), GlobalHelpers::toOnOffName(value))
     .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
@@ -52,10 +58,12 @@ void setup(void) {
   // setup web
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
-    states.push_back({ .text = F("Service"), .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("State"),   .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
-    states.push_back({ .text = F("Paired"),  .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
-    states.push_back({ .text = F("Clients"), .value = String(arduino_homekit_connected_clients_count()) });
+    states.push_back({ .text = F("Service"),  .value = VICTOR_ACCESSORY_SERVICE_NAME });
+    states.push_back({ .text = F("State"),    .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
+    states.push_back({ .text = F("Last Act"), .value = GlobalHelpers::toMillisAgo(millis() - lastActMillis) });
+    states.push_back({ .text = F("Act Name"), .value = lastActName });
+    states.push_back({ .text = F("Paired"),   .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Clients"),  .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") });
     buttons.push_back({ .text = F("Toggle"), .value = F("Toggle") });
@@ -65,7 +73,7 @@ void setup(void) {
       homekit_server_reset();
       ESP.restart();
     } else if (value == F("Toggle")) {
-      setOnState(!onState.value.bool_value, connective);
+      setOnState(F("post"), !onState.value.bool_value, connective);
     }
   };
 
@@ -74,19 +82,19 @@ void setup(void) {
   serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWifi.getHostId();
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
-  onState.setter = [](const homekit_value_t value) { setOnState(value.bool_value, connective); };
+  onState.setter = [](const homekit_value_t value) { setOnState(F("setter"), value.bool_value, connective); };
   arduino_homekit_setup(&serverConfig);
   onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
 
   // setup binary io
   binaryIO = new BinaryIO();
-  setOnState(binaryIO->getOutputState(), false);
+  setOnState(F("setup"), binaryIO->getOutputState(), false);
   binaryIO->onButtonAction = [](const ButtonAction action) {
     console.log()
       .bracket(F("button"))
       .section(F("action"), String(action));
     if (action == BUTTON_ACTION_PRESSED) {
-      setOnState(!onState.value.bool_value, connective); // toggle
+      setOnState(F("pressed"), !onState.value.bool_value, connective); // toggle
     } else if (action == BUTTON_ACTION_RELEASED) {
       times.count(); // count only for real button released
     } else if (action == BUTTON_ACTION_DOUBLE_PRESSED) {
