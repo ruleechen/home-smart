@@ -19,8 +19,9 @@ homekit_characteristic_t accessoryModel        = HOMEKIT_CHARACTERISTIC_(MODEL, 
 homekit_characteristic_t accessoryVersion      = HOMEKIT_CHARACTERISTIC_(FIRMWARE_REVISION, VICTOR_FIRMWARE_VERSION);
 homekit_characteristic_t accessoryIdentify     = HOMEKIT_CHARACTERISTIC_(IDENTIFY, accessoryIdentifyHandler);
 homekit_characteristic_t accessoryNameInfo     = HOMEKIT_CHARACTERISTIC_(NAME, VICTOR_ACCESSORY_SERVICE_NAME); // change on setup
+
 // format: uint8; HAP section 9.89; 0 = Dots, 1 = Arabic numerals
-homekit_characteristic_t accessoryLabelNS      = HOMEKIT_CHARACTERISTIC_(SERVICE_LABEL_NAMESPACE, 1);
+// homekit_characteristic_t accessoryLabelNS      = HOMEKIT_CHARACTERISTIC_(SERVICE_LABEL_NAMESPACE, 1);
 
 homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
   .primary = false,
@@ -31,7 +32,7 @@ homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
     &accessoryVersion,
     &accessoryIdentify,
     &accessoryNameInfo,
-    &accessoryLabelNS,
+    // &accessoryLabelNS,
     NULL,
   },
 );
@@ -44,7 +45,7 @@ homekit_characteristic_t nameState1 = HOMEKIT_CHARACTERISTIC_(NAME, "Stateless P
 homekit_characteristic_t levelIndex1 = HOMEKIT_CHARACTERISTIC_(SERVICE_LABEL_INDEX, 1);
 
 homekit_service_t stateService1 = HOMEKIT_SERVICE_(STATELESS_PROGRAMMABLE_SWITCH,
-  .primary = true,
+  .primary = false,
   .characteristics = (homekit_characteristic_t*[]) {
     &eventState1,
     &nameState1,
