@@ -46,6 +46,7 @@ AQSensor* aq = nullptr;
 String hostName;
 String serialNumber;
 
+// format: uint8; HAP section 9.9; 0 = Unknown, 1 = Excellent, 2 = Good, 3 = Fair, 4 = Inferior, 5 = Poor
 enum AirQuality {
   AIR_QUALITY_UNKNOWN   = 0,
   AIR_QUALITY_EXCELLENT = 1,
@@ -86,8 +87,9 @@ AirQuality toAirQuality(const float value) {
   return AIR_QUALITY_POOR;
 }
 
-enum CarbonDioxide {
-  CARBON_DIOXIDE_NORMAL = 0,
+// format: uint8; HAP section 9.15; 0 = Carbon Dioxide levels are normal, 1 = Carbon Dioxide levels are abnormal
+enum CarbonDioxideDetected {
+  CARBON_DIOXIDE_NORMAL   = 0,
   CARBON_DIOXIDE_ABNORMAL = 1,
 };
 
@@ -95,7 +97,7 @@ String toCarbonDioxideName(const uint8_t state) {
   return state == CARBON_DIOXIDE_NORMAL ? F("Normal") : F("Abnormal");
 }
 
-CarbonDioxide toCarbonDioxide(const float value) {
+CarbonDioxideDetected toCarbonDioxide(const float value) {
   return value <= 599 ? CARBON_DIOXIDE_NORMAL : CARBON_DIOXIDE_ABNORMAL;
 }
 

@@ -23,10 +23,15 @@ DigitalSensor* sensor = nullptr;
 String hostName;
 String serialNumber;
 
-enum Occupancy {
+// format: uint8; HAP section 9.67; 0 = Occupancy is not detected, 1 = Occupancy is detected
+enum OccupancyDetected {
   OCCUPANCY_NOT_DETECTED = 0,
   OCCUPANCY_DETECTED     = 1,
 };
+
+OccupancyDetected boolToOccupancy(const bool value) {
+  return value ? OCCUPANCY_DETECTED : OCCUPANCY_NOT_DETECTED;
+}
 
 String toOccupancyName(const uint8_t state) {
   return (
@@ -35,8 +40,7 @@ String toOccupancyName(const uint8_t state) {
   );
 }
 
-void setOccupancyState(const bool value, const bool notify) {
-  const auto occupancy = value ? OCCUPANCY_DETECTED : OCCUPANCY_NOT_DETECTED;
+void setOccupancyState(const OccupancyDetected occupancy, const bool notify) {
   occupancyState.value.uint8_value = occupancy;
   if (notify) {
     homekit_characteristic_notify(&occupancyState, occupancyState.value);
@@ -96,10 +100,9 @@ void setup(void) {
   sensor = new DigitalSensor("/occupancy.json");
   sensor->onStateChange = [](const bool state) {
     builtinLed.flash();
-    setOccupancyState(state, connective);
-    setActiveState(true, connective);
+    setOccupancyState(boolToOccupancy(state), connective);
   };
-  setOccupancyState(sensor->readState(), connective);
+  setOccupancyState(boolToOccupancy(sensor->readState()), connective);
 
   // done
   console.log()

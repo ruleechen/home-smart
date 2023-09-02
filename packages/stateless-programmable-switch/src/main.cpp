@@ -28,6 +28,7 @@ ActionButtonInterrupt* button3 = nullptr;
 String hostName;
 String serialNumber;
 
+// format: uint8; HAP section 9.75; 0 = Single Press, 1 = Double Press, 2 = Long Press
 enum ProgrammableSwitchEvent {
   BUTTON_EVENT_SINGLE_PRESS = 0,
   BUTTON_EVENT_DOUBLE_PRESS = 1,

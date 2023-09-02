@@ -24,10 +24,15 @@ DigitalSensor* sensor = nullptr;
 String hostName;
 String serialNumber;
 
-enum Leak {
+// format: uint8; HAP section 9.50; 0 = Leak is not detected, 1 = Leak is detected
+enum LeakDetected {
   LEAK_NOT_DETECTED = 0,
   LEAK_DETECTED     = 1,
 };
+
+LeakDetected boolToLeak(const bool value) {
+  return value ? LEAK_DETECTED : LEAK_NOT_DETECTED;
+}
 
 String toLeakName(const uint8_t state) {
   return (
@@ -36,8 +41,7 @@ String toLeakName(const uint8_t state) {
   );
 }
 
-void setLeakState(const bool value, const bool notify) {
-  const auto leak = value ? LEAK_DETECTED : LEAK_NOT_DETECTED;
+void setLeakState(const LeakDetected leak, const bool notify) {
   leakState.value.uint8_value = leak;
   if (notify) {
     homekit_characteristic_notify(&leakState, leakState.value);
@@ -109,9 +113,9 @@ void setup(void) {
   sensor = new DigitalSensor("/leak.json");
   sensor->onStateChange = [](const bool state) {
     builtinLed.flash();
-    setLeakState(state, connective);
+    setLeakState(boolToLeak(state), connective);
   };
-  setLeakState(sensor->readState(), connective);
+  setLeakState(boolToLeak(sensor->readState()), connective);
 
   // done
   console.log()
