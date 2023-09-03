@@ -5,7 +5,7 @@
 #include "Pin/PinStorage.h"
 #include "Pin/DigitalOutput.h"
 #include "Button/ActionButtonInput.h"
-#include "BinaryStateStorage.h"
+#include "Storage/DigitalStateStorage/DigitalStateStorage.h"
 
 namespace Victor::Components {
   class BinaryIO {
@@ -22,7 +22,7 @@ namespace Victor::Components {
     ActionButtonInput* _button = nullptr;
     DigitalOutput* _output = nullptr;
     DigitalOutput* _output2 = nullptr;
-    BinaryStateStorage* _stateStorage = nullptr;
+    DigitalStateStorage* _stateStorage = nullptr;
   };
 
 } // namespace Victor::Components

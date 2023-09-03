@@ -27,12 +27,12 @@ namespace Victor::Components {
       _output2 = new DigitalOutput(outputPin2);
     }
     // state
-    _stateStorage = new BinaryStateStorage("/state.json");
+    _stateStorage = new DigitalStateStorage("/state.json");
     const auto state = _stateStorage->load();
     if (state != nullptr) {
       const auto savedState = state->save
-        ? state->isOn
-        : state->initOn;
+        ? state->currentValue
+        : state->initialValue;
       setOutputState(savedState);
     }
   }
@@ -71,8 +71,8 @@ namespace Victor::Components {
     const auto state = _stateStorage->load();
     if (state != nullptr) {
       return state->save
-        ? state->isOn
-        : state->initOn;
+        ? state->currentValue
+        : state->initialValue;
     }
     // default
     return false;
@@ -90,9 +90,9 @@ namespace Victor::Components {
     if (
       state != nullptr &&
       state->save &&
-      state->isOn != value
+      state->currentValue != value
     ) {
-      state->isOn = value;
+      state->currentValue = value;
       _stateStorage->save(state);
     }
   }
