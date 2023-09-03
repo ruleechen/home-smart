@@ -10,7 +10,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 #if VICTOR_FEATURES_RADIO
-  #include "RadioStorage/RadioStorage.h"
+  #include "Storage/RadioStorage/RadioStorage.h"
 #endif
 #include "VictorOTA.h"
 #include "VictorWifi.h"

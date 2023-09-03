@@ -6,8 +6,8 @@
 #include "Console.h"
 #include "VictorOTA.h"
 #include "VictorWifi.h"
-#include "AppStorage/AppStorage.h"
-#include "RadioStorage/RadioStorage.h"
+#include "Storage/AppStorage/AppStorage.h"
+#include "Storage/RadioStorage/RadioStorage.h"
 
 #ifndef VICTOR_RADIO_DOUBLE_PRESS_MIN
 #define VICTOR_RADIO_DOUBLE_PRESS_MIN 400

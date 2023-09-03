@@ -1,5 +1,5 @@
-#ifndef PinModels_h
-#define PinModels_h
+#ifndef PinConfig_h
+#define PinConfig_h
 
 namespace Victor::Components {
 
@@ -40,4 +40,4 @@ namespace Victor::Components {
 
 } // namespace Victor::Components
 
-#endif // PinModels_h
+#endif // PinConfig_h

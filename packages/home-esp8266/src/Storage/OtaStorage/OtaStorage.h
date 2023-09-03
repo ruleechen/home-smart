@@ -2,13 +2,9 @@
 #define OtaStorage_h
 
 #include "FileStorage.h"
+#include "OtaSetting.h"
 
 namespace Victor::Components {
-
-  struct OtaSetting {
-    // remote uri for query new Firmware/FileSystem image
-    String remote;
-  };
 
   class OtaStorage : public FileStorage<OtaSetting> {
    public:

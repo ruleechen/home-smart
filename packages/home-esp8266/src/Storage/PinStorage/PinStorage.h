@@ -2,7 +2,7 @@
 #define PinStorage_h
 
 #include "FileStorage.h"
-#include "PinModels.h"
+#include "PinConfig.h"
 
 namespace Victor::Components {
   class PinStorage : public FileStorage<PinConfig> {
