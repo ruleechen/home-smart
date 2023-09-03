@@ -19,13 +19,12 @@ extern "C" homekit_server_config_t serverConfig;
 extern "C" void onAccessoryIdentify(void (*callback)(const homekit_value_t value));
 
 AppMain* appMain = nullptr;
+String hostName;
+String serialNumber;
 bool connective = false;
 
 RCSwitch rf = RCSwitch();
 DoorSensor* doorSensor = nullptr;
-
-String hostName;
-String serialNumber;
 
 String toDoorStateName(const uint8_t state) {
   return (

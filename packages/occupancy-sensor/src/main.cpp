@@ -16,12 +16,11 @@ extern "C" homekit_server_config_t serverConfig;
 extern "C" void onAccessoryIdentify(void (*callback)(const homekit_value_t value));
 
 AppMain* appMain = nullptr;
+String hostName;
+String serialNumber;
 bool connective = false;
 
 DigitalSensor* sensor = nullptr;
-
-String hostName;
-String serialNumber;
 
 // format: uint8; HAP section 9.67; 0 = Occupancy is not detected, 1 = Occupancy is detected
 enum OccupancyDetected {

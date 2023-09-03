@@ -36,15 +36,14 @@ extern "C" homekit_server_config_t serverConfig;
 extern "C" void onAccessoryIdentify(void (*callback)(const homekit_value_t value));
 
 AppMain* appMain = nullptr;
+String hostName;
+String serialNumber;
 ActionButtonInterrupt* button = nullptr;
 
 IntervalOverAuto* htReportInt = nullptr;
 IntervalOverAuto* aqReportInt = nullptr;
 HTSensor* ht = nullptr;
 AQSensor* aq = nullptr;
-
-String hostName;
-String serialNumber;
 
 // format: uint8; HAP section 9.9; 0 = Unknown, 1 = Excellent, 2 = Good, 3 = Fair, 4 = Inferior, 5 = Poor
 enum AirQuality {

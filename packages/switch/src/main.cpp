@@ -16,16 +16,14 @@ extern "C" homekit_server_config_t serverConfig;
 extern "C" void onAccessoryIdentify(void (*callback)(const homekit_value_t value));
 
 AppMain* appMain = nullptr;
+String hostName;
+String serialNumber;
 bool connective = false;
+String lastActName;
+unsigned long lastActMillis = 0;
 
 TimesCounter times(1000);
 BinaryIO* binaryIO = nullptr;
-
-String hostName;
-String serialNumber;
-
-String lastActName;
-unsigned long lastActMillis = 0;
 
 void setOnState(const String actName, const bool value, const bool notify) {
   lastActName = actName;
