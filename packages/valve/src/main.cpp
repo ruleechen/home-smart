@@ -6,6 +6,7 @@
 #include <Pin/DigitalOutput.h>
 #include <Sensor/DigitalSensor.h>
 #include <Button/ActionButtonInterrupt.h>
+#include <Storage/DigitalStateStorage/DigitalStateStorage.h>
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -26,6 +27,7 @@ String lastActName;
 unsigned long lastActMillis = 0;
 
 ActionButtonInterrupt* button = nullptr;
+DigitalStateStorage* storage = nullptr;
 DigitalSensor* inUseSensor = nullptr;
 DigitalSensor* notInUseSensor = nullptr;
 DigitalOutput* motorLine1 = nullptr;
@@ -75,15 +77,28 @@ Active uint8ToActive(const uint8_t value) {
   return (value == 1) ? ACTIVE : INACTIVE;
 }
 
+Active boolToActive(const bool value) {
+  return value ? ACTIVE : INACTIVE;
+}
+
+bool activeToBool(const Active value) {
+  return (value == ACTIVE) ? true : false;
+}
+
 InUse boolToInUse(const bool value) {
   return value ? IN_USE : NOT_IN_USE;
 }
 
-String toActiveName(const uint8_t state) {
+String toActiveName(const Active active) {
   return (
-    state == INACTIVE ? F("Inactive") :
-    state == ACTIVE   ? F("Active") : F("Unknown")
+    active == INACTIVE ? F("Inactive") :
+    active == ACTIVE   ? F("Active") : F("Unknown")
   );
+}
+
+String toActiveName(const uint8_t value) {
+  const auto active = uint8ToActive(value);
+  return toActiveName(active);
 }
 
 String toInUseName(const uint8_t state) {
@@ -128,6 +143,17 @@ void setInUseState(const String actName, const InUse value, const bool notify) {
     .section(F("notify"), GlobalHelpers::toYesNoName(notify));
 }
 
+void saveActiveState(const Active value) {
+  auto state = storage->load();
+  if (state != nullptr && state->save) {
+    const auto boolValue = activeToBool(value);
+    if (state->currentValue != boolValue) {
+      state->currentValue = boolValue;
+      storage->save(state);
+    }
+  }
+}
+
 void setActiveState(const String actName, const Active value, const bool notify) {
   lastActName = actName;
   lastActMillis = millis();
@@ -135,6 +161,7 @@ void setActiveState(const String actName, const Active value, const bool notify)
   if (notify) {
     homekit_characteristic_notify(&activeState, activeState.value);
   }
+  saveActiveState(value);
   console.log()
     .section(F("act"), actName)
     .section(F("state"), toActiveName(value))
@@ -265,7 +292,18 @@ void setup(void) {
   if (motorLine2Config != nullptr && motorLine2Config->enable) {
     motorLine2 = new DigitalOutput(motorLine2Config);
   }
-  motorIdle();
+
+  // storage
+  storage = new DigitalStateStorage("/state.json");
+  const auto state = storage->load();
+  if (state != nullptr) {
+    const auto savedState = state->save
+      ? state->currentValue
+      : state->initialValue;
+    setActive(F("setup"), boolToActive(savedState), false);
+  } else {
+    motorIdle();
+  }
 
   // done
   console.log()
