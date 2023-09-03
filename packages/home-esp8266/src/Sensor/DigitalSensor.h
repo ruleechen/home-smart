@@ -13,6 +13,7 @@ namespace Victor::Components {
    public:
     DigitalSensor(const char* pinJson);
     ~DigitalSensor();
+    bool isAvailable();
     bool readState() override;
 
    private:

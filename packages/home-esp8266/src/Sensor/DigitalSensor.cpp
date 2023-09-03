@@ -27,6 +27,10 @@ namespace Victor::Components {
     // detachInterrupt(digitalPinToInterrupt(1));
   }
 
+  bool DigitalSensor::isAvailable() {
+    return _input != nullptr;
+  }
+
   bool DigitalSensor::readState() {
     return _input != nullptr
       ? _input->getValue()
