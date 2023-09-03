@@ -4,8 +4,8 @@
 
 #include <AppMain/AppMain.h>
 #include <GlobalHelpers.h>
-#include <Pin/PinStorage.h>
-#include <I2cStorage/I2cStorage.h>
+#include <Storage/PinStorage/PinStorage.h>
+#include <Storage/I2cStorage/I2cStorage.h>
 #include <Button/ActionButtonInterrupt.h>
 
 #include "ClimateStorage.h"

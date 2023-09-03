@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <FunctionalInterrupt.h>
-#include "Pin/PinStorage.h"
+#include "Storage/PinStorage/PinStorage.h"
 #include "Pin/DigitalInput.h"
 #include "Sensor/StateSensor.h"
 #include "DoorStorage.h"
