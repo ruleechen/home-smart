@@ -95,8 +95,8 @@ void setup(void) {
   };
 
   // setup homekit server
-  hostName     = victorWifi.getHostName();
-  serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWifi.getHostId();
+  hostName     = victorWiFi.getHostName();
+  serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWiFi.getHostId();
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   onState.setter = [](const homekit_value_t value) { setOnState(value.bool_value, connective); };
@@ -117,8 +117,8 @@ void setup(void) {
       times.count(); // count only for real button released
     } else if (action == BUTTON_ACTION_DOUBLE_PRESSED) {
       builtinLed.flash(500);
-      const auto enable = victorWifi.isLightSleepMode();
-      victorWifi.enableAP(enable); // toggle enabling ap
+      const auto enable = victorWiFi.isLightSleepMode();
+      victorWiFi.enableAP(enable); // toggle enabling ap
     } else if (action == BUTTON_ACTION_PRESSED_HOLD_L1) {
       ESP.restart();
     } else if (action == BUTTON_ACTION_PRESSED_HOLD_L2) {
@@ -145,8 +145,8 @@ void setup(void) {
 void loop(void) {
   arduino_homekit_loop();
   const auto isPaired = arduino_homekit_get_running_server()->paired;
-  connective = victorWifi.isConnective() && isPaired;
-  const auto isLightSleep = victorWifi.isLightSleepMode() && isPaired;
+  connective = victorWiFi.isConnective() && isPaired;
+  const auto isLightSleep = victorWiFi.isLightSleepMode() && isPaired;
   appMain->loop(isLightSleep);
   binaryIO->loop();
   #if VICTOR_FEATURES_OUTLET_INUSE

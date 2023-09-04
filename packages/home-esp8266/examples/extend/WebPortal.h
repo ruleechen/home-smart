@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <Arduino.h>
-#include "VictorWeb.h"
+#include "Web/VictorWeb.h"
 
 namespace Victor::Components {
   class WebPortal : public VictorWeb {

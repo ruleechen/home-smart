@@ -4,7 +4,7 @@
 
 #include <AppMain/AppMain.h>
 #include <GlobalHelpers.h>
-#include <Storage/PinStorage/PinStorage.h>
+#include <Pin/Storage/PinStorage.h>
 #include <Storage/I2cStorage/I2cStorage.h>
 #include <Button/ActionButtonInterrupt.h>
 
@@ -238,8 +238,8 @@ void setup(void) {
   };
 
   // setup homekit server
-  hostName     = victorWifi.getHostName();
-  serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWifi.getHostId();
+  hostName     = victorWiFi.getHostName();
+  serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWiFi.getHostId();
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   arduino_homekit_setup(&serverConfig);
@@ -258,8 +258,8 @@ void setup(void) {
         builtinLed.flash();
       } else if (action == BUTTON_ACTION_DOUBLE_PRESSED) {
         builtinLed.flash(500);
-        const auto enable = victorWifi.isLightSleepMode();
-        victorWifi.enableAP(enable); // toggle enabling ap
+        const auto enable = victorWiFi.isLightSleepMode();
+        victorWiFi.enableAP(enable); // toggle enabling ap
       } else if (action == BUTTON_ACTION_PRESSED_HOLD_L1) {
         ESP.restart();
       } else if (action == BUTTON_ACTION_PRESSED_HOLD_L2) {
@@ -327,8 +327,8 @@ void setup(void) {
 void loop(void) {
   arduino_homekit_loop();
   const auto isPaired = arduino_homekit_get_running_server()->paired;
-  const auto connective = victorWifi.isConnective() && isPaired;
-  const auto isLightSleep = victorWifi.isLightSleepMode() && isPaired;
+  const auto connective = victorWiFi.isConnective() && isPaired;
+  const auto isLightSleep = victorWiFi.isLightSleepMode() && isPaired;
   appMain->loop(isLightSleep);
   // sensor
   const auto climate = climateStorage.load();

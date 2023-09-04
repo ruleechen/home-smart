@@ -146,8 +146,8 @@ void setup(void) {
   };
 
   // setup homekit server
-  hostName     = victorWifi.getHostName();
-  serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWifi.getHostId();
+  hostName     = victorWiFi.getHostName();
+  serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWiFi.getHostId();
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   eventState1.getter = []() { return HOMEKIT_NULL_CPP(); }; // See HAP section 9.75; Should always return "null" for reading
@@ -192,8 +192,8 @@ void setup(void) {
 void loop(void) {
   arduino_homekit_loop();
   const auto isPaired = arduino_homekit_get_running_server()->paired;
-  connective = victorWifi.isConnective() && isPaired;
-  const auto isLightSleep = victorWifi.isLightSleepMode() && isPaired;
+  connective = victorWiFi.isConnective() && isPaired;
+  const auto isLightSleep = victorWiFi.isLightSleepMode() && isPaired;
   appMain->loop(isLightSleep);
   if (button1 != nullptr) { button1->loop(); }
   if (button2 != nullptr) { button2->loop(); }

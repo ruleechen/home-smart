@@ -208,8 +208,8 @@ void setup(void) {
   setCurrentDoorState(doorSensor->readState(), false);
 
   // setup homekit server
-  hostName     = victorWifi.getHostName();
-  serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWifi.getHostId();
+  hostName     = victorWiFi.getHostName();
+  serialNumber = String(accessorySerialNumber.value.string_value) + "/" + victorWiFi.getHostId();
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   targetDoorState.setter = [](const homekit_value_t value) { setTargetDoorState(TargetDoorState(value.uint8_value), connective); };
@@ -225,8 +225,8 @@ void setup(void) {
 void loop(void) {
   arduino_homekit_loop();
   const auto isPaired = arduino_homekit_get_running_server()->paired;
-  connective = victorWifi.isConnective() && isPaired;
-  const auto isLightSleep = victorWifi.isLightSleepMode() && isPaired;
+  connective = victorWiFi.isConnective() && isPaired;
+  const auto isLightSleep = victorWiFi.isLightSleepMode() && isPaired;
   appMain->loop(isLightSleep);
   doorSensor->loop();
   // loop radio
