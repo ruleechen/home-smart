@@ -170,15 +170,15 @@ namespace Victor::Components {
     }
     switch (rule->action) {
       case RADIO_ACTION_WIFI_STA: {
-        victorWifi.setMode(WIFI_STA);
+        victorWiFi.setMode(WIFI_STA);
         break;
       }
       case RADIO_ACTION_WIFI_STA_AP: {
-        victorWifi.setMode(WIFI_AP_STA);
+        victorWiFi.setMode(WIFI_AP_STA);
         break;
       }
       case RADIO_ACTION_WIFI_RESET: {
-        victorWifi.reset();
+        victorWiFi.reset();
         break;
       }
       case RADIO_ACTION_ESP_RESTART: {
@@ -209,7 +209,7 @@ namespace Victor::Components {
             if (credential.size() == 2) {
               const auto ssid = credential[0];
               const auto pswd = credential[1];
-              victorWifi.join(ssid, pswd, false);
+              victorWiFi.join(ssid, pswd, false);
             }
             break;
           }
@@ -217,14 +217,14 @@ namespace Victor::Components {
             const auto hasAP = command->parameters.indexOf(F("ap")) > -1;
             const auto hasSTA = command->parameters.indexOf(F("sta")) > -1;
             const auto isOff = command->parameters == F("off");
-            if (hasAP && hasSTA) { victorWifi.setMode(WIFI_AP_STA); }
-            else if (hasAP) { victorWifi.setMode(WIFI_AP); }
-            else if (hasSTA) { victorWifi.setMode(WIFI_STA); }
-            else if (isOff) { victorWifi.setMode(WIFI_OFF); }
+            if (hasAP && hasSTA) { victorWiFi.setMode(WIFI_AP_STA); }
+            else if (hasAP) { victorWiFi.setMode(WIFI_AP); }
+            else if (hasSTA) { victorWiFi.setMode(WIFI_STA); }
+            else if (isOff) { victorWiFi.setMode(WIFI_OFF); }
             break;
           }
           case ENTRY_WIFI_RESET: {
-            victorWifi.reset();
+            victorWiFi.reset();
             break;
           }
           case ENTRY_WIFI_NONE:

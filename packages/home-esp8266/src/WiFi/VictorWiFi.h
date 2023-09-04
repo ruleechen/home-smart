@@ -1,16 +1,16 @@
-#ifndef VictorWifi_h
-#define VictorWifi_h
+#ifndef VictorWiFi_h
+#define VictorWiFi_h
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include "Console.h"
 #include "BuiltinLed.h"
-#include "Storage/AppStorage/AppStorage.h"
-#include "Storage/WifiStorage/WifiStorage.h"
+#include "AppMain/Storage/AppStorage.h"
+#include "Storage/WiFiStorage.h"
 
 namespace Victor::Components {
-  class VictorWifi {
+  class VictorWiFi {
    public:
     void setup(const char* settingFile = "/wifi.json");
     void reset();
@@ -30,7 +30,7 @@ namespace Victor::Components {
     String getHostName();
 
    private:
-    WifiStorage* _storage = nullptr;
+    WiFiStorage* _storage = nullptr;
     WiFiEventHandler _gotIPHandler = nullptr;
     WiFiEventHandler _disconnectedHandler = nullptr;
     void _handleStaGotIP(const WiFiEventStationModeGotIP& args);
@@ -43,8 +43,8 @@ namespace Victor::Components {
   };
 
   // global
-  extern VictorWifi victorWifi;
+  extern VictorWiFi victorWiFi;
 
 } // namespace Victor::Components
 
-#endif // VictorWifi_h
+#endif // VictorWiFi_h

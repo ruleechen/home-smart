@@ -51,12 +51,12 @@ namespace Victor::Components {
     _server->on(F("/file"), HTTP_GET, std::bind(&VictorWeb::_handleFileGet, this));
     _server->on(F("/file"), HTTP_POST, std::bind(&VictorWeb::_handleFileSave, this));
     _server->on(F("/file"), HTTP_DELETE, std::bind(&VictorWeb::_handleFileDelete, this));
-    _server->on(F("/wifi"), HTTP_GET, std::bind(&VictorWeb::_handleWifi, this));
-    _server->on(F("/wifi/list"), HTTP_GET, std::bind(&VictorWeb::_handleWifiList, this));
-    _server->on(F("/wifi/join"), HTTP_POST, std::bind(&VictorWeb::_handleWifiJoin, this));
-    _server->on(F("/wifi/join/status"), HTTP_GET, std::bind(&VictorWeb::_handleWifiJoinStatus, this));
-    _server->on(F("/wifi/mode"), HTTP_POST, std::bind(&VictorWeb::_handleWifiMode, this));
-    _server->on(F("/wifi/reset"), HTTP_POST, std::bind(&VictorWeb::_handleWifiReset, this));
+    _server->on(F("/wifi"), HTTP_GET, std::bind(&VictorWeb::_handleWiFi, this));
+    _server->on(F("/wifi/list"), HTTP_GET, std::bind(&VictorWeb::_handleWiFiList, this));
+    _server->on(F("/wifi/join"), HTTP_POST, std::bind(&VictorWeb::_handleWiFiJoin, this));
+    _server->on(F("/wifi/join/status"), HTTP_GET, std::bind(&VictorWeb::_handleWiFiJoinStatus, this));
+    _server->on(F("/wifi/mode"), HTTP_POST, std::bind(&VictorWeb::_handleWiFiMode, this));
+    _server->on(F("/wifi/reset"), HTTP_POST, std::bind(&VictorWeb::_handleWiFiReset, this));
     _server->on(F("/ota"), HTTP_GET, std::bind(&VictorWeb::_handleOta, this));
     _server->on(F("/ota/fire"), HTTP_POST, std::bind(&VictorWeb::_handleOtaFire, this));
     #if VICTOR_FEATURES_RADIO
@@ -299,7 +299,7 @@ namespace Victor::Components {
     _dispatchRequestEnd();
   }
 
-  void VictorWeb::_handleWifi() {
+  void VictorWeb::_handleWiFi() {
     _dispatchRequestStart();
     // wifi
     const auto mode = WiFi.getMode();
@@ -327,10 +327,10 @@ namespace Victor::Components {
     // res
     DynamicJsonDocument res(512);
     // wifi
-    res[F("hostName")] = victorWifi.getHostName();
-    res[F("mdns")] = victorWifi.isMDNSRunning();
-    res[F("mode")] = victorWifi.modeName(mode);
-    res[F("sleepMode")] = victorWifi.sleepModeName(sleepMode);
+    res[F("hostName")] = victorWiFi.getHostName();
+    res[F("mdns")] = victorWiFi.isMDNSRunning();
+    res[F("mode")] = victorWiFi.modeName(mode);
+    res[F("sleepMode")] = victorWiFi.sleepModeName(sleepMode);
     res[F("listenInterval")] = WiFi.getListenInterval();
     res[F("joined")] = WiFi.SSID();
     res[F("rssi")] = WiFi.RSSI();
@@ -343,7 +343,7 @@ namespace Victor::Components {
     _dispatchRequestEnd();
   }
 
-  void VictorWeb::_handleWifiList() {
+  void VictorWeb::_handleWiFiList() {
     _dispatchRequestStart();
     DynamicJsonDocument res(1024);
     res[F("bssid")] = WiFi.BSSIDstr();
@@ -360,7 +360,7 @@ namespace Victor::Components {
     _dispatchRequestEnd();
   }
 
-  void VictorWeb::_handleWifiJoin() {
+  void VictorWeb::_handleWiFiJoin() {
     _dispatchRequestStart();
     // payload
     const auto payloadJson = _server->arg(F("plain"));
@@ -376,22 +376,22 @@ namespace Victor::Components {
     if (ssid.isEmpty()) {
       res[F("msg")] = F("input ssid to join");
     } else {
-      victorWifi.join(ssid, pswd, channel, (uint8_t*)bssid.c_str());
+      victorWiFi.join(ssid, pswd, channel, (uint8_t*)bssid.c_str());
       res[F("join")] = 1;
     }
     _sendJson(res);
     _dispatchRequestEnd();
   }
 
-  void VictorWeb::_handleWifiJoinStatus() {
+  void VictorWeb::_handleWiFiJoinStatus() {
     _dispatchRequestStart();
     DynamicJsonDocument res(64);
-    res[F("status")] = victorWifi.status();
+    res[F("status")] = victorWiFi.status();
     _sendJson(res);
     _dispatchRequestEnd();
   }
 
-  void VictorWeb::_handleWifiMode() {
+  void VictorWeb::_handleWiFiMode() {
     _dispatchRequestStart();
     // payload
     const auto payloadJson = _server->arg(F("plain"));
@@ -400,7 +400,7 @@ namespace Victor::Components {
     // read
     const uint8_t mode = payload[F("mode")];
     // set
-    victorWifi.setMode(WiFiMode_t(mode));
+    victorWiFi.setMode(WiFiMode_t(mode));
     // res
     DynamicJsonDocument res(64);
     res[F("msg")] = F("success");
@@ -408,10 +408,10 @@ namespace Victor::Components {
     _dispatchRequestEnd();
   }
 
-  void VictorWeb::_handleWifiReset() {
+  void VictorWeb::_handleWiFiReset() {
     _dispatchRequestStart();
     // set
-    victorWifi.reset();
+    victorWiFi.reset();
     // res
     DynamicJsonDocument res(64);
     res[F("msg")] = F("success");
@@ -696,7 +696,7 @@ namespace Victor::Components {
     _dispatchRequestStart();
     // read
     std::vector<TextValueModel> states = {
-      { .text = F("Identify"), .value = victorWifi.getHostName() }
+      { .text = F("Identify"), .value = victorWiFi.getHostName() }
     };
     std::vector<TextValueModel> buttons = {};
     if (onServiceGet != nullptr) {

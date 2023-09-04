@@ -1,7 +1,7 @@
 #ifndef DigitalStateStorage_h
 #define DigitalStateStorage_h
 
-#include "FileStorage.h"
+#include "Storage/FileStorage.h"
 #include "DigitalStateConfig.h"
 
 namespace Victor::Components {

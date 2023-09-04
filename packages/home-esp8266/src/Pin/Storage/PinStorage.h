@@ -1,7 +1,7 @@
 #ifndef PinStorage_h
 #define PinStorage_h
 
-#include "FileStorage.h"
+#include "Storage/FileStorage.h"
 #include "PinConfig.h"
 
 namespace Victor::Components {

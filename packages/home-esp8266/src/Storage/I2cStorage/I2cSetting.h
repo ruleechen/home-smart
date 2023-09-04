@@ -2,7 +2,7 @@
 #define I2cSetting_h
 
 #include <Arduino.h>
-#include "Storage/PinStorage/PinConfig.h"
+#include "Pin/Storage/PinConfig.h"
 
 namespace Victor::Components {
 

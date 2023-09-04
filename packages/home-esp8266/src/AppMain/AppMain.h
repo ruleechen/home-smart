@@ -3,17 +3,17 @@
 
 #include "Console.h"
 #include "BuiltinLed.h"
-#include "VictorOTA.h"
-#include "VictorWifi.h"
-#include "Storage/AppStorage/AppStorage.h"
+#include "OTA/VictorOTA.h"
+#include "WiFi/VictorWiFi.h"
+#include "Storage/AppStorage.h"
 #include "Timer/IntervalOverAuto.h"
 
 #if VICTOR_FEATURES_WEB
-  #include "VictorWeb.h"
+  #include "Web/VictorWeb.h"
 #endif
 
 #if VICTOR_FEATURES_RADIO
-  #include "VictorRadio.h"
+  #include "Radio/VictorRadio.h"
 #endif
 
 namespace Victor::Components {

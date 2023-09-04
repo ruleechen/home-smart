@@ -2,7 +2,7 @@
 #define DigitalOutput_h
 
 #include <Arduino.h>
-#include "Storage/PinStorage/PinConfig.h"
+#include "Storage/PinConfig.h"
 
 namespace Victor::Components {
   class DigitalOutput {

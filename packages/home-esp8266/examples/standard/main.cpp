@@ -2,10 +2,10 @@
 
 #include "Console.h"
 #include "BuiltinLed.h"
-#include "VictorOTA.h"
-#include "VictorWifi.h"
-#include "VictorRadio.h"
-#include "VictorWeb.h"
+#include "OTA/VictorOTA.h"
+#include "WiFi/VictorWiFi.h"
+#include "Radio/VictorRadio.h"
+#include "Web/VictorWeb.h"
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -25,7 +25,7 @@ void setup(void) {
   builtinLed.turnOn();
 
   victorOTA.setup("/ota.json");
-  victorWifi.setup("/wifi.json");
+  victorWiFi.setup("/wifi.json");
 
   radioPortal.onEmit = [](const RadioEmit* emit) {
     builtinLed.flash();

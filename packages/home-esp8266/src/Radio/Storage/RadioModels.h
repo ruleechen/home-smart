@@ -53,7 +53,7 @@ namespace Victor::Components {
     ENTRY_BOOLEAN = 4,
   };
 
-  enum EntryWifiAction {
+  enum EntryWiFiAction {
     ENTRY_WIFI_NONE  = 0,
     ENTRY_WIFI_JOIN  = 1, // parameter: {ssid}/{password}
     ENTRY_WIFI_MODE  = 2, // parameter: off, sta, ap, ap-sta

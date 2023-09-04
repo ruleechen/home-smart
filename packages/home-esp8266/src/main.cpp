@@ -51,8 +51,8 @@ void setup(void) {
       builtinLed.flash();
     } else if (action == BUTTON_ACTION_DOUBLE_PRESSED) {
       builtinLed.flash(500);
-      const auto enable = victorWifi.isLightSleepMode();
-      victorWifi.enableAP(enable); // toggle enabling ap
+      const auto enable = victorWiFi.isLightSleepMode();
+      victorWiFi.enableAP(enable); // toggle enabling ap
     } else if (action == BUTTON_ACTION_PRESSED_HOLD_L1) {
       ESP.restart();
     } else if (action == BUTTON_ACTION_PRESSED_HOLD_L2) {

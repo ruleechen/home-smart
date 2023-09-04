@@ -1,7 +1,7 @@
 #ifndef OtaStorage_h
 #define OtaStorage_h
 
-#include "FileStorage.h"
+#include "Storage/FileStorage.h"
 #include "OtaSetting.h"
 
 namespace Victor::Components {

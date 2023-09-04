@@ -1,7 +1,7 @@
 #ifndef BinaryIO_h
 #define BinaryIO_h
 
-#include "Storage/PinStorage/PinStorage.h"
+#include "Pin/Storage/PinStorage.h"
 #include "Storage/DigitalStateStorage/DigitalStateStorage.h"
 #include "Pin/DigitalInput.h"
 #include "Pin/DigitalOutput.h"

@@ -44,7 +44,7 @@ namespace Victor::Components {
     builtinLed.turnOn();
 
     victorOTA.setup("/ota.json");
-    victorWifi.setup("/wifi.json");
+    victorWiFi.setup("/wifi.json");
 
     #if VICTOR_FEATURES_WEB
       webPortal = new VictorWeb(80);
@@ -68,7 +68,7 @@ namespace Victor::Components {
     #endif
     // sleep
     if (sleepMode == -1) {
-      sleepMode = victorWifi.isLightSleepMode();
+      sleepMode = victorWiFi.isLightSleepMode();
     }
     if (sleepMode && _sleepMillis > 0) {
       delay(_sleepMillis);

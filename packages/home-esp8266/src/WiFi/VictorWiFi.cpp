@@ -1,9 +1,9 @@
-#include "VictorWifi.h"
+#include "VictorWiFi.h"
 
 namespace Victor::Components {
 
-  void VictorWifi::setup(const char* settingFile) {
-    _storage = new WifiStorage(settingFile);
+  void VictorWiFi::setup(const char* settingFile) {
+    _storage = new WiFiStorage(settingFile);
 
     setMode(WIFI_AP_STA);
     WiFi.persistent(true);
@@ -20,8 +20,8 @@ namespace Victor::Components {
 
     // need to keep the event handler for prevent unsubscribed automatically
     // https://github.com/esp8266/Arduino/issues/2545
-    _gotIPHandler = WiFi.onStationModeGotIP(std::bind(&VictorWifi::_handleStaGotIP, this, std::placeholders::_1));
-    _disconnectedHandler = WiFi.onStationModeDisconnected(std::bind(&VictorWifi::_handleStaDisconnected, this, std::placeholders::_1));
+    _gotIPHandler = WiFi.onStationModeGotIP(std::bind(&VictorWiFi::_handleStaGotIP, this, std::placeholders::_1));
+    _disconnectedHandler = WiFi.onStationModeDisconnected(std::bind(&VictorWiFi::_handleStaDisconnected, this, std::placeholders::_1));
 
     const auto setting = _storage->load();
     if (setting != nullptr) {
@@ -38,32 +38,32 @@ namespace Victor::Components {
       .section(F("ap-ip"), WiFi.softAPIP().toString());
   }
 
-  void VictorWifi::reset() {
+  void VictorWiFi::reset() {
     // wifi_config_reset();
     WiFi.disconnect(true);
     setMode(WIFI_AP_STA);
     builtinLed.twinkle();
   }
 
-  WiFiMode_t VictorWifi::getMode() const {
+  WiFiMode_t VictorWiFi::getMode() const {
     return WiFi.getMode();
   }
 
-  void VictorWifi::setMode(WiFiMode_t mode) {
+  void VictorWiFi::setMode(WiFiMode_t mode) {
     if (getMode() != mode) {
       WiFi.mode(mode);
       _log().section(F("mode"), modeName(mode));
     }
   }
 
-  void VictorWifi::enableAP(bool enable) {
+  void VictorWiFi::enableAP(bool enable) {
     WiFi.enableAP(enable);
     enableLightSleep(!enable);
     const auto mode = getMode();
     _log().section(F("mode"), modeName(mode));
   }
 
-  void VictorWifi::enableLightSleep(bool enable) {
+  void VictorWiFi::enableLightSleep(bool enable) {
     _lightSleepEnabled = enable;
     if (enable) {
       const auto setting = _storage->load();
@@ -76,19 +76,19 @@ namespace Victor::Components {
     _log().section(F("sleepMode"), sleepModeName(sleepMode));
   }
 
-  bool VictorWifi::isConnective() {
+  bool VictorWiFi::isConnective() {
     // no other logic here to keep it fast
     // as this is being called heavily by arduino loop
     return _connective;
   }
 
-  bool VictorWifi::isLightSleepMode() {
+  bool VictorWiFi::isLightSleepMode() {
     // no other logic here to keep it fast
     // as this is being called heavily by arduino loop
     return _lightSleepEnabled;
   }
 
-  String VictorWifi::modeName(WiFiMode_t mode) {
+  String VictorWiFi::modeName(WiFiMode_t mode) {
     if (mode == WIFI_STA) {
       return F("STA");
     } else if (mode == WIFI_AP) {
@@ -102,7 +102,7 @@ namespace Victor::Components {
     }
   }
 
-  String VictorWifi::sleepModeName(WiFiSleepType_t mode) {
+  String VictorWiFi::sleepModeName(WiFiSleepType_t mode) {
     if (mode == WIFI_LIGHT_SLEEP) {
       return F("Light");
     } else if (mode == WIFI_MODEM_SLEEP) {
@@ -114,28 +114,28 @@ namespace Victor::Components {
     }
   }
 
-  void VictorWifi::join(const String& ssid, const String& pswd, int32_t channel, uint8_t* bssid) {
+  void VictorWiFi::join(const String& ssid, const String& pswd, int32_t channel, uint8_t* bssid) {
     _log().section(F("joining"), ssid);
     _joiningSsid = ssid;
     _joiningPswd = pswd;
     WiFi.begin(ssid, pswd, channel, bssid, true);
   }
 
-  bool VictorWifi::isConnected() const {
+  bool VictorWiFi::isConnected() const {
     return WiFi.isConnected();
   }
 
-  bool VictorWifi::isMDNSRunning() const {
+  bool VictorWiFi::isMDNSRunning() const {
     return MDNS.isRunning();
   }
 
-  int8_t VictorWifi::status() {
+  int8_t VictorWiFi::status() {
     const auto result = WiFi.status();
     _log().section(F("got status"), String(result));
     return result;
   }
 
-  String VictorWifi::getHostId() {
+  String VictorWiFi::getHostId() {
     auto id = WiFi.macAddress();
     id.replace(F(":"), F(""));
     id.toUpperCase();
@@ -143,7 +143,7 @@ namespace Victor::Components {
     return id;
   }
 
-  String VictorWifi::getHostName() {
+  String VictorWiFi::getHostName() {
     const auto setting = appStorage.load();
     auto service = (setting == nullptr || setting->brand.isEmpty())
       ? VICTOR_FIRMWARE_SERVICE
@@ -153,7 +153,7 @@ namespace Victor::Components {
     return service + F("-") + getHostId();
   }
 
-  void VictorWifi::_handleStaGotIP(const WiFiEventStationModeGotIP& args) {
+  void VictorWiFi::_handleStaGotIP(const WiFiEventStationModeGotIP& args) {
     _connective = true;
     builtinLed.stop();
     _log().section(F("station")).section(F("got ip"), args.ip.toString());
@@ -177,7 +177,7 @@ namespace Victor::Components {
     }
   }
 
-  void VictorWifi::_handleStaDisconnected(const WiFiEventStationModeDisconnected& args) {
+  void VictorWiFi::_handleStaDisconnected(const WiFiEventStationModeDisconnected& args) {
     _connective = false;
     builtinLed.twinkle();
     _log().section(F("station"), F("disconnected"));
@@ -188,11 +188,11 @@ namespace Victor::Components {
     }
   }
 
-  Console VictorWifi::_log() {
+  Console VictorWiFi::_log() {
     return console.log().bracket(F("wifi"));
   }
 
   // global
-  VictorWifi victorWifi;
+  VictorWiFi victorWiFi;
 
 } // namespace Victor::Components

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <Ticker.h>
-#include "Storage/PinStorage/PinStorage.h"
+#include "Pin/Storage/PinStorage.h"
 #include "Pin/DigitalOutput.h"
 
 #ifndef VICTOR_BUILTIN_LED_FLASH

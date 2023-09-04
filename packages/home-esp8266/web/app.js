@@ -566,7 +566,7 @@ const FileItemView = (() => {
   };
 })();
 
-const WifiView = (() => {
+const WiFiView = (() => {
   const state = {
     data: {},
   };
@@ -633,7 +633,7 @@ const WifiView = (() => {
   };
 })();
 
-const WifiListView = (() => {
+const WiFiListView = (() => {
   const state = {
     bssid: null,
     founds: [{ bssid: "", ssid: "", channel: 0, rssi: 10 }],
@@ -791,7 +791,7 @@ const WifiListView = (() => {
   };
 })();
 
-const WifiModeView = (() => {
+const WiFiModeView = (() => {
   const state = {
     mode: "",
   };
@@ -821,7 +821,7 @@ const WifiModeView = (() => {
           ...smgr.message(),
           m("div.form", [
             vic.mRadioList(
-              "WifiMode",
+              "WiFiMode",
               [state.mode],
               [
                 { value: "3", text: "AP+STA" },
@@ -1442,9 +1442,9 @@ vic.appendRoute((config) =>
     "/service": ServiceView,
     "/system": SystemView,
     "/system/reset": SystemResetView,
-    "/wifi": WifiView,
-    "/wifi/list": WifiListView,
-    "/wifi/mode": WifiModeView,
+    "/wifi": WiFiView,
+    "/wifi/list": WiFiListView,
+    "/wifi/mode": WiFiModeView,
     "/fs": FileSystemView,
     "/fs/files": FileListView,
     "/fs/files/:path": FileItemView,

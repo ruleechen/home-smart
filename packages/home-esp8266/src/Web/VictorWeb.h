@@ -10,10 +10,10 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 #if VICTOR_FEATURES_RADIO
-  #include "Storage/RadioStorage/RadioStorage.h"
+  #include "Radio/Storage/RadioStorage.h"
 #endif
-#include "VictorOTA.h"
-#include "VictorWifi.h"
+#include "OTA/VictorOTA.h"
+#include "WiFi/VictorWiFi.h"
 
 #ifndef VICTOR_FILE_SIZE_LIMIT
 #define VICTOR_FILE_SIZE_LIMIT 2048 // 2k
@@ -67,12 +67,12 @@ namespace Victor::Components {
     void _handleFileGet();
     void _handleFileSave();
     void _handleFileDelete();
-    void _handleWifi();
-    void _handleWifiList();
-    void _handleWifiJoin();
-    void _handleWifiJoinStatus();
-    void _handleWifiMode();
-    void _handleWifiReset();
+    void _handleWiFi();
+    void _handleWiFiList();
+    void _handleWiFiJoin();
+    void _handleWiFiJoinStatus();
+    void _handleWiFiMode();
+    void _handleWiFiReset();
     void _handleOta();
     void _handleOtaFire();
     void _handleNotFound();

@@ -2,8 +2,8 @@
 
 #include "Console.h"
 #include "BuiltinLed.h"
-#include "VictorOTA.h"
-#include "VictorWifi.h"
+#include "OTA/VictorOTA.h"
+#include "WiFi/VictorWiFi.h"
 #include "WebPortal.h"
 
 using namespace Victor;
@@ -23,7 +23,7 @@ void setup(void) {
   builtinLed.turnOn();
 
   victorOTA.setup("/ota.json");
-  victorWifi.setup("/wifi.json");
+  victorWiFi.setup("/wifi.json");
 
   webPortal.onRequestStart = []() { builtinLed.toggle(); };
   webPortal.onRequestEnd = []() { builtinLed.toggle(); };

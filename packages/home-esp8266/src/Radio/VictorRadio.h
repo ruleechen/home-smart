@@ -4,10 +4,10 @@
 #include <Arduino.h>
 #include "GlobalHelpers.h"
 #include "Console.h"
-#include "VictorOTA.h"
-#include "VictorWifi.h"
-#include "Storage/AppStorage/AppStorage.h"
-#include "Storage/RadioStorage/RadioStorage.h"
+#include "OTA/VictorOTA.h"
+#include "WiFi/VictorWiFi.h"
+#include "AppMain/Storage/AppStorage.h"
+#include "Storage/RadioStorage.h"
 
 #ifndef VICTOR_RADIO_DOUBLE_PRESS_MIN
 #define VICTOR_RADIO_DOUBLE_PRESS_MIN 400

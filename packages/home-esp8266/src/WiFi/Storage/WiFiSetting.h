@@ -1,11 +1,11 @@
-#ifndef WifiSetting_h
-#define WifiSetting_h
+#ifndef WiFiSetting_h
+#define WiFiSetting_h
 
 #include <Arduino.h>
 
 namespace Victor::Components {
 
-  struct WifiSetting {
+  struct WiFiSetting {
     String ssid;
     String pswd;
     bool autoMode = true;
@@ -18,4 +18,4 @@ namespace Victor::Components {
 
 } // namespace Victor::Components
 
-#endif // WifiSetting_h
+#endif // WiFiSetting_h
