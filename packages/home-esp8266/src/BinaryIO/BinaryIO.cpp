@@ -31,8 +31,8 @@ namespace Victor::Components {
     const auto state = _stateStorage->load();
     if (state != nullptr) {
       const auto savedState = state->save
-        ? state->currentValue
-        : state->initialValue;
+        ? *state->currentValue
+        : *state->defaultValue;
       setOutputState(savedState);
     }
   }
@@ -71,8 +71,8 @@ namespace Victor::Components {
     const auto state = _stateStorage->load();
     if (state != nullptr) {
       return state->save
-        ? state->currentValue
-        : state->initialValue;
+        ? *state->currentValue
+        : *state->defaultValue;
     }
     // default
     return false;
@@ -90,9 +90,9 @@ namespace Victor::Components {
     if (
       state != nullptr &&
       state->save &&
-      state->currentValue != value
+      *state->currentValue != value
     ) {
-      state->currentValue = value;
+      state->currentValue = new bool(value);
       _stateStorage->save(state);
     }
   }

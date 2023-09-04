@@ -1,7 +1,6 @@
 #ifndef I2cSetting_h
 #define I2cSetting_h
 
-#include <Arduino.h>
 #include "Pin/Storage/PinConfig.h"
 
 namespace Victor::Components {
@@ -11,6 +10,7 @@ namespace Victor::Components {
     // pin I2C-SDA
     // Inter-Integrated Circuit - Serial Data (I2C-SDA)
     uint8_t sdaPin = 4; // (0~255)
+
     // pin I2C-SCL
     // Inter-Integrated Circuit - Serial Clock (I2C-SCL)
     uint8_t sclPin = 5; // (0~255)

@@ -1,20 +1,11 @@
 #ifndef DigitalStateConfig_h
 #define DigitalStateConfig_h
 
-#include <Arduino.h>
+#include "Storage/StateConfig.h"
 
 namespace Victor::Components {
 
-  struct DigitalStateConfig {
-    // save state or not
-    bool save = false;
-
-    // initial value
-    bool initialValue = false;
-
-    // state value saved
-    bool currentValue = false;
-  };
+  struct DigitalStateConfig : public StateConfig<bool> {};
 
 } // namespace Victor::Components
 
