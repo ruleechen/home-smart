@@ -147,8 +147,8 @@ void saveActiveState(const Active value) {
   auto state = storage->load();
   if (state != nullptr && state->save) {
     const auto boolValue = activeToBool(value);
-    if (state->currentValue != boolValue) {
-      state->currentValue = boolValue;
+    if (*state->currentValue != boolValue) {
+      state->currentValue = new bool(boolValue);
       storage->save(state);
     }
   }
@@ -298,8 +298,8 @@ void setup(void) {
   const auto state = storage->load();
   if (state != nullptr) {
     const auto savedState = state->save
-      ? state->currentValue
-      : state->initialValue;
+      ? *state->currentValue
+      : *state->defaultValue;
     setActive(F("setup"), boolToActive(savedState), false);
   } else {
     motorIdle();
