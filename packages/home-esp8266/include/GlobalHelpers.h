@@ -53,8 +53,12 @@ namespace Victor {
       return String(state) + F("%");
     }
 
+    static String appendFilter(String value, String filter) {
+      return value + F("|") + filter;
+    }
+
     static String toMillisAgo(unsigned long state) {
-      return F("ago|") + String(state);
+      return appendFilter(String(state), F("ago"));
     }
 
   };
