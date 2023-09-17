@@ -94,8 +94,10 @@ namespace Victor::Components {
           });
           onBeforeReadState(ev);
           if (ev->cancel) {
+            delete ev;
             return;
           }
+          delete ev;
         }
         const auto state = readState();
         if (onAfterReadState != nullptr) {
