@@ -6,6 +6,8 @@ namespace Victor::Components {
     start();
   }
 
+  IntervalOverAuto::~IntervalOverAuto() {}
+
   bool IntervalOverAuto::isOver(unsigned long now) {
     const auto over = IntervalOver::isOver(now);
     // auto start when over

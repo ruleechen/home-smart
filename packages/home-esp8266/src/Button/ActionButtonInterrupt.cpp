@@ -24,7 +24,9 @@ namespace Victor::Components {
         _button->update(item2->inputValue, item2->timestamp);
       }
       // reset
-      for (auto context : _contexts) { delete context; }
+      for (auto context : _contexts) {
+        delete context;
+      }
       _contexts.clear();
       _contexts.shrink_to_fit();
     }

@@ -5,6 +5,7 @@ namespace Victor::Components {
   DigitalSensor::DigitalSensor(const char* pinJson) : StateSensor(false) {
     const auto storage = new PinStorage(pinJson);
     const auto config = storage->load();
+    delete storage;
     if (config != nullptr && config->enable) {
       _input = new DigitalInput(config);
       setDebounce(config->debounce);

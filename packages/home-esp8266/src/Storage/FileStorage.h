@@ -40,6 +40,7 @@ namespace Victor::Components {
   class FileStorage {
    public:
     FileStorage(const char* filePath);
+    virtual ~FileStorage();
     TModel* load();
     bool save(const TModel* model);
 
@@ -56,6 +57,15 @@ namespace Victor::Components {
   template <typename TModel>
   FileStorage<TModel>::FileStorage(const char* filePath) {
     _filePath = filePath;
+  }
+
+  template <typename TModel>
+  FileStorage<TModel>::~FileStorage() {
+    _filePath = nullptr;
+    if (_model != nullptr) {
+      // delete _model;
+      _model = nullptr;
+    }
   }
 
   template <typename TModel>

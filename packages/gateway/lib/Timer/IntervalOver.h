@@ -7,6 +7,7 @@ namespace Victor::Components {
   class IntervalOver {
    public:
     IntervalOver(unsigned long interval);
+    virtual ~IntervalOver();
     void start(unsigned long now = 0);
     virtual bool isOver(unsigned long now = 0);
 

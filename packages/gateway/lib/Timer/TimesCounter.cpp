@@ -9,7 +9,7 @@ namespace Victor::Components {
   TimesCounter::~TimesCounter() {
     onCount = nullptr;
     if (_reset != nullptr) {
-      free(_reset); // delete _reset;
+      delete _reset;
       _reset = nullptr;
     }
   }

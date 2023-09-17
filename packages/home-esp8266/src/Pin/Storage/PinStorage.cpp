@@ -6,6 +6,8 @@ namespace Victor::Components {
     _maxSize = 192;
   }
 
+  PinStorage::~PinStorage() {}
+
   void PinStorage::_serialize(const PinConfig* model, DynamicJsonDocument& doc) {
     // pin
     const JsonArray pinArr = doc.createNestedArray(F("pin"));

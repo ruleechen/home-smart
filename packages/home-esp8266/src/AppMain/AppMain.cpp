@@ -6,7 +6,7 @@ namespace Victor::Components {
 
   AppMain::~AppMain() {
     if (_heartbeat != nullptr) {
-      free(_heartbeat);
+      delete _heartbeat;
       _heartbeat = nullptr;
     }
     #if VICTOR_FEATURES_WEB

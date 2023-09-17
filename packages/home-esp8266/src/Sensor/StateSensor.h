@@ -66,7 +66,7 @@ namespace Victor::Components {
   template <typename TState>
   void StateSensor<TState>::_cancelDebounce() {
     if (_debounce != nullptr) {
-      free(_debounce);
+      delete _debounce;
       _debounce = nullptr;
     }
   }

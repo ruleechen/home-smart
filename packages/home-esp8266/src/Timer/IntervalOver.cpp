@@ -6,6 +6,8 @@ namespace Victor::Components {
     _interval = interval;
   }
 
+  IntervalOver::~IntervalOver() {}
+
   void IntervalOver::start(unsigned long now) {
     // https://www.arduino.cc/reference/en/language/functions/time/millis/
     // Returns the number of milliseconds passed since the Arduino board began running the current program.

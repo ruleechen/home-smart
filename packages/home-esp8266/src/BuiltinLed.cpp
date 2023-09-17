@@ -20,6 +20,7 @@ namespace Victor::Components {
   void BuiltinLed::setup(const char* configFile) {
     const auto storage = new PinStorage(configFile);
     const auto config = storage->load();
+    delete storage;
     if (config != nullptr && config->enable) {
       _outputPin = new DigitalOutput(config);
     }
