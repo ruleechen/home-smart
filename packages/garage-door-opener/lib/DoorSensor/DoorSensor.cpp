@@ -6,6 +6,7 @@ namespace Victor::Components {
     // open sensor
     const auto openJson = new PinStorage("/doorOpen.json");
     const auto openPin = openJson->load();
+    delete openJson;
     if (openPin != nullptr && openPin->enable) {
       _openSensor = new DigitalInput(openPin);
       if (openPin->interruptMode > 0) {
@@ -19,6 +20,7 @@ namespace Victor::Components {
     // closed sensor
     const auto closedJson = new PinStorage("/doorClosed.json");
     const auto closedPin = closedJson->load();
+    delete closedJson;
     if (closedPin != nullptr && closedPin->enable) {
       _closedSensor = new DigitalInput(closedPin);
       if (closedPin->interruptMode > 0) {

@@ -248,6 +248,7 @@ void setup(void) {
   // button
   const auto buttonJson = new PinStorage("/button.json");
   const auto buttonPin = buttonJson->load();
+  delete buttonJson;
   if (buttonPin != nullptr && buttonPin->enable) {
     button = new ActionButtonInterrupt(buttonPin);
     button->onAction = [](const ButtonAction action) {
@@ -272,6 +273,7 @@ void setup(void) {
   // setup i2c
   const auto i2cStorage = new I2cStorage("/i2c.json");
   const auto i2c = i2cStorage->load();
+  delete i2cStorage;
   if (
     i2c != nullptr &&
     i2c->chipSelect != nullptr &&

@@ -8,15 +8,15 @@ namespace Victor::Components {
 
   AQSensor::~AQSensor() {
     if (_measureInterval != nullptr) {
-      free(_measureInterval);
+      delete _measureInterval;
       _measureInterval = nullptr;
     }
     if (_resetInterval != nullptr) {
-      free(_resetInterval);
+      delete _resetInterval;
       _resetInterval = nullptr;
     }
     if (_storeInterval != nullptr) {
-      free(_storeInterval);
+      delete _storeInterval;
       _storeInterval = nullptr;
     }
     if (_sgp30 != nullptr) {

@@ -22,11 +22,11 @@ namespace Victor::Components {
 
   HTSensor::~HTSensor() {
     if (_measureInterval != nullptr) {
-      free(_measureInterval);
+      delete _measureInterval;
       _measureInterval = nullptr;
     }
     if (_resetInterval != nullptr) {
-      free(_resetInterval);
+      delete _resetInterval;
       _resetInterval = nullptr;
     }
     #if VICTOR_FEATURES_SENSOR_HT_AHT10

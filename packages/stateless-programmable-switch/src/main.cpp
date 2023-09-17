@@ -164,6 +164,9 @@ void setup(void) {
   const auto buttonPin1 = buttonJson1->load();
   const auto buttonPin2 = buttonJson2->load();
   const auto buttonPin3 = buttonJson3->load();
+  delete buttonJson1;
+  delete buttonJson2;
+  delete buttonJson3;
   if (buttonPin1 != nullptr && buttonPin1->enable) {
     button1 = new ActionButtonInterrupt(buttonPin1);
     button1->onAction = [](const ButtonAction action) {

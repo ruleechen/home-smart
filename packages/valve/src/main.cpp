@@ -148,6 +148,7 @@ void saveActiveState(const Active value) {
   if (state != nullptr && state->save) {
     const auto boolValue = activeToBool(value);
     if (*state->currentValue != boolValue) {
+      delete state->currentValue;
       state->currentValue = new bool(boolValue);
       storage->save(state);
     }
@@ -243,6 +244,7 @@ void setup(void) {
   // button
   const auto buttonJson = new PinStorage("/button.json");
   const auto buttonPin = buttonJson->load();
+  delete buttonJson;
   if (buttonPin != nullptr && buttonPin->enable) {
     button = new ActionButtonInterrupt(buttonPin);
     button->onAction = [](const ButtonAction action) {
@@ -284,11 +286,13 @@ void setup(void) {
   // control output
   const auto motorLine1Json = new PinStorage("/motorLine1.json");
   const auto motorLine1Config = motorLine1Json->load();
+  delete motorLine1Json;
   if (motorLine1Config != nullptr && motorLine1Config->enable) {
     motorLine1 = new DigitalOutput(motorLine1Config);
   }
   const auto motorLine2Json = new PinStorage("/motorLine2.json");
   const auto motorLine2Config = motorLine2Json->load();
+  delete motorLine2Json;
   if (motorLine2Config != nullptr && motorLine2Config->enable) {
     motorLine2 = new DigitalOutput(motorLine2Config);
   }
