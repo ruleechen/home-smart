@@ -23,8 +23,14 @@ AppMain* appMain = nullptr;
 String hostName;
 String serialNumber;
 bool connective = false;
+bool isIdentified = false;
 String lastActName;
 unsigned long lastActMillis = 0;
+
+void identify(const homekit_value_t value) {
+  isIdentified = !isIdentified;
+  builtinLed.toggle();
+}
 
 ActionButtonInterrupt* button = nullptr;
 DigitalStateStorage* storage = nullptr;
@@ -212,6 +218,7 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
+    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
     states.push_back({ .text = F("Active"),     .value = toActiveName(activeState.value.uint8_value) });
     states.push_back({ .text = F("In Use"),     .value = toInUseName(inUseState.value.uint8_value) });
     states.push_back({ .text = F("Valve Type"), .value = toValveTypeName(valveTypeState.value.uint8_value) });
@@ -239,7 +246,7 @@ void setup(void) {
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   activeState.setter = [](const homekit_value_t value) { setActive(F("setter"), uint8ToActive(value.uint8_value), connective); };
   arduino_homekit_setup(&serverConfig);
-  onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
+  onAccessoryIdentify(identify);
 
   // button
   const auto buttonJson = new PinStorage("/button.json");

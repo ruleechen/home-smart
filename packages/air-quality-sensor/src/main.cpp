@@ -38,8 +38,14 @@ extern "C" void onAccessoryIdentify(void (*callback)(const homekit_value_t value
 AppMain* appMain = nullptr;
 String hostName;
 String serialNumber;
-ActionButtonInterrupt* button = nullptr;
+bool isIdentified = false;
 
+void identify(const homekit_value_t value) {
+  isIdentified = !isIdentified;
+  builtinLed.toggle();
+}
+
+ActionButtonInterrupt* button = nullptr;
 IntervalOverAuto* htReportInt = nullptr;
 IntervalOverAuto* aqReportInt = nullptr;
 HTSensor* ht = nullptr;
@@ -209,6 +215,7 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),      .value = VICTOR_ACCESSORY_SERVICE_NAME });
+    states.push_back({ .text = F("Identified"),   .value = GlobalHelpers::toYesNoName(isIdentified) });
     states.push_back({ .text = F("Temperature"),  .value = String(temperatureState.value.float_value) + F("°C") });
     states.push_back({ .text = F("Humidity"),     .value = GlobalHelpers::toPercentage(humidityState.value.float_value) });
     states.push_back({ .text = F("eCO2 Level"),   .value = String(carbonDioxideLevelState.value.float_value) + F("ppm/㎥") });
@@ -243,7 +250,7 @@ void setup(void) {
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   arduino_homekit_setup(&serverConfig);
-  onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
+  onAccessoryIdentify(identify);
 
   // button
   const auto buttonJson = new PinStorage("/button.json");

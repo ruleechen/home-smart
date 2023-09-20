@@ -26,8 +26,14 @@ AppMain* appMain = nullptr;
 String hostName;
 String serialNumber;
 bool connective = false;
+bool isIdentified = false;
 String lastActName;
 unsigned long lastActMillis = 0;
+
+void identify(const homekit_value_t value) {
+  isIdentified = !isIdentified;
+  builtinLed.toggle();
+}
 
 TimesCounter times(1000);
 BinaryIO* binaryIO = nullptr;
@@ -80,8 +86,9 @@ void setup(void) {
   // setup web
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
-    states.push_back({ .text = F("Service"),  .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("State"),    .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
+    states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
+    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("State"),      .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
     #if VICTOR_FEATURES_OUTLET_INUSE
       states.push_back({ .text = F("In Use"), .value = GlobalHelpers::toYesNoName(inUseState.value.bool_value) });
     #endif
@@ -109,7 +116,7 @@ void setup(void) {
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   onState.setter = [](const homekit_value_t value) { setOnState(F("setter"), value.bool_value, connective); };
   arduino_homekit_setup(&serverConfig);
-  onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
+  onAccessoryIdentify(identify);
 
   // setup BinaryIO
   binaryIO = new BinaryIO();

@@ -19,8 +19,14 @@ AppMain* appMain = nullptr;
 String hostName;
 String serialNumber;
 bool connective = false;
+bool isIdentified = false;
 String lastActName;
 unsigned long lastActMillis = 0;
+
+void identify(const homekit_value_t value) {
+  isIdentified = !isIdentified;
+  builtinLed.toggle();
+}
 
 TimesCounter times(1000);
 BinaryIO* binaryIO = nullptr;
@@ -56,12 +62,13 @@ void setup(void) {
   // setup web
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
-    states.push_back({ .text = F("Service"),  .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("State"),    .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
-    states.push_back({ .text = F("Last Act"), .value = GlobalHelpers::toMillisAgo(millis() - lastActMillis) });
-    states.push_back({ .text = F("Act Name"), .value = lastActName });
-    states.push_back({ .text = F("Paired"),   .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
-    states.push_back({ .text = F("Clients"),  .value = String(arduino_homekit_connected_clients_count()) });
+    states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
+    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("State"),      .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
+    states.push_back({ .text = F("Last Act"),   .value = GlobalHelpers::toMillisAgo(millis() - lastActMillis) });
+    states.push_back({ .text = F("Act Name"),   .value = lastActName });
+    states.push_back({ .text = F("Paired"),     .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Clients"),    .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") });
     buttons.push_back({ .text = F("Toggle"), .value = F("Toggle") });
@@ -82,7 +89,7 @@ void setup(void) {
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   onState.setter = [](const homekit_value_t value) { setOnState(F("setter"), value.bool_value, connective); };
   arduino_homekit_setup(&serverConfig);
-  onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
+  onAccessoryIdentify(identify);
 
   // setup binary io
   binaryIO = new BinaryIO();

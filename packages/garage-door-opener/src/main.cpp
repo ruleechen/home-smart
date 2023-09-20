@@ -22,6 +22,12 @@ AppMain* appMain = nullptr;
 String hostName;
 String serialNumber;
 bool connective = false;
+bool isIdentified = false;
+
+void identify(const homekit_value_t value) {
+  isIdentified = !isIdentified;
+  builtinLed.toggle();
+}
 
 RCSwitch rf = RCSwitch();
 DoorSensor* doorSensor = nullptr;
@@ -178,6 +184,7 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),     .value = VICTOR_ACCESSORY_SERVICE_NAME });
+    states.push_back({ .text = F("Identified"),  .value = GlobalHelpers::toYesNoName(isIdentified) });
     states.push_back({ .text = F("Target"),      .value = toDoorStateName(targetDoorState.value.uint8_value) });
     states.push_back({ .text = F("Current"),     .value = toDoorStateName(currentDoorState.value.uint8_value) });
     states.push_back({ .text = F("Obstruction"), .value = GlobalHelpers::toYesNoName(obstructionState.value.bool_value) });
@@ -214,7 +221,7 @@ void setup(void) {
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   targetDoorState.setter = [](const homekit_value_t value) { setTargetDoorState(TargetDoorState(value.uint8_value), connective); };
   arduino_homekit_setup(&serverConfig);
-  onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
+  onAccessoryIdentify(identify);
 
   // done
   console.log()

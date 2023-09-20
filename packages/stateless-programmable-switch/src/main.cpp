@@ -21,6 +21,12 @@ AppMain* appMain = nullptr;
 String hostName;
 String serialNumber;
 bool connective = false;
+bool isIdentified = false;
+
+void identify(const homekit_value_t value) {
+  isIdentified = !isIdentified;
+  builtinLed.toggle();
+}
 
 TimesCounter times(1000);
 ActionButtonInterrupt* button1 = nullptr;
@@ -99,12 +105,13 @@ void setup(void) {
   // setup web
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
-    states.push_back({ .text = F("Service"), .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("State1"),  .value = toProgrammableSwitchEventName(eventState1.value.uint8_value) });
-    states.push_back({ .text = F("State2"),  .value = toProgrammableSwitchEventName(eventState2.value.uint8_value) });
-    states.push_back({ .text = F("State3"),  .value = toProgrammableSwitchEventName(eventState3.value.uint8_value) });
-    states.push_back({ .text = F("Paired"),  .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
-    states.push_back({ .text = F("Clients"), .value = String(arduino_homekit_connected_clients_count()) });
+    states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
+    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("State1"),     .value = toProgrammableSwitchEventName(eventState1.value.uint8_value) });
+    states.push_back({ .text = F("State2"),     .value = toProgrammableSwitchEventName(eventState2.value.uint8_value) });
+    states.push_back({ .text = F("State3"),     .value = toProgrammableSwitchEventName(eventState3.value.uint8_value) });
+    states.push_back({ .text = F("Paired"),     .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Clients"),    .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") });
     // event button1
@@ -155,7 +162,7 @@ void setup(void) {
   eventState3.getter = []() { return HOMEKIT_NULL_CPP(); };
   // eventState1.setter = [](const homekit_value_t value) { setEventState(1, ProgrammableSwitchEvent(value.uint8_value), connective); };
   arduino_homekit_setup(&serverConfig);
-  onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
+  onAccessoryIdentify(identify);
 
   // buttons
   const auto buttonJson1 = new PinStorage("/button1.json");

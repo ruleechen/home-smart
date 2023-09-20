@@ -20,6 +20,12 @@ AppMain* appMain = nullptr;
 String hostName;
 String serialNumber;
 bool connective = false;
+bool isIdentified = false;
+
+void identify(const homekit_value_t value) {
+  isIdentified = !isIdentified;
+  builtinLed.toggle();
+}
 
 DigitalSensor* sensor = nullptr;
 
@@ -78,14 +84,15 @@ void setup(void) {
   // setup web
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
-    states.push_back({ .text = F("Service"), .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("Leak"),    .value = toLeakName(leakState.value.uint8_value) });
-    states.push_back({ .text = F("Level"),   .value = GlobalHelpers::toPercentage(leakState.value.int_value) });
-    states.push_back({ .text = F("Active"),  .value = GlobalHelpers::toYesNoName(activeState.value.bool_value) });
-    states.push_back({ .text = F("Paired"),  .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
-    states.push_back({ .text = F("Clients"), .value = String(arduino_homekit_connected_clients_count()) });
+    states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
+    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("Leak"),       .value = toLeakName(leakState.value.uint8_value) });
+    states.push_back({ .text = F("Level"),      .value = GlobalHelpers::toPercentage(leakState.value.int_value) });
+    states.push_back({ .text = F("Active"),     .value = GlobalHelpers::toYesNoName(activeState.value.bool_value) });
+    states.push_back({ .text = F("Paired"),     .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Clients"),    .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
-    buttons.push_back({ .text = F("UnPair"),   .value = F("UnPair") });
+    buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") });
   };
   appMain->webPortal->onServicePost = [](const String& value) {
     if (value == F("UnPair")) {
@@ -106,7 +113,7 @@ void setup(void) {
   accessoryNameInfo.value.string_value     = const_cast<char*>(hostName.c_str());
   accessorySerialNumber.value.string_value = const_cast<char*>(serialNumber.c_str());
   arduino_homekit_setup(&serverConfig);
-  onAccessoryIdentify([](const homekit_value_t value) { builtinLed.toggle(); });
+  onAccessoryIdentify(identify);
 
   // connect leak sensor
   sensor = new DigitalSensor("/leak.json");
