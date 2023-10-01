@@ -192,14 +192,26 @@ void setActive(const String actName, const Active active, const bool notify) {
   setActiveState(actName, active, notify);
   // then set in-use state
   if (active == ACTIVE) {
-    motorBackward();
-    if (inUseSensor == nullptr || !inUseSensor->isAvailable()) {
-      setInUseState(actName, IN_USE, notify);
+    const auto inUseSensorNone = (inUseSensor == nullptr || !inUseSensor->isAvailable());
+    if (inUseSensorNone || inUseSensor->readState() == false) {
+      if (!inUseSensorNone) {
+        builtinLed.twinkle();
+      }
+      motorBackward();
+      if (inUseSensorNone) {
+        setInUseState(actName, IN_USE, notify);
+      }
     }
   } else if (active == INACTIVE) {
-    motorForward();
-    if (notInUseSensor == nullptr || !notInUseSensor->isAvailable()) {
-      setInUseState(actName, NOT_IN_USE, notify);
+    const auto notInUseSensorNone = (notInUseSensor == nullptr || !notInUseSensor->isAvailable());
+    if (notInUseSensorNone || notInUseSensor->readState() == false) {
+      if (!notInUseSensorNone) {
+        builtinLed.twinkle();
+      }
+      motorForward();
+      if (notInUseSensorNone) {
+        setInUseState(actName, NOT_IN_USE, notify);
+      }
     }
   }
 }
@@ -277,15 +289,15 @@ void setup(void) {
   // state sensor
   inUseSensor = new DigitalSensor("/inUse.json");
   inUseSensor->onStateChange = [](const bool state) {
-    builtinLed.flash();
     if (state == true) {
+      builtinLed.stop();
       setInUse(F("sensor"), IN_USE, connective);
     }
   };
   notInUseSensor = new DigitalSensor("/notInUse.json");
   notInUseSensor->onStateChange = [](const bool state) {
-    builtinLed.flash();
     if (state == true) {
+      builtinLed.stop();
       setInUse(F("sensor"), NOT_IN_USE, connective);
     }
   };
