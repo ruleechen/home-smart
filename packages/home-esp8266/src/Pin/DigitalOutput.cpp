@@ -8,8 +8,8 @@ namespace Victor::Components {
   }
 
   void DigitalOutput::setValue(bool value) {
-    const auto falseValue = _config->trueValue == LOW ? HIGH : LOW;
-    digitalWrite(_config->pin, value ? _config->trueValue : falseValue);
+    const auto falseValue = _config->effectiveValue == LOW ? HIGH : LOW;
+    digitalWrite(_config->pin, value ? _config->effectiveValue : falseValue);
     _lastValue = value;
   }
 

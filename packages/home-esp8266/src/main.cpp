@@ -41,7 +41,7 @@ void setup(void) {
   // button = new ActionButtonInput(0, 0);
   button = new ActionButtonInterrupt(new PinConfig({
     .pin = 0,
-    .trueValue = 0,
+    .effectiveValue = 0,
   }));
   button->onAction = [](const ButtonAction action) {
     console.log()

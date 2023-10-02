@@ -13,7 +13,7 @@ namespace Victor::Components {
     if (model->chipSelect != nullptr) {
       const JsonArray enArr = doc.createNestedArray(F("en"));
       enArr[0] = model->chipSelect->pin;
-      enArr[1] = model->chipSelect->trueValue;
+      enArr[1] = model->chipSelect->effectiveValue;
     }
   }
 
@@ -25,7 +25,7 @@ namespace Victor::Components {
     if (!enArr.isNull()) {
       model->chipSelect = new PinConfig({
         .pin = enArr[0],
-        .trueValue = enArr[1],
+        .effectiveValue = enArr[1],
       });
     }
   }

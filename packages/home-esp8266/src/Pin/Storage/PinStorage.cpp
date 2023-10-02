@@ -12,7 +12,7 @@ namespace Victor::Components {
     // pin
     const JsonArray pinArr = doc.createNestedArray(F("pin"));
     pinArr[0] = model->pin;
-    pinArr[1] = model->trueValue;
+    pinArr[1] = model->effectiveValue;
     if (model->interruptMode > 0) {
       pinArr[2] = model->interruptMode;
     }
@@ -26,7 +26,7 @@ namespace Victor::Components {
     // pin
     const auto pinArr = doc[F("pin")];
     model->pin = pinArr[0];
-    model->trueValue = pinArr[1];
+    model->effectiveValue = pinArr[1];
     const auto interruptMode = pinArr[2];
     if (!interruptMode.isNull()) {
       model->interruptMode = interruptMode;

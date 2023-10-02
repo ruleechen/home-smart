@@ -14,7 +14,7 @@ namespace Victor::Components {
      * LOW  = 0
      * HIGH = 1
      */
-    uint8_t trueValue = 0; // (0~255) LOW
+    uint8_t effectiveValue = 0; // (0~255) LOW
 
     /**
      * pin interrupt mode when input
