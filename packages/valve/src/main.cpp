@@ -34,29 +34,37 @@ void identify(const homekit_value_t value) {
 
 ActionButtonInterrupt* button = nullptr;
 DigitalStateStorage* storage = nullptr;
+
 DigitalSensor* inUseSensor = nullptr;
 DigitalSensor* notInUseSensor = nullptr;
+DigitalSensor* obstructionSensor = nullptr;
+
 DigitalOutput* motorLine1 = nullptr;
 DigitalOutput* motorLine2 = nullptr;
+DigitalOutput* playAlarm = nullptr;
 
 void motorForward() {
   if (motorLine1 != nullptr) { motorLine1->setValue(true); }
   if (motorLine2 != nullptr) { motorLine2->setValue(false); }
+  if (playAlarm != nullptr) { playAlarm->setValue(false); }
 }
 
 void motorBackward() {
   if (motorLine1 != nullptr) { motorLine1->setValue(false); }
   if (motorLine2 != nullptr) { motorLine2->setValue(true); }
+  if (playAlarm != nullptr) { playAlarm->setValue(false); }
 }
 
 void motorIdle() {
   if (motorLine1 != nullptr) { motorLine1->setValue(false); }
   if (motorLine2 != nullptr) { motorLine2->setValue(false); }
+  if (playAlarm != nullptr) { playAlarm->setValue(false); }
 }
 
-void motorStop() {
+void motorBrake() {
   if (motorLine1 != nullptr) { motorLine1->setValue(true); }
   if (motorLine2 != nullptr) { motorLine2->setValue(true); }
+  if (playAlarm != nullptr) { playAlarm->setValue(true); }
 }
 
 // format: uint8; HAP section 9.3; 0 = Inactive, 1 = Active
@@ -301,6 +309,12 @@ void setup(void) {
       setInUse(F("sensor"), NOT_IN_USE, connective);
     }
   };
+  obstructionSensor = new DigitalSensor("/obstruction.json");
+  obstructionSensor->onStateChange = [](const bool state) {
+    if (state == true) {
+      motorBrake();
+    }
+  };
 
   // control output
   const auto motorLine1Json = new PinStorage("/motorLine1.json");
@@ -314,6 +328,12 @@ void setup(void) {
   delete motorLine2Json;
   if (motorLine2Config != nullptr && motorLine2Config->enable) {
     motorLine2 = new DigitalOutput(motorLine2Config);
+  }
+  const auto alarmJson = new PinStorage("/alarm.json");
+  const auto alarmConfig = alarmJson->load();
+  delete alarmJson;
+  if (alarmConfig != nullptr && alarmConfig->enable) {
+    playAlarm = new DigitalOutput(alarmConfig);
   }
 
   // storage
@@ -345,4 +365,5 @@ void loop(void) {
   // sensor
   if (inUseSensor != nullptr) { inUseSensor->loop(); }
   if (notInUseSensor != nullptr) { notInUseSensor->loop(); }
+  if (obstructionSensor != nullptr) { obstructionSensor->loop(); }
 }
