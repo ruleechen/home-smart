@@ -200,24 +200,24 @@ void setActive(const String actName, const Active active, const bool notify) {
   setActiveState(actName, active, notify);
   // then set in-use state
   if (active == ACTIVE) {
-    const auto inUseSensorNone = (inUseSensor == nullptr || !inUseSensor->isAvailable());
-    if (inUseSensorNone || inUseSensor->readState() == false) {
-      if (!inUseSensorNone) {
+    const auto hasInUseSensor = (inUseSensor != nullptr && inUseSensor->isAvailable());
+    if (!hasInUseSensor || inUseSensor->readState() == false) {
+      if (hasInUseSensor) {
         builtinLed.twinkle();
       }
       motorBackward();
-      if (inUseSensorNone) {
+      if (!hasInUseSensor) {
         setInUseState(actName, IN_USE, notify);
       }
     }
   } else if (active == INACTIVE) {
-    const auto notInUseSensorNone = (notInUseSensor == nullptr || !notInUseSensor->isAvailable());
-    if (notInUseSensorNone || notInUseSensor->readState() == false) {
-      if (!notInUseSensorNone) {
+    const auto hasNotInUseSensor = (notInUseSensor != nullptr && notInUseSensor->isAvailable());
+    if (!hasNotInUseSensor || notInUseSensor->readState() == false) {
+      if (hasNotInUseSensor) {
         builtinLed.twinkle();
       }
       motorForward();
-      if (notInUseSensorNone) {
+      if (!hasNotInUseSensor) {
         setInUseState(actName, NOT_IN_USE, notify);
       }
     }
