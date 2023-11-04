@@ -7,10 +7,12 @@ Some Apple HomeKit firmwares for Victoria 9#
 - leak-sensor
 - occupancy-sensor
 - outlet
+- stateless-programmable-switch
 - switch
+- valve
 
 ### PlatformIO CLI
-pio run --environment air-quality-sensor
+pio run --environment air-quality-sensor  
 pio run --environment air-quality-sensor --target buildfs
 
 ### Development Tools
