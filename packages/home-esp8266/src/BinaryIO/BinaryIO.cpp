@@ -2,41 +2,49 @@
 
 namespace Victor::Components {
 
-  BinaryIO::BinaryIO() {
+  BinaryIO::BinaryIO(const BinaryIOProps* props) {
     // button
-    const auto buttonJson = new PinStorage("/button.json");
-    const auto buttonPin = buttonJson->load();
-    delete buttonJson;
-    if (buttonPin != nullptr && buttonPin->enable) {
-      _button = new ActionButtonInput(buttonPin);
-      _button->onAction = [&](ButtonAction action) {
-        if (onButtonAction != nullptr) {
-          onButtonAction(action);
-        }
-      };
+    if (props->buttonJson != nullptr) {
+      const auto buttonJson = new PinStorage(props->buttonJson);
+      const auto buttonPin = buttonJson->load();
+      delete buttonJson;
+      if (buttonPin != nullptr && buttonPin->enable) {
+        _button = new ActionButtonInput(buttonPin);
+        _button->onAction = [&](ButtonAction action) {
+          if (onButtonAction != nullptr) {
+            onButtonAction(action);
+          }
+        };
+      }
     }
     // output
-    const auto outputJson = new PinStorage("/output.json");
-    const auto outputPin = outputJson->load();
-    delete outputJson;
-    if (outputPin != nullptr && outputPin->enable) {
-      _output = new DigitalOutput(outputPin);
+    if (props->outputJson != nullptr) {
+      const auto outputJson = new PinStorage(props->outputJson);
+      const auto outputPin = outputJson->load();
+      delete outputJson;
+      if (outputPin != nullptr && outputPin->enable) {
+        _output = new DigitalOutput(outputPin);
+      }
     }
     // output2
-    const auto outputJson2 = new PinStorage("/output2.json");
-    const auto outputPin2 = outputJson2->load();
-    delete outputJson2;
-    if (outputPin2 != nullptr && outputPin2->enable) {
-      _output2 = new DigitalOutput(outputPin2);
+    if (props->outputJson2 != nullptr) {
+      const auto outputJson2 = new PinStorage(props->outputJson2);
+      const auto outputPin2 = outputJson2->load();
+      delete outputJson2;
+      if (outputPin2 != nullptr && outputPin2->enable) {
+        _output2 = new DigitalOutput(outputPin2);
+      }
     }
     // state
-    _stateStorage = new DigitalStateStorage("/state.json");
-    const auto state = _stateStorage->load();
-    if (state != nullptr) {
-      const auto savedState = state->save
-        ? *state->currentValue
-        : *state->defaultValue;
-      setOutputState(savedState);
+    if (props->stateJson != nullptr) {
+      _stateStorage = new DigitalStateStorage(props->stateJson);
+      const auto state = _stateStorage->load();
+      if (state != nullptr) {
+        const auto savedState = state->save
+          ? *state->currentValue
+          : *state->defaultValue;
+        setOutputState(savedState);
+      }
     }
   }
 

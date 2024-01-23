@@ -8,9 +8,16 @@
 #include "Button/ActionButtonInput.h"
 
 namespace Victor::Components {
+  struct BinaryIOProps {
+    const char* buttonJson  = nullptr; // = "/button.json";
+    const char* outputJson  = nullptr; // = "/output.json";
+    const char* outputJson2 = nullptr; // = "/output2.json";
+    const char* stateJson   = nullptr; // = "/state.json";
+  };
+
   class BinaryIO {
    public:
-    BinaryIO();
+    BinaryIO(const BinaryIOProps* props);
     ~BinaryIO();
     void loop();
     bool getOutputState();
