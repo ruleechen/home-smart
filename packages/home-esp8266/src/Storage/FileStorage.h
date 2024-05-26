@@ -106,7 +106,7 @@ namespace Victor::Components {
       }
     } else {
       model = nullptr;
-      _error().section(F("notfound"), _filePath);
+      _error().section(F("notfound"));
     }
     // set cache
     if (_cache) {
