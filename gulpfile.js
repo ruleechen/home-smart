@@ -41,7 +41,11 @@ const ig = ignore();
 ig.add(fse.readFileSync(PATH_ROOT_IG).toString());
 
 function clean() {
-  del.sync([PATH_DATA_WEB], { force: true });
+  if (pioEnv === "home-esp8266") {
+    del.sync([PATH_DATA_WEB], { force: true });
+  } else {
+    del.sync([PATH_DATA], { force: true });
+  }
 }
 
 function buildDeps() {
