@@ -1,3 +1,3 @@
 # night-lamp
 
-SoC ESP-8266
+SoC ESP-01S

@@ -92,7 +92,12 @@ void setup(void) {
   onAccessoryIdentify(identify);
 
   // setup binary io
-  binaryIO = new BinaryIO();
+  binaryIO = new BinaryIO(new BinaryIOProps({
+    .buttonJson  = "/button.json",
+    .outputJson  = "/output.json",
+    .outputJson2 = "/output2.json",
+    .stateJson   = "/state.json",
+  }));
   setOnState(F("setup"), binaryIO->getOutputState(), false);
   binaryIO->onButtonAction = [](const ButtonAction action) {
     console.log()
