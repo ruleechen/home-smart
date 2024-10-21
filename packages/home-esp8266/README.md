@@ -3,6 +3,7 @@ The foundation of home accessories base on chip ESP8266
 
 ### PlatformIO CLI
 ```bash
+pio account login
 pio package pack
 pio package publish
 ```
