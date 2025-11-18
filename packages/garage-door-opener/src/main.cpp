@@ -227,6 +227,7 @@ void setup(void) {
   console.log()
     .bracket(F("setup"))
     .section(F("complete"));
+  builtinLed.flash(2000);
 }
 
 void loop(void) {
