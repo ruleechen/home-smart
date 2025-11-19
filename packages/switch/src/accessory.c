@@ -21,7 +21,6 @@ homekit_characteristic_t accessoryIdentify     = HOMEKIT_CHARACTERISTIC_(IDENTIF
 homekit_characteristic_t accessoryNameInfo     = HOMEKIT_CHARACTERISTIC_(NAME, VICTOR_ACCESSORY_SERVICE_NAME); // change on setup
 
 homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
-  .primary = false,
   .characteristics = (homekit_characteristic_t*[]) {
     &accessoryManufacturer,
     &accessorySerialNumber,
@@ -36,24 +35,43 @@ homekit_service_t informationService = HOMEKIT_SERVICE_(ACCESSORY_INFORMATION,
 // format: bool; HAP section 9.70; true = On, false = Off
 homekit_characteristic_t onState = HOMEKIT_CHARACTERISTIC_(ON, false);
 // format: string; HAP section 9.62; maximum length 64
-homekit_characteristic_t nameState = HOMEKIT_CHARACTERISTIC_(NAME, "Switch");
+homekit_characteristic_t switchNameState = HOMEKIT_CHARACTERISTIC_(NAME, "Switch");
 
-homekit_service_t stateService = HOMEKIT_SERVICE_(SWITCH,
+homekit_service_t switchStateService = HOMEKIT_SERVICE_(SWITCH,
   .primary = true,
   .characteristics = (homekit_characteristic_t*[]) {
+    &switchNameState,
     &onState,
-    &nameState,
     NULL,
   },
 );
 
+# if VICTOR_FEATURES_OCCUPANCY
+  // format: uint8; HAP section 9.67; 0 = Occupancy is not detected, 1 = Occupancy is detected
+  homekit_characteristic_t occupancyState = HOMEKIT_CHARACTERISTIC_(OCCUPANCY_DETECTED, false);
+  // format: string; HAP section 9.62; maximum length 64
+  homekit_characteristic_t occupancyNameState = HOMEKIT_CHARACTERISTIC_(NAME, "Occupancy Sensor");
+
+  homekit_service_t occupancyService = HOMEKIT_SERVICE_(OCCUPANCY_SENSOR,
+    .primary = false,
+    .characteristics = (homekit_characteristic_t*[]) {
+      &occupancyNameState,
+      &occupancyState,
+      NULL,
+    },
+  );
+# endif
+
 homekit_accessory_t* accessories[] = {
   HOMEKIT_ACCESSORY(
     .id = 1,
-    .category = homekit_accessory_category_switch,
+    .category = homekit_accessory_category_other,
     .services = (homekit_service_t*[]) {
       &informationService,
-      &stateService,
+      &switchStateService,
+      # if VICTOR_FEATURES_OCCUPANCY
+        &occupancyService,
+      # endif
       NULL,
     },
   ),
