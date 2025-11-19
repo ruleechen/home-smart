@@ -5,11 +5,17 @@
 #include <GlobalHelpers.h>
 #include <Timer/TimesCounter.h>
 #include <BinaryIO/BinaryIO.h>
+# if VICTOR_FEATURES_OCCUPANCY
+  #include <Sensor/DigitalSensor.h>
+# endif
 
 using namespace Victor;
 using namespace Victor::Components;
 
 extern "C" homekit_characteristic_t onState;
+# if VICTOR_FEATURES_OCCUPANCY
+  extern "C" homekit_characteristic_t occupancyState;
+# endif
 extern "C" homekit_characteristic_t accessoryNameInfo;
 extern "C" homekit_characteristic_t accessorySerialNumber;
 extern "C" homekit_server_config_t serverConfig;
@@ -30,6 +36,37 @@ void identify(const homekit_value_t value) {
 
 TimesCounter times(1000);
 BinaryIO* binaryIO = nullptr;
+
+# if VICTOR_FEATURES_OCCUPANCY
+  DigitalSensor* sensor = nullptr;
+
+  // format: uint8; HAP section 9.67; 0 = Occupancy is not detected, 1 = Occupancy is detected
+  enum OccupancyDetected {
+    OCCUPANCY_NOT_DETECTED = 0,
+    OCCUPANCY_DETECTED     = 1,
+  };
+
+  OccupancyDetected boolToOccupancy(const bool value) {
+    return value ? OCCUPANCY_DETECTED : OCCUPANCY_NOT_DETECTED;
+  }
+
+  String toOccupancyName(const uint8_t state) {
+    return (
+      state == OCCUPANCY_NOT_DETECTED ? F("Not Detected") :
+      state == OCCUPANCY_DETECTED     ? F("Detected") : F("Unknown")
+    );
+  }
+
+  void setOccupancyState(const OccupancyDetected occupancy, const bool notify) {
+    occupancyState.value.uint8_value = occupancy;
+    if (notify) {
+      homekit_characteristic_notify(&occupancyState, occupancyState.value);
+    }
+    console.log()
+      .section(F("occupancy"), toOccupancyName(occupancy))
+      .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+  }
+# endif
 
 void setOnState(const String actName, const bool value, const bool notify) {
   lastActName = actName;
@@ -64,7 +101,10 @@ void setup(void) {
     // states
     states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
     states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
-    states.push_back({ .text = F("State"),      .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
+    states.push_back({ .text = F("Switch"),     .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
+    # if VICTOR_FEATURES_OCCUPANCY
+      states.push_back({ .text = F("Occupancy"),  .value = toOccupancyName(occupancyState.value.uint8_value) });
+    # endif
     states.push_back({ .text = F("Last Act"),   .value = GlobalHelpers::toMillisAgo(millis() - lastActMillis) });
     states.push_back({ .text = F("Act Name"),   .value = lastActName });
     states.push_back({ .text = F("Paired"),     .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
@@ -119,6 +159,16 @@ void setup(void) {
     }
   };
 
+  # if VICTOR_FEATURES_OCCUPANCY
+    // connect occupancy sensor
+    sensor = new DigitalSensor("/occupancy.json");
+    sensor->onStateChange = [](const bool state) {
+      builtinLed.flash();
+      setOccupancyState(boolToOccupancy(state), connective);
+    };
+    setOccupancyState(boolToOccupancy(sensor->readState()), connective);
+  # endif
+
   // done
   console.log()
     .bracket(F("setup"))
@@ -133,4 +183,7 @@ void loop(void) {
   const auto isLightSleep = victorWiFi.isLightSleepMode() && isPaired;
   appMain->loop(isLightSleep);
   binaryIO->loop();
+  # if VICTOR_FEATURES_OCCUPANCY
+    sensor->loop();
+  # endif
 }
