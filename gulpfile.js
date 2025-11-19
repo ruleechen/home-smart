@@ -13,12 +13,21 @@ const DIR_DEFAULT = ".default";
 
 // argv
 const {
-  argv: { pioEnv, varietas },
-} = yargs.string("pioEnv").string("varietas").default("varietas", DIR_DEFAULT);
+  argv: {
+    pioEnv,
+    custom_package,
+    custom_varietas
+  },
+} = yargs
+  .string("pioEnv")
+  .string("custom_package")
+  .string("custom_varietas");
+const package = custom_package || pioEnv;
+const varietas = custom_varietas || DIR_DEFAULT;
 
 // paths
 const PATH_DEPS = path.resolve(__dirname, ".pio/libdeps", pioEnv);
-const PATH_PROJ = path.resolve(__dirname, DIR_PACKAGES, pioEnv);
+const PATH_PROJ = path.resolve(__dirname, DIR_PACKAGES, package);
 
 const PATH_DATA = path.resolve(PATH_PROJ, DIR_DATA);
 const PATH_DATA_WEB = path.resolve(PATH_PROJ, DIR_DATA, "web");
@@ -30,6 +39,7 @@ console.log(`********************
 * deps: '${PATH_DEPS}'
 * proj: '${PATH_PROJ}'
 * main: '${PATH_MAIN}'
+* package: '${package}'
 * varietas: '${varietas}'
 *
 ********************`);
