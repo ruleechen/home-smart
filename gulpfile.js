@@ -8,7 +8,7 @@ const ignore = require("ignore");
 // dirs
 const DIR_PACKAGES = "packages";
 const DIR_DATA = "data";
-const DIR_VARIETAS = "varietas";
+const DIR_VARIANT = "variant";
 const DIR_DEFAULT = ".default";
 
 // argv
@@ -16,14 +16,14 @@ const {
   argv: {
     pioEnv,
     custom_package,
-    custom_varietas
+    custom_variant
   },
 } = yargs
   .string("pioEnv")
   .string("custom_package")
-  .string("custom_varietas");
+  .string("custom_variant");
 const package = custom_package || pioEnv;
-const varietas = custom_varietas || DIR_DEFAULT;
+const variant = custom_variant || DIR_DEFAULT;
 
 // paths
 const PATH_DEPS = path.resolve(__dirname, ".pio/libdeps", pioEnv);
@@ -40,7 +40,7 @@ console.log(`********************
 * proj: '${PATH_PROJ}'
 * main: '${PATH_MAIN}'
 * package: '${package}'
-* varietas: '${varietas}'
+* variant: '${variant}'
 *
 ********************`);
 
@@ -74,13 +74,13 @@ function buildDeps() {
   }
 }
 
-function mergeVarietas() {
-  const varietasPath = path.resolve(PATH_PROJ, DIR_VARIETAS, varietas);
-  if (fse.pathExistsSync(varietasPath)) {
+function mergeVariant() {
+  const variantPath = path.resolve(PATH_PROJ, DIR_VARIANT, variant);
+  if (fse.pathExistsSync(variantPath)) {
     // merge configuration
-    const varietasDataPath = path.resolve(varietasPath, DIR_DATA);
-    if (fse.pathExistsSync(varietasDataPath)) {
-      fse.copySync(varietasDataPath, PATH_DATA, {
+    const variantDataPath = path.resolve(variantPath, DIR_DATA);
+    if (fse.pathExistsSync(variantDataPath)) {
+      fse.copySync(variantDataPath, PATH_DATA, {
         overwrite: true,
       });
     }
@@ -95,7 +95,7 @@ async function buildFS() {
   } else {
     clean();
     buildDeps();
-    mergeVarietas();
+    mergeVariant();
   }
 }
 
