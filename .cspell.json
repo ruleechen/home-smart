@@ -19,7 +19,6 @@
     "mDNS",
     "mithril",
     "oninit",
-    "homekit",
-    "varietas"
+    "homekit"
   ]
 }
