@@ -11,6 +11,7 @@ def get_package_name():
     pass
   return env["PIOENV"]
 
+# https://github.com/platformio/platformio-core/blob/4850c1069c67d7074e838238fe1b0316cc7127b1/platformio/builder/main.py#L116
 def update_project_paths():
   package_name = get_package_name()
   # define base paths
