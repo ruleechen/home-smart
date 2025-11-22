@@ -6,7 +6,7 @@ const del = require("del");
 const ignore = require("ignore");
 
 // dirs
-const DIR_PACKAGES = "packages";
+const DIR_APPS = "apps";
 const DIR_DATA = "data";
 const DIR_VARIANT = "variant";
 const DIR_DEFAULT = ".default";
@@ -15,19 +15,19 @@ const DIR_DEFAULT = ".default";
 const {
   argv: {
     pioEnv,
-    custom_package,
+    custom_app,
     custom_variant
   },
 } = yargs
   .string("pioEnv")
-  .string("custom_package")
+  .string("custom_app")
   .string("custom_variant");
-const package = custom_package || pioEnv;
+const appName = custom_app || pioEnv;
 const variant = custom_variant || DIR_DEFAULT;
 
 // paths
 const PATH_DEPS = path.resolve(__dirname, ".pio/libdeps", pioEnv);
-const PATH_PROJ = path.resolve(__dirname, DIR_PACKAGES, package);
+const PATH_PROJ = path.resolve(__dirname, DIR_APPS, appName);
 
 const PATH_DATA = path.resolve(PATH_PROJ, DIR_DATA);
 const PATH_DATA_WEB = path.resolve(PATH_PROJ, DIR_DATA, "web");
@@ -39,7 +39,7 @@ console.log(`********************
 * deps: '${PATH_DEPS}'
 * proj: '${PATH_PROJ}'
 * main: '${PATH_MAIN}'
-* package: '${package}'
+* app: '${appName}'
 * variant: '${variant}'
 *
 ********************`);
