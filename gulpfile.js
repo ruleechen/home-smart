@@ -34,6 +34,7 @@ const PATH_DATA_WEB = path.resolve(PATH_PROJ, DIR_DATA, "web");
 const PATH_MAIN = path.resolve(PATH_PROJ, "src/main.cpp");
 
 console.log(`********************
+*
 * [env:${pioEnv}]
 *
 * deps: '${PATH_DEPS}'
