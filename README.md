@@ -1,7 +1,9 @@
 # Home Smart
+
 Some Apple HomeKit firmwares for Victoria 9#
 
-### Monorepo for projects
+### Monorepo for Projects
+
 - air-quality-sensor
 - garage-door-opener
 - leak-sensor
@@ -13,11 +15,18 @@ Some Apple HomeKit firmwares for Victoria 9#
 - night-lamp-occupancy
 - valve
 
-### PlatformIO CLI
-pio run --environment air-quality-sensor  
+### Build App
+
+Open `PlatformIO CLI` and run
+
+```
+pio run --environment {app}
+pio run --environment air-quality-sensor
 pio run --environment air-quality-sensor --target buildfs
+```
 
 ### Development Tools
+
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [PlatformIO IDE for VSCode](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide)
 - [Web SPA solution with Mithril](https://mithril.js.org/)

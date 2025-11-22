@@ -1,6 +1,6 @@
 {
-  "name": "home-occupancy",
-  "version": "0.0.1",
+  "name": "home-smart",
+  "version": "0.1.0",
   "main": "",
   "scripts": {
     "build-fs": "gulp buildFS"
@@ -16,16 +16,16 @@
   "license": "MIT",
   "private": true,
   "workspaces": {
-    "packages": [
-      "packages/*"
+    "apps": [
+      "apps/*"
     ],
     "nohoist": []
   },
   "devDependencies": {
-    "del": "^6.1.0",
-    "fs-extra": "^11.1.0",
-    "gulp": "^4.0.2",
-    "ignore": "^5.2.4",
-    "yargs": "^17.6.2"
+    "del": "^8.0.1",
+    "fs-extra": "^11.3.2",
+    "gulp": "^5.0.1",
+    "ignore": "^7.0.5",
+    "yargs": "^18.0.0"
   }
 }

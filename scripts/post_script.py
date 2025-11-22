@@ -5,9 +5,9 @@ Import("env")
 # print(env.Dump())
 
 def before_build_littlefs(source, target, env):
-  custom_package = env.GetProjectOption("custom_package", "")
+  custom_app = env.GetProjectOption("custom_app", "")
   custom_variant = env.GetProjectOption("custom_variant", "")
-  env.Execute("yarn && yarn build-fs --pioEnv " + env["PIOENV"] + " --custom_package " + custom_package + " --custom_variant " + custom_variant)
+  env.Execute("yarn && yarn build-fs --pioEnv " + env["PIOENV"] + " --custom_app " + custom_app + " --custom_variant " + custom_variant)
 
 # Custom actions for specific files/objects
 env.AddPreAction("$BUILD_DIR/littlefs.bin", before_build_littlefs)

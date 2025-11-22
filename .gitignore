@@ -5,6 +5,6 @@
 .vscode/ipch
 
 node_modules
-packages/*/data
-!packages/home-esp8266/data/*
-packages/home-esp8266/data/web
+apps/*/data
+!apps/home-esp8266/data/*
+apps/home-esp8266/data/web
