@@ -37,10 +37,10 @@ console.log(`********************
 *
 * [env:${pioEnv}]
 *
-* deps: '${PATH_DEPS}'
-* proj: '${PATH_PROJ}'
-* main: '${PATH_MAIN}'
-* app: '${appName}'
+* app:     '${appName}'
+* root:    '${PATH_PROJ}'
+* main:    '${PATH_MAIN}'
+* deps:    '${PATH_DEPS}'
 * variant: '${variant}'
 *
 ********************`);
