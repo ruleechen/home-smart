@@ -7,8 +7,10 @@ Some Apple HomeKit firmwares for Victoria 9#
 - leak-sensor
 - occupancy-sensor
 - outlet
+- outlet-tywe3s
 - stateless-programmable-switch
 - switch
+- night-lamp-occupancy
 - valve
 
 ### PlatformIO CLI
