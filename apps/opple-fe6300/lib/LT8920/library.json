@@ -1,0 +1,14 @@
+{
+  "name": "LT8920",
+  "version": "0.0.0+3d1d9b8",
+  "description": "Arduino library for the LT8920 2.4 GHz RF transceiver with local ESP8266 fixes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mengguang/LT8920.git"
+  },
+  "frameworks": "arduino",
+  "platforms": "espressif8266",
+  "build": {
+    "srcDir": "."
+  }
+}
