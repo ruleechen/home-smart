@@ -22,8 +22,16 @@ PKT 沿用 SDK 默认的高有效配置，发送完成时等待 GPIO5 拉高。
 当前实验使用轮询，不安装接收中断；后续接收可按上升沿处理。
 引脚可通过 SDK 构造参数指定，接线适配放在应用代码中，不为此修改 SDK。
 
-初始化后每隔 2 秒交替发送 `CMD_LIGHT_ON` / `CMD_LIGHT_OFF`。
+初始化后每隔 2 秒交替发送 `OppleCommands::LIGHT_ON` / `LIGHT_OFF`。
 串口波特率为 115200，发送超时为 100 毫秒。
+
+## 代码结构
+
+- `lib/LT8920`：上游 SDK，保持原样。
+- `lib/LT8920Radio`：应用侧封装，负责 SPI 初始化、芯片配置与回读校验、带超时和 PKT 极性的发送。
+  `send()` 会自动补长度字节，调用方只传 payload。
+- `src/OppleCommands.h`：抓包得到的遥控器指令 payload。
+- `src/main.cpp`：引脚、射频参数和业务逻辑。
 
 ```sh
 pio run -e opple-fe6300
