@@ -4,12 +4,6 @@
     "recommendations": [
         "editorconfig.editorconfig",
         "mathematic.vscode-pdf",
-        "ms-vscode.cpptools",
-        "platformio.platformio-ide",
-        "streetsidesoftware.code-spell-checker"
-    ],
-    "unwantedRecommendations": [
-        "ms-vscode.cpptools-extension-pack",
-        "pioarduino.pioarduino-ide"
+        "platformio.platformio-ide"
     ]
 }

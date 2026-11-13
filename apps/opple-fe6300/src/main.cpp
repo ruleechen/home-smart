@@ -40,6 +40,7 @@ void setup(void) {
   } else {
     Serial.println(F("LT8920 register check failed; transmission disabled."));
   }
+
   lastSendMs = millis();
 }
 
@@ -50,7 +51,9 @@ void loop(void) {
     const auto result = nextLightOn
       ? radio.send(OppleCommands::LIGHT_ON)
       : radio.send(OppleCommands::LIGHT_OFF);
-    Serial.print(nextLightOn ? F("LIGHT_ON: ") : F("LIGHT_OFF: "));
+    Serial.print(nextLightOn
+      ? F("LIGHT_ON: ")
+      : F("LIGHT_OFF: "));
     Serial.println(LT8920Radio::describe(result));
     nextLightOn = !nextLightOn;
   }
