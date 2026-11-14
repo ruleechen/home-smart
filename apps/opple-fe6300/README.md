@@ -6,6 +6,17 @@ Base on ESP-8266
 pio run -e opple-fe6300
 ```
 
+### Upload
+遥控指令（`variant/.default/data/opple-fe6300.json`）在文件系统镜像里，不在固件里。
+首次烧录，或修改了指令文件后，需要先上传文件系统，再上传固件：
+
+```sh
+pio run -e opple-fe6300 -t uploadfs
+pio run -e opple-fe6300 -t upload
+```
+
+只上传固件时，串口会提示 `no commands loaded`，发送会返回 `unknown command`。
+
 ### LT8920 与 NodeMCU 接线图
 
 NodeMCU 的引脚（D0-D8）与 ESP8266 的原生 GPIO 存在映射关系。以下是将 ESP-12F 引脚转换为 NodeMCU 标准引脚（D系列）后的完整接线指南。
