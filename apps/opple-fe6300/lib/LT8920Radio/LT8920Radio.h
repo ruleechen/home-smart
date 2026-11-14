@@ -36,7 +36,8 @@ class LT8920Radio {
     Ok,
     NotReady,       // begin() was not called or its register check failed.
     InvalidLength,  // Payload is empty or does not fit the 64-byte FIFO.
-    PktStuck,       // PKT stayed active after the FIFO reset: wiring/polarity.
+    PktMismatch,    // PKT GPIO disagrees with the PKT_FLAG status bit: wiring/polarity.
+    PktStuck,       // PKT did not clear when TX was enabled.
     Timeout,        // PKT never became active within txTimeoutMs.
   };
 
@@ -74,6 +75,7 @@ class LT8920Radio {
   void _idle();
   void _flushTx();
   bool _isPktActive() const;
+  bool _pktFlagRegister();
   void _writeSyncWord();
   bool _verifySyncWord();
 };

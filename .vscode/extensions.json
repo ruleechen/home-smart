@@ -5,5 +5,9 @@
         "editorconfig.editorconfig",
         "mathematic.vscode-pdf",
         "platformio.platformio-ide"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.cpptools-extension-pack",
+        "pioarduino.pioarduino-ide"
     ]
 }
