@@ -51,7 +51,11 @@ bool LT8920Radio::begin(const Config& config) {
   _writeSyncWord();
 
   // setDataRate() reads the register back, which doubles as an SPI check.
-  _ready = _rf->setDataRate(_config.dataRate) && _verifySyncWord();
+  const bool dataRateOk = _rf->setDataRate(_config.dataRate);
+  for (size_t i = 0; _config.registers != nullptr && i < _config.registerCount; i++) {
+    _rf->writeRegister(_config.registers[i].address, _config.registers[i].value);
+  }
+  _ready = dataRateOk && _verifySyncWord();
   return _ready;
 }
 
