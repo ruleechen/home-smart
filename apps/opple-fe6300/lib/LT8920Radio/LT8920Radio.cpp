@@ -14,9 +14,14 @@ namespace {
   constexpr uint16_t SYNC_LENGTH_MASK = 0x03 << SYNC_LENGTH_SHIFT;
 
   constexpr uint8_t REG_SYNC_WORD = 36;  // 36..39
+  constexpr uint8_t REG_STATUS = 48;
+  constexpr uint16_t STATUS_PKT_FLAG = 0x0040;  // Logical flag, independent of the GPIO polarity bit.
   constexpr uint8_t REG_FIFO = 50;
   constexpr uint8_t REG_FIFO_CONTROL = 52;
   constexpr uint16_t FIFO_CLEAR_TX = 0x8000;
+
+  // PKT is cleared as soon as TX is enabled; a packet takes far longer than this to send.
+  constexpr uint32_t PKT_CLEAR_TIMEOUT_US = 1000;
 
 } // namespace
 
@@ -69,9 +74,11 @@ LT8920Radio::TxResult LT8920Radio::send(const uint8_t* payload, size_t length) {
   _idle();
   _flushTx();
 
-  // An active flag before TX cannot indicate completion of this packet.
-  if (_isPktActive()) {
-    return TxResult::PktStuck;
+  // PKT may legitimately still be active here: the chip keeps it set after the
+  // previous packet (including the dummy TX in LT8920::begin()) and only clears it
+  // when TX/RX is enabled again. Only a GPIO/status mismatch points at wiring.
+  if (_isPktActive() != _pktFlagRegister()) {
+    return TxResult::PktMismatch;
   }
 
   // The FIFO takes 16-bit words: [length, payload[0]], [payload[1], payload[2]], ...
@@ -83,6 +90,17 @@ LT8920Radio::TxResult LT8920Radio::send(const uint8_t* payload, size_t length) {
     _rf->writeRegister2(REG_FIFO, payload[i], low);
   }
   _rf->writeRegister(REG_CHANNEL, channel() | TX_ENABLE);
+
+  // Wait for the stale flag to clear, so the next active level belongs to this packet.
+  // Tight loop: the TX itself takes hundreds of microseconds, so the low phase cannot be missed.
+  const uint32_t enabledUs = micros();
+  while (_isPktActive()) {
+    if (micros() - enabledUs >= PKT_CLEAR_TIMEOUT_US) {
+      _idle();
+      _flushTx();
+      return TxResult::PktStuck;
+    }
+  }
 
   const uint32_t startedMs = millis();
   while (!_isPktActive()) {
@@ -106,8 +124,10 @@ const __FlashStringHelper* LT8920Radio::describe(TxResult result) {
       return F("radio not ready");
     case TxResult::InvalidLength:
       return F("invalid payload length");
+    case TxResult::PktMismatch:
+      return F("PKT pin disagrees with status register; check PKT wiring/polarity");
     case TxResult::PktStuck:
-      return F("PKT stayed active after FIFO reset; check wiring/polarity");
+      return F("PKT did not clear when TX started; check PKT wiring/polarity");
     case TxResult::Timeout:
       return F("TX timeout; check LT8920 connection and PKT pin");
   }
@@ -123,11 +143,15 @@ void LT8920Radio::_idle() {
 }
 
 void LT8920Radio::_flushTx() {
-  _rf->writeRegister(REG_FIFO_CONTROL, FIFO_CLEAR_TX);  // Also clears the PKT flag.
+  _rf->writeRegister(REG_FIFO_CONTROL, FIFO_CLEAR_TX);  // Resets the TX pointer; PKT is not cleared here.
 }
 
 bool LT8920Radio::_isPktActive() const {
   return digitalRead(_pins.pkt) == _config.pktActiveLevel;
+}
+
+bool LT8920Radio::_pktFlagRegister() {
+  return (_rf->readRegister(REG_STATUS) & STATUS_PKT_FLAG) != 0;
 }
 
 void LT8920Radio::_writeSyncWord() {
