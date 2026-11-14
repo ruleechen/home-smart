@@ -23,6 +23,11 @@ class LT8920Radio {
     Bits64 = 3,
   };
 
+  struct Register {
+    uint8_t address;
+    uint16_t value;
+  };
+
   struct Config {
     uint8_t channel = 0x31;  // Frequency = 2402 + channel MHz, 7 bits.
     LT8920::DataRate dataRate = LT8920::LT8920_1MBPS;
@@ -30,6 +35,10 @@ class LT8920Radio {
     uint16_t syncWord[4] = {0, 0, 0, 0};  // Values for registers 36..39, in register order.
     uint8_t pktActiveLevel = HIGH;        // SDK default: PKT goes high when TX completes.
     uint32_t txTimeoutMs = 100;
+    // Raw register values written last in begin(), overriding the SDK defaults
+    // and dataRate. Do not list 7 (channel/mode) or 32/36..39 (sync word settings).
+    const Register* registers = nullptr;
+    size_t registerCount = 0;
   };
 
   enum class TxResult : uint8_t {
