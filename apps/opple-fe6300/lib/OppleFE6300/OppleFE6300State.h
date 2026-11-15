@@ -32,12 +32,12 @@ class OppleFE6300State {
     bool on;
   };
   Function _functions[FUNCTION_COUNT] = {
-    {"light", false, false},
     {"heat", true, false},
     {"blow", true, false},
+    {"light", false, false},
+    {"bath", true, false},
     {"dry", true, false},
     {"ventilate", true, false},
-    {"bath", true, false},
   };
 
   void _clearModes();

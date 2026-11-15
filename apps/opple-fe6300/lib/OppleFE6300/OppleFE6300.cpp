@@ -8,7 +8,7 @@ namespace {
     uint16_t value;
   };
 
-  constexpr uint32_t SPI_FREQUENCY_HZ = 1000000;
+  constexpr uint32_t SPI_FREQUENCY_HZ = 4000000;
 
   constexpr uint8_t REG_CHANNEL = 7;
   constexpr uint16_t CHANNEL_MASK = 0x007F;
@@ -63,10 +63,6 @@ namespace {
   constexpr uint8_t BURST_COUNT = 12;
   constexpr uint32_t BURST_PERIOD_MS = 13;
 
-  // Payload fields (see OppleFE6300.h).
-  constexpr size_t ADDRESS_INDEX = 0;  // 4 bytes.
-  constexpr size_t SEQUENCE_INDEX = 10;  // 2 bytes, big-endian.
-
   // Re-arm RX when no packet has come in for this long. The chip has been seen
   // going deaf; a burst lasts ~170 ms with a packet every ~3 ms, so a quick
   // re-arm still catches most of a burst the chip stopped hearing, while a
@@ -77,27 +73,6 @@ namespace {
   constexpr uint32_t RSSI_SAMPLE_US = 1000;
   // Re-arms merged into one trace event (~1 s), so a long quiet keeps its timing.
   constexpr uint16_t MAX_REARM_RUN = 20;
-
-  uint16_t readSequence(const uint8_t* payload) {
-    return (payload[SEQUENCE_INDEX] << 8) | payload[SEQUENCE_INDEX + 1];
-  }
-
-  void writeSequence(uint8_t* payload, uint16_t sequence) {
-    payload[SEQUENCE_INDEX] = sequence >> 8;
-    payload[SEQUENCE_INDEX + 1] = sequence & 0xFF;
-  }
-
-  uint32_t readAddress(const uint8_t* payload) {
-    return (static_cast<uint32_t>(payload[ADDRESS_INDEX]) << 24) |
-      (static_cast<uint32_t>(payload[ADDRESS_INDEX + 1]) << 16) |
-      (static_cast<uint32_t>(payload[ADDRESS_INDEX + 2]) << 8) |
-      payload[ADDRESS_INDEX + 3];
-  }
-
-  bool isField(size_t i) {
-    return (i >= ADDRESS_INDEX && i < ADDRESS_INDEX + 4) ||
-      (i >= SEQUENCE_INDEX && i < SEQUENCE_INDEX + 2);
-  }
 
   // A burst lasts ~160 ms. The same payload again within this window, measured
   // from the previous repeat, is the same press (a held key keeps extending it).
@@ -115,12 +90,9 @@ OppleFE6300::~OppleFE6300() {
 
 bool OppleFE6300::begin() {
   _ready = false;
-  _commands = _storage.load();
-  _ownAddress = 0;
-  if (_commands != nullptr && !_commands->commands.empty() &&
-      _commands->commands.front().payload.size() > SEQUENCE_INDEX + 1) {
-    _ownAddress = readAddress(_commands->commands.front().payload.data());
-  }
+  _listenConfigured = false;  // The SDK's begin() and REMOTE_REGISTERS write register 41.
+  _model = _storage.load();
+  _ownAddress = _model == nullptr ? 0 : _model->packet.remote;
 
   SPI.begin();
   SPI.setBitOrder(MSBFIRST);
@@ -153,45 +125,37 @@ bool OppleFE6300::begin() {
   return _ready;
 }
 
-bool OppleFE6300::isReady() const {
-  return _ready;
-}
-
 uint8_t OppleFE6300::channel() const {
   return CHANNEL & CHANNEL_MASK;
 }
 
 size_t OppleFE6300::commandCount() const {
-  return _commands == nullptr ? 0 : _commands->commands.size();
+  return _model == nullptr ? 0 : _model->keys.size();
 }
 
 OppleFE6300::TxResult OppleFE6300::send(const String& name) {
   if (!_ready) {
     return TxResult::NotReady;
   }
-  const auto command = _findCommand(name);
-  if (command == nullptr) {
+  const auto key = _findKey(name);
+  if (key == nullptr) {
     return TxResult::UnknownCommand;
   }
-  const auto& payload = command->payload;
-  if (payload.empty() || payload.size() > MAX_PAYLOAD) {
-    return TxResult::InvalidPayload;
-  }
-
-  uint8_t packet[MAX_PAYLOAD];
-  memcpy(packet, payload.data(), payload.size());
-  if (payload.size() > SEQUENCE_INDEX + 1) {
-    writeSequence(packet, _nextSequence(readSequence(payload.data())));
-  }
+  auto fields = _model->packet;
+  fields.key = key->code;
+  fields.counter = _nextSequence(_model->packet.counter);
+  uint8_t packet[OppleFE6300Packet::SIZE];
+  fields.toBytes(packet);
 
   // The remote sends with AUTO_ACK; listening runs without it (see _listen()).
   _idle();
   _rf->writeRegister(REG_PACKET_CONFIG, REMOTE_PACKET_CONFIG);
+  _listenConfigured = false;
 
   auto result = TxResult::Ok;
   for (uint8_t i = 0; i < BURST_COUNT; i++) {
     const uint32_t startedMs = millis();
-    result = _sendPacket(packet, payload.size());
+    result = _sendPacket(packet, sizeof(packet));
     if (result != TxResult::Ok) {
       break;
     }
@@ -255,27 +219,36 @@ bool OppleFE6300::receive(RxPacket& packet) {
     return false;
   }
   _rxStats.packets++;
-  _record(TraceEvent::Kind::Packets, millis(), packet.sequence());
 
+  // Most packets are burst repeats (~50 per press). A repeat has the bytes of
+  // the press already reported, so it has its fields too: only a new press is
+  // split into fields.
   const uint32_t nowMs = millis();
   const bool repeat = packet.length == _lastRx.length &&
     memcmp(packet.payload, _lastRx.payload, packet.length) == 0 &&
     nowMs - _lastRxMs < REPEAT_WINDOW_MS;
   _lastRxMs = nowMs;
   if (repeat) {
+    _record(TraceEvent::Kind::Packets, nowMs, _lastRx.sequence());
     _rxStats.lastCopies++;
     return false;
   }
+
+  packet.remoteFormat = _model != nullptr &&
+    OppleFE6300Packet::fromBytes(packet.payload, packet.length, packet.fields) &&
+    packet.fields.sameFormat(_model->packet);
+  _record(TraceEvent::Kind::Packets, nowMs, packet.sequence());
   packet.previousCopies = _rxStats.lastCopies;
   _rxStats.lastCopies = 1;
 
-  packet.command = _matchCommand(packet.payload, packet.length);
+  packet.key = nullptr;
   packet.own = false;
-  packet.missed = 0;
-  // Unknown keys count too: they use up a counter value like any other press,
-  // and skipping them would show the next known press as a missed one.
-  if (packet.length > SEQUENCE_INDEX + 1) {
-    packet.missed = _trackRemote(packet.address(), packet.sequence());
+  packet.skipped = 0;
+  if (packet.remoteFormat) {
+    packet.key = _findKey(packet.fields.key);
+    // Unknown keys count too: they use up a counter value like any other press,
+    // and skipping them would show the next known press as a skip.
+    packet.skipped = _trackRemote(packet.address(), packet.sequence());
     packet.own = packet.address() == _ownAddress;
     if (packet.own) {
       _remoteSequence = packet.sequence();
@@ -288,9 +261,9 @@ bool OppleFE6300::receive(RxPacket& packet) {
   return true;
 }
 
-// Records the remote's counter and returns how many presses it skipped. The
+// Records the remote's counter and returns how many values it skipped. The
 // counter moves forward by one per press; a step back or a jump of half the
-// range or more is not counted as missed.
+// range or more is not counted.
 uint16_t OppleFE6300::_trackRemote(uint32_t address, uint16_t sequence) {
   for (size_t i = 0; i < _remoteCount; i++) {
     auto& remote = _remotes[i];
@@ -309,6 +282,10 @@ uint16_t OppleFE6300::_trackRemote(uint32_t address, uint16_t sequence) {
 
 const OppleFE6300::RxStats& OppleFE6300::rxStats() const {
   return _rxStats;
+}
+
+uint32_t OppleFE6300::lastPacketMs() const {
+  return _lastRxMs;
 }
 
 size_t OppleFE6300::traceCount() const {
@@ -363,68 +340,12 @@ OppleFE6300::Diagnostics OppleFE6300::diagnostics() {
   return result;
 }
 
-OppleFE6300::WatchResult OppleFE6300::watch(uint32_t durationMs) {
-  WatchResult result = {};
-  result.rssiMin = 0xFF;
-  if (!_ready) {
-    result.rssiMin = 0;
-    return result;
-  }
-  _listen();
-  bool syncBefore = false;
-  const uint32_t startedMs = millis();
-  while (millis() - startedMs < durationMs) {
-    const uint16_t status = _rf->readRegister(REG_STATUS);
-    const uint8_t rssi = _rf->getRSSI();
-    result.samples++;
-    result.rssiMin = min(result.rssiMin, rssi);
-    result.rssiMax = max(result.rssiMax, rssi);
-    const bool sync = (status & STATUS_SYNC_WORD) != 0;
-    if (sync && !syncBefore) {
-      result.syncWords++;
-    }
-    syncBefore = sync;
-    if ((status & STATUS_PKT_FLAG) != 0) {
-      result.packets++;
-      if ((status & STATUS_CRC_ERROR) != 0) {
-        result.crcErrors++;
-      }
-      if (_isPktActive()) {
-        result.pktPin++;
-      }
-      _listen();
-      syncBefore = false;
-    }
-    yield();
-  }
-  _listen();
-  return result;
-}
-
-void OppleFE6300::scan(uint32_t durationMs, uint8_t maxRssi[CHANNEL_COUNT]) {
-  memset(maxRssi, 0, CHANNEL_COUNT);
-  if (!_ready) {
-    return;
-  }
-  const uint32_t startedMs = millis();
-  while (millis() - startedMs < durationMs) {
-    for (uint8_t ch = 0; ch < CHANNEL_COUNT; ch++) {
-      _rf->writeRegister(REG_CHANNEL, ch);  // Idle, so enabling RX recalibrates the VCO.
-      _rf->writeRegister(REG_CHANNEL, ch | RX_ENABLE);
-      delayMicroseconds(300);
-      maxRssi[ch] = max(maxRssi[ch], _rf->getRSSI());
-    }
-    yield();
-  }
-  _listen();
-}
-
 uint16_t OppleFE6300::RxPacket::sequence() const {
-  return length > SEQUENCE_INDEX + 1 ? readSequence(payload) : 0;
+  return remoteFormat ? fields.counter : 0;
 }
 
 uint32_t OppleFE6300::RxPacket::address() const {
-  return length >= ADDRESS_INDEX + 4 ? readAddress(payload) : 0;
+  return remoteFormat ? fields.remote : 0;
 }
 
 const __FlashStringHelper* OppleFE6300::describe(TxResult result) {
@@ -435,8 +356,6 @@ const __FlashStringHelper* OppleFE6300::describe(TxResult result) {
       return F("radio not ready");
     case TxResult::UnknownCommand:
       return F("unknown command; check opple-fe6300.json");
-    case TxResult::InvalidPayload:
-      return F("payload empty or longer than 63 bytes");
     case TxResult::PktMismatch:
       return F("PKT pin disagrees with status register; check PKT wiring/polarity");
     case TxResult::PktStuck:
@@ -447,38 +366,25 @@ const __FlashStringHelper* OppleFE6300::describe(TxResult result) {
   return F("unknown");
 }
 
-LT8920* OppleFE6300::sdk() {
-  return _rf;
-}
-
-const OppleFE6300Command* OppleFE6300::_findCommand(const String& name) const {
-  if (_commands == nullptr) {
+const OppleFE6300Key* OppleFE6300::_findKey(const String& name) const {
+  if (_model == nullptr) {
     return nullptr;
   }
-  for (const auto& command : _commands->commands) {
-    if (command.name == name) {
-      return &command;
+  for (const auto& key : _model->keys) {
+    if (key.name == name) {
+      return &key;
     }
   }
   return nullptr;
 }
 
-// A stored command matches when every byte but the address and the press
-// counter is equal.
-const OppleFE6300Command* OppleFE6300::_matchCommand(const uint8_t* payload, size_t length) const {
-  if (_commands == nullptr) {
+const OppleFE6300Key* OppleFE6300::_findKey(uint8_t code) const {
+  if (_model == nullptr) {
     return nullptr;
   }
-  for (const auto& command : _commands->commands) {
-    if (command.payload.size() != length) {
-      continue;
-    }
-    bool equal = true;
-    for (size_t i = 0; i < length && equal; i++) {
-      equal = isField(i) || command.payload[i] == payload[i];
-    }
-    if (equal) {
-      return &command;
+  for (const auto& key : _model->keys) {
+    if (key.code == code) {
+      return &key;
     }
   }
   return nullptr;
@@ -489,9 +395,10 @@ const OppleFE6300Command* OppleFE6300::_matchCommand(const uint8_t* payload, siz
 // the last one on air. Counting down from the remote's latest value keeps clear
 // of the counters the remote will use next (+1, +2, ...), and alternating
 // between -1 and -2 keeps consecutive sends from this side distinct.
-// Until the remote has been heard, the stored command's counter stands in.
-uint16_t OppleFE6300::_nextSequence(uint16_t templateSequence) {
-  const uint16_t anchor = _hasRemoteSequence ? _remoteSequence : static_cast<uint16_t>(templateSequence + 1);
+// Until the remote has been heard, start ("counter" in opple-fe6300.json)
+// stands in; any value works as long as it differs from the heater's last one.
+uint16_t OppleFE6300::_nextSequence(uint16_t start) {
+  const uint16_t anchor = _hasRemoteSequence ? _remoteSequence : static_cast<uint16_t>(start + 1);
   uint16_t sequence = anchor - 1;
   if (_hasAirSequence && sequence == _airSequence) {
     sequence = anchor - 2;
@@ -547,23 +454,17 @@ OppleFE6300::TxResult OppleFE6300::_sendPacket(const uint8_t* payload, size_t le
   return TxResult::Ok;
 }
 
-void OppleFE6300::setRxAutoAck(bool enabled) {
-  _rxAutoAck = enabled;
-  if (_ready) {
-    _listen();
-  }
-}
-
-bool OppleFE6300::rxAutoAck() const {
-  return _rxAutoAck;
-}
-
-// Passive listening by default: AUTO_ACK is cleared so this side never answers
-// the remote's packets on air. send() restores the remote's configuration.
+// Passive listening: AUTO_ACK is cleared so this side never answers the
+// remote's packets on air (answering also stopped the remote's retransmissions
+// and made reception much worse). send() restores the remote's configuration.
+// Register 41 is written only after something else changed it (begin(),
+// send()), not on every re-arm: one SPI write less per packet and idle re-arm.
 void OppleFE6300::_listen() {
   _idle();
-  _rf->writeRegister(REG_PACKET_CONFIG,
-    _rxAutoAck ? REMOTE_PACKET_CONFIG : (REMOTE_PACKET_CONFIG & ~PACKET_CONFIG_AUTO_ACK));
+  if (!_listenConfigured) {
+    _rf->writeRegister(REG_PACKET_CONFIG, REMOTE_PACKET_CONFIG & ~PACKET_CONFIG_AUTO_ACK);
+    _listenConfigured = true;
+  }
   _rf->writeRegister(REG_FIFO_CONTROL, FIFO_CLEAR_BOTH);
   _rf->writeRegister(REG_CHANNEL, channel() | RX_ENABLE);  // Also clears PKT.
   _armedMs = millis();
