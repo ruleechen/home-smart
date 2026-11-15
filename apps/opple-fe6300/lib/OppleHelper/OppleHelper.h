@@ -1,7 +1,6 @@
 #ifndef OppleHelper_h
 #define OppleHelper_h
 
-#include <vector>
 #include <Arduino.h>
 
 // Small helpers shared by the app and the Opple libs.
@@ -12,10 +11,9 @@ namespace OppleHelper {
   String hex16(uint16_t value);  // Big-endian, 4 digits.
   String hex32(uint32_t value);  // Big-endian, 8 digits.
 
-  // Parses an even number of hex digits, either case, e.g. "A3714D01", and
-  // appends the bytes to out. False for null, empty, odd length or a non-hex
-  // digit (out may then hold part of the bytes).
-  bool parseHex(const char* text, std::vector<uint8_t>& out);
+  // Parses exactly size bytes of hex into out. False for null, any other
+  // length or a non-hex digit (out is then unspecified); no allocation.
+  bool parseHex(const char* text, uint8_t* out, size_t size);
 
   // Big-endian integers inside a byte buffer.
   uint16_t readBE16(const uint8_t* bytes);

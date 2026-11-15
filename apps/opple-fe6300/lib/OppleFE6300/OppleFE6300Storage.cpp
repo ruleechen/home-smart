@@ -29,9 +29,7 @@ void OppleFE6300Storage::_deserialize(OppleFE6300Model* model, const DynamicJson
   // missing or malformed.
   const auto readField = [&](const __FlashStringHelper* name, uint8_t* out, size_t size) {
     const char* text = doc[name];
-    std::vector<uint8_t> bytes;
-    if (parseHex(text, bytes) && bytes.size() == size) {
-      memcpy(out, bytes.data(), size);
+    if (parseHex(text, out, size)) {
       return true;
     }
     _error().section(F("invalid field"), String(name) + '=' + (text == nullptr ? "(missing)" : text));
@@ -57,11 +55,11 @@ void OppleFE6300Storage::_deserialize(OppleFE6300Model* model, const DynamicJson
 
   const JsonObjectConst keys = doc[F("key")];
   for (const JsonPairConst item : keys) {
-    std::vector<uint8_t> code;
-    if (!parseHex(item.value().as<const char*>(), code) || code.size() != 1) {
+    uint8_t code;
+    if (!parseHex(item.value().as<const char*>(), &code, sizeof(code))) {
       _error().section(F("invalid key"), item.key().c_str());
       continue;
     }
-    model->keys.push_back({item.key().c_str(), code[0]});
+    model->keys.push_back({item.key().c_str(), code});
   }
 }

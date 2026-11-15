@@ -13,7 +13,7 @@ bool OppleFE6300State::apply(const String& command) {
   if (function == nullptr) {
     return false;
   }
-  const bool on = !function->on;
+  const bool on = !function->on; // toggle
   if (function->mode) {
     _clearModes();
   }
