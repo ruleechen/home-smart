@@ -1,11 +1,14 @@
 #include <Arduino.h>
 #include <LittleFS.h>
-#include <ESP8266WiFi.h>
 #include <Console.h>
 #include <OppleFE6300.h>
 #include <OppleFE6300State.h>
+#include <OppleHelper.h>
 
 using namespace Victor;
+using OppleHelper::hex;
+using OppleHelper::hex16;
+using OppleHelper::hex32;
 
 namespace {
 
@@ -23,47 +26,12 @@ namespace {
   // heaters (A3BF5701 belongs to the second bathroom heater).
   OppleFE6300State heater;
 
-  String hex(const uint8_t* bytes, size_t length) {
-    static const char DIGITS[] = "0123456789ABCDEF";
-    String text;
-    text.reserve(length * 2);
-    for (size_t i = 0; i < length; i++) {
-      text += DIGITS[bytes[i] >> 4];
-      text += DIGITS[bytes[i] & 0x0F];
-    }
-    return text;
-  }
-
   void onPressed(const __FlashStringHelper* source, const String& command) {
     if (heater.apply(command)) {
       console.log()
         .bracket(F("state"))
         .section(source, heater.describe());
     }
-  }
-
-  String hex16(uint16_t value) {
-    const uint8_t bytes[] = {static_cast<uint8_t>(value >> 8), static_cast<uint8_t>(value)};
-    return hex(bytes, 2);
-  }
-
-  String hex32(uint32_t value) {
-    const uint8_t bytes[] = {
-      static_cast<uint8_t>(value >> 24), static_cast<uint8_t>(value >> 16),
-      static_cast<uint8_t>(value >> 8), static_cast<uint8_t>(value),
-    };
-    return hex(bytes, 4);
-  }
-
-  // 2.4 GHz WiFi next to the LT8920 can blind it: channel 74 is 2476 MHz.
-  String wifiState() {
-    const auto mode = WiFi.getMode();
-    if (mode == WIFI_OFF) {
-      return F("off");
-    }
-    return String(mode == WIFI_STA ? F("sta") : mode == WIFI_AP ? F("ap") : F("ap+sta")) +
-      F(" ch") + String(WiFi.channel()) +
-      (WiFi.status() == WL_CONNECTED ? F(" connected") : F(""));
   }
 
   void logStatus() {
@@ -83,9 +51,7 @@ namespace {
       .section(F("empty"), String(d.rx.empty))
       .section(F("oversize"), String(d.rx.oversize))
       .section(F("seq"), d.hasTxSequence ? hex16(d.txSequence) : String(F("-")))
-      .section(F("state"), heater.describe())
-      .section(F("rxack"), radio.rxAutoAck() ? F("on") : F("off"))
-      .section(F("wifi"), wifiState());
+      .section(F("state"), heater.describe());
   }
 
   // One line per trace run that ended at or after sinceMs, e.g.
@@ -116,115 +82,23 @@ namespace {
     }
   }
 
-  constexpr uint32_t PROBE_DURATION_MS = 5000;
-
-  void runWatch() {
-    // Packets seen here are discarded: presses during watch/scan are not tracked.
-    console.log().bracket(F("watch")).section(F("5s, press the remote now; presses are not tracked"));
-    const auto w = radio.watch(PROBE_DURATION_MS);
-    console.log()
-      .bracket(F("watch"))
-      .section(F("samples"), String(w.samples))
-      .section(F("rssi"), String(w.rssiMin) + F("..") + String(w.rssiMax))
-      .section(F("sync"), String(w.syncWords))
-      .section(F("packets"), String(w.packets))
-      .section(F("crc"), String(w.crcErrors))
-      .section(F("pin"), String(w.pktPin));
-  }
-
-  void runScan() {
-    console.log().bracket(F("scan")).section(F("5s, keep pressing the remote; presses are not tracked"));
-    uint8_t maxRssi[OppleFE6300::CHANNEL_COUNT];
-    radio.scan(PROBE_DURATION_MS, maxRssi);
-    String line;
-    for (uint8_t ch = 0; ch < OppleFE6300::CHANNEL_COUNT; ch++) {
-      line += String(ch) + ':' + String(maxRssi[ch]) + ' ';
-    }
-    console.log().bracket(F("scan")).section(line);
-  }
-
-  // "r 48" reads register 48; "w 45 0080" writes 0x0080 to register 45.
-  // Note that re-arming RX rewrites registers 7, 41 and 52.
-  bool runRegister(const String& line) {
-    const bool write = line.startsWith(F("w "));
-    if (!write && !line.startsWith(F("r "))) {
-      return false;
-    }
-    auto rf = radio.sdk();
-    if (rf == nullptr) {
-      return true;
-    }
-    char* end = nullptr;
-    const auto reg = static_cast<uint8_t>(strtoul(line.c_str() + 2, &end, 10));
-    if (write) {
-      rf->writeRegister(reg, static_cast<uint16_t>(strtoul(end, nullptr, 16)));
-    }
-    console.log()
-      .bracket(F("reg"))
-      .section(String(reg), hex16(rf->readRegister(reg)));
-    return true;
-  }
-
-  void runCommand(const String& name) {
-    if (name == F("status")) {
-      logStatus();
-      return;
-    }
-    if (name == F("watch")) {
-      runWatch();
-      return;
-    }
-    if (name == F("trace")) {
-      logTrace(0);
-      return;
-    }
-    if (name == F("scan")) {
-      runScan();
-      return;
-    }
-    if (runRegister(name)) {
-      return;
-    }
-    if (name == F("rxack on") || name == F("rxack off")) {
-      radio.setRxAutoAck(name.endsWith(F("on")));
-      console.log()
-        .bracket(F("rxack"))
-        .section(radio.rxAutoAck() ? F("on") : F("off"));
-      return;
-    }
-    const auto result = radio.send(name);
-    const auto d = radio.diagnostics();
-    (result == OppleFE6300::TxResult::Ok ? console.log() : console.error())
-      .bracket(F("tx"))
-      .section(name, OppleFE6300::describe(result))
-      .section(F("seq"), hex16(d.txSequence));
-    if (result == OppleFE6300::TxResult::Ok) {
-      onPressed(F("local"), name);
-    }
-  }
-
-  // Serial monitor: type a command name from opple-fe6300.json (or "status") and
-  // press Enter. The monitor sends each key as it is typed, so the line is
-  // collected across loop() calls and runs on CR or LF.
-  String serialLine;
-
-  void readSerial() {
-    while (Serial.available()) {
-      const char c = Serial.read();
-      if (c == '\r' || c == '\n') {
-        serialLine.trim();
-        if (serialLine.length() > 0) {
-          runCommand(serialLine);
-        }
-        serialLine = "";
-      } else if (serialLine.length() < 32) {
-        serialLine += c;
-      }
-    }
-  }
-
   // When the latest press was reported, for the trace of a gap.
   uint32_t previousPressMs = 0;
+
+  // The serial port blocks once its 128-byte FIFO is full, and the receiver
+  // is only re-armed from loop(): a trace of dozens of lines printed right
+  // away would deafen it for the rest of the burst and any press right after.
+  // So a gap's trace waits until nothing has been received for this long.
+  constexpr uint32_t TRACE_QUIET_MS = 300;
+  bool tracePending = false;
+  uint32_t traceSinceMs = 0;  // Start of the earliest gap not printed yet.
+
+  void logPendingTrace() {
+    if (tracePending && millis() - radio.lastPacketMs() >= TRACE_QUIET_MS) {
+      tracePending = false;
+      logTrace(traceSinceMs);
+    }
+  }
 
   void logReceived() {
     OppleFE6300::RxPacket packet;
@@ -233,32 +107,39 @@ namespace {
     }
     const uint32_t sinceMs = previousPressMs;
     previousPressMs = millis();
-    const auto known = packet.command != nullptr;
-    console.log()
+    const auto known = packet.key != nullptr;
+    auto line = console.log()
       .bracket(F("rx"))
-      .section(known ? packet.command->name : String(F("unknown")))
-      .section(F("remote"), hex32(packet.address()) + (packet.own ? F(" own") : F("")))
+      .section(known ? packet.key->name : String(F("unknown")))
+      .section(F("remote"), hex32(packet.address()))
       .section(F("seq"), hex16(packet.sequence()))
-      .section(F("prev copies"), String(packet.previousCopies))
-      .section(F("payload"), hex(packet.payload, packet.length));
-    if (packet.missed > 0) {
-      // Counters show whether the radio heard garbage meanwhile (interference)
-      // or nothing at all (deaf); wifi shows whether WiFi was transmitting.
+      .section(F("prev copies"), String(packet.previousCopies));
+    if (!known) {
+      // The raw bytes only matter for a key code not in opple-fe6300.json yet.
+      line.section(F("payload"), hex(packet.payload, packet.length));
+    }
+    if (packet.skipped > 0) {
+      // Not an error: mostly the remote skipping values on rapid presses. The
+      // counters and the trace show whether this side missed presses instead.
       const auto& rx = radio.rxStats();
-      console.error()
+      console.log()
         .bracket(F("rx"))
-        .section(F("missed presses"), String(packet.missed))
+        .section(F("counter skipped"), String(packet.skipped))
         .section(F("crc"), String(rx.crcErrors))
         .section(F("empty"), String(rx.empty))
         .section(F("oversize"), String(rx.oversize))
-        .section(F("wifi"), wifiState())
-        .section(packet.own ? F("state may be stale") : F("other remote"));
+        .section(packet.own ? F("own remote") : F("other remote"));
       // From the previous press on: did its burst stop early, was anything
       // loud on air meanwhile, did re-arms find the chip stuck in a packet.
-      logTrace(sinceMs);
+      // Printed by logPendingTrace() once the air is quiet; gaps in a row
+      // share one trace from the earliest.
+      if (!tracePending) {
+        tracePending = true;
+        traceSinceMs = sinceMs;
+      }
     }
     if (known && packet.own) {
-      onPressed(F("remote"), packet.command->name);
+      onPressed(F("remote"), packet.key->name);
     }
   }
 
@@ -299,5 +180,5 @@ void setup(void) {
 
 void loop(void) {
   logReceived();
-  readSerial();
+  logPendingTrace();
 }

@@ -7,21 +7,18 @@
 
 // OPPLE FE6300 remote emulation on top of the LT8920 SDK.
 // Holds the RF setup captured from the original remote (registers, sync word,
-// channel, repeat burst); command payloads come from OppleFE6300Storage, so
-// callers only pick a command by name.
+// channel, repeat burst); the remote's packet fields and key codes come from
+// OppleFE6300Storage, so callers only pick a command by name.
 // Between transmissions the chip listens on the remote's channel, so presses on
 // the original remote can be picked up with receive().
 // The SDK under lib/LT8920 is the generic driver and stays unmodified.
 //
-// Payload layout (19 bytes, see docs/saleae):
-//   [0..3]   A3 71 4D 01  remote address (another remote seen: A3 BF 57 01)
-//   [10..11] press counter, 16-bit big-endian, +1 per key press, same for every
-//            repeat of one press (the other remote was at 0x113E)
-//   [15]     key code (37 light toggle, 50 power off, 3F heat, ...); 4D replaces
-//            about every 4th of rapid light presses and the heater ignores it
-// The light key is a toggle: on and off are the same packet with a new counter.
-// Stored commands match a received packet whatever its address and counter, so
-// keys of any remote are recognized; own() tells the stored remote apart.
+// Packet fields: see OppleFE6300Packet. Every key is a toggle: on and off are
+// the same packet with a new counter. Key code 4D replaces about every 4th of
+// rapid light presses, and the heater ignores it.
+// A received packet in the configured format is recognized by its key code
+// whatever its remote and counter, so keys of any remote are recognized; own
+// tells the configured remote apart.
 class OppleFE6300 {
  public:
   struct Pins {
@@ -33,8 +30,7 @@ class OppleFE6300 {
   enum class TxResult : uint8_t {
     Ok,
     NotReady,        // begin() was not called or its register check failed.
-    UnknownCommand,  // No command with that name in opple-fe6300.json.
-    InvalidPayload,  // Payload is empty or does not fit the 64-byte FIFO.
+    UnknownCommand,  // No key with that name in opple-fe6300.json.
     PktMismatch,     // PKT GPIO disagrees with the PKT_FLAG status bit: wiring/polarity.
     PktStuck,     // PKT did not clear when TX was enabled.
     Timeout,      // PKT never became active within the TX timeout.
@@ -46,29 +42,34 @@ class OppleFE6300 {
   // One key press heard on air (the remote repeats each press ~12 times;
   // receive() reports it once).
   struct RxPacket {
-    const OppleFE6300Command* command;  // Matching stored command, nullptr if none.
-    uint8_t length;
+    uint8_t length;                // Raw payload as received.
     uint8_t payload[MAX_PAYLOAD];
-    bool own;  // Sent by the remote whose address the stored commands carry.
-    // Presses this remote's counter skipped since its previous one heard:
-    // presses made while this side was not listening (sending, watch, scan) or
-    // could not hear. Any key may be among them, so inferred state may be stale.
-    uint16_t missed;
+    // In the configured format (OppleFE6300Packet::sameFormat); only then are
+    // fields, key, own and skipped set.
+    bool remoteFormat;
+    OppleFE6300Packet fields;
+    const OppleFE6300Key* key;  // Configured key with this code, nullptr if unknown.
+    bool own;  // Sent by the configured remote.
+    // Counter values this remote skipped since its previous press heard.
+    // Mostly the remote's own doing: on rapid presses it uses up values it
+    // never sends, so the heater does not get them either. Otherwise they are
+    // presses this side did not hear (while sending, or deaf), which may leave
+    // the inferred state stale; the trace tells the two apart.
+    uint16_t skipped;
     uint32_t previousCopies;  // Copies received of the previous press.
-    uint16_t sequence() const;  // Press counter; 0 when the packet is too short to carry one.
-    uint32_t address() const;   // Remote address; 0 when the packet is too short.
+    uint16_t sequence() const;  // Press counter; 0 unless remoteFormat.
+    uint32_t address() const;   // Remote address; 0 unless remoteFormat.
   };
 
   explicit OppleFE6300(const Pins& pins, const char* commandsPath = "/opple-fe6300.json");
   ~OppleFE6300();
 
-  // Loads the commands (LittleFS must already be mounted), initializes SPI,
+  // Loads the remote config (LittleFS must already be mounted), initializes SPI,
   // resets the chip and applies the remote's configuration, then reads registers
   // back. Returns false when the chip does not answer as configured; send() is
-  // then refused. A missing command file does not fail begin(): commandCount()
-  // is 0 and send() reports UnknownCommand.
+  // then refused. A missing or invalid config does not fail begin():
+  // commandCount() is 0 and send() reports UnknownCommand.
   bool begin();
-  bool isReady() const;
   uint8_t channel() const;
   size_t commandCount() const;
 
@@ -93,6 +94,8 @@ class OppleFE6300 {
     uint32_t lastCopies;  // Copies received of the latest press (the remote sends ~12).
   };
   const RxStats& rxStats() const;
+  // millis() of the latest valid packet, burst repeats included; 0 before any.
+  uint32_t lastPacketMs() const;
 
   // What the receiver went through lately, for telling why a press was missed.
   // Consecutive events of one kind are merged into a run (packets of one press,
@@ -135,40 +138,12 @@ class OppleFE6300 {
   };
   Diagnostics diagnostics();
 
-  // Polls the status register for durationMs while listening (press the remote
-  // meanwhile) and counts what the receiver gets as far as: RF energy (RSSI),
-  // sync word match, complete packet, CRC result. Packets it sees are discarded.
-  struct WatchResult {
-    uint32_t samples;
-    uint8_t rssiMin;
-    uint8_t rssiMax;
-    uint32_t syncWords;  // Rising edges of the SYNCWORD_RECV status bit.
-    uint32_t packets;    // PKT_FLAG set, CRC good or bad.
-    uint32_t crcErrors;
-    uint32_t pktPin;     // Packets whose PKT GPIO was also active.
-  };
-  WatchResult watch(uint32_t durationMs);
-
-  // Sweeps RX over channels 0..CHANNEL_COUNT-1 for durationMs, keeping the
-  // highest RSSI per channel. Press the remote meanwhile to see where it sends.
-  static constexpr uint8_t CHANNEL_COUNT = 84;  // 2402..2485 MHz
-  void scan(uint32_t durationMs, uint8_t maxRssi[CHANNEL_COUNT]);
-
   static const __FlashStringHelper* describe(TxResult result);
-
-  // Experiment: listen with AUTO_ACK on (as the remote sends) instead of off.
-  // On, this side answers every packet it receives with an ACK frame, which
-  // also stops the remote's retransmissions. Off by default.
-  void setRxAutoAck(bool enabled);
-  bool rxAutoAck() const;
-
-  // Escape hatch for register-level experiments; nullptr before begin().
-  LT8920* sdk();
 
  private:
   Pins _pins;
   OppleFE6300Storage _storage;
-  const OppleFE6300Model* _commands = nullptr;
+  const OppleFE6300Model* _model = nullptr;
   LT8920* _rf = nullptr;
   bool _ready = false;
 
@@ -177,10 +152,11 @@ class OppleFE6300 {
   uint32_t _lastRxMs = 0;
   RxStats _rxStats = {};
 
-  bool _rxAutoAck = false;
-
   // Re-arm time, for the idle re-arm in receive().
   uint32_t _armedMs = 0;
+  // Register 41 holds the listening config (no AUTO_ACK). Cleared whenever
+  // something else writes it, so _listen() writes it only then.
+  bool _listenConfigured = false;
 
   TraceEvent _trace[TRACE_SIZE] = {};
   size_t _traceStart = 0;
@@ -188,7 +164,7 @@ class OppleFE6300 {
   uint8_t _idleRssiMax = 0;  // Since the last trace event.
   uint32_t _rssiSampledUs = 0;
 
-  // Latest counter heard from each remote, for spotting missed presses.
+  // Latest counter heard from each remote, for spotting skipped values.
   struct RemoteCounter {
     uint32_t address;
     uint16_t sequence;
@@ -198,7 +174,7 @@ class OppleFE6300 {
   size_t _remoteCount = 0;
   size_t _nextRemoteSlot = 0;
 
-  // Own remote (the stored commands' address): its latest counter, and the
+  // Own remote (the configured address): its latest counter, and the
   // latest counter on air with its address, from it or from this side.
   uint32_t _ownAddress = 0;
   bool _hasRemoteSequence = false;
@@ -206,10 +182,10 @@ class OppleFE6300 {
   bool _hasAirSequence = false;
   uint16_t _airSequence = 0;
 
-  const OppleFE6300Command* _findCommand(const String& name) const;
-  const OppleFE6300Command* _matchCommand(const uint8_t* payload, size_t length) const;
+  const OppleFE6300Key* _findKey(const String& name) const;
+  const OppleFE6300Key* _findKey(uint8_t code) const;
   uint16_t _trackRemote(uint32_t address, uint16_t sequence);
-  uint16_t _nextSequence(uint16_t templateSequence);
+  uint16_t _nextSequence(uint16_t start);
   TxResult _sendPacket(const uint8_t* payload, size_t length);
   void _record(TraceEvent::Kind kind, uint32_t ms, uint16_t sequence = 0, bool stuck = false);
   void _listen();
