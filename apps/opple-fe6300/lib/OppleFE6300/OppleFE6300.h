@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <LT8920.h>
-#include <OppleFE6300Storage.h>
+#include "OppleFE6300Storage.h"
 
 // OPPLE FE6300 remote emulation on top of the LT8920 SDK.
 // Holds the RF setup captured from the original remote (registers, sync word,

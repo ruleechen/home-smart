@@ -12,7 +12,10 @@ using OppleHelper::hex32;
 
 namespace {
 
-  // ESP-12F HSPI: SCK=GPIO14, MISO=GPIO12, MOSI=GPIO13. See README for wiring.
+  // ESP-12F Hardware SPI (HSPI):
+  //   SCK=GPIO14
+  //   MISO=GPIO12
+  //   MOSI=GPIO13
   constexpr OppleFE6300::Pins RF_PINS = {
     4,   // CS:  NodeMCU D2
     5,   // PKT: NodeMCU D1

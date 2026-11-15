@@ -34,22 +34,17 @@ namespace OppleHelper {
     return hex(bytes, 4);
   }
 
-  bool parseHex(const char* text, std::vector<uint8_t>& out) {
-    if (text == nullptr) {
+  bool parseHex(const char* text, uint8_t* out, size_t size) {
+    if (text == nullptr || strlen(text) != size * 2) {
       return false;
     }
-    const size_t length = strlen(text);
-    if (length == 0 || length % 2 != 0) {
-      return false;
-    }
-    out.reserve(out.size() + length / 2);
-    for (size_t i = 0; i < length; i += 2) {
-      const int high = hexDigit(text[i]);
-      const int low = hexDigit(text[i + 1]);
+    for (size_t i = 0; i < size; i++) {
+      const int high = hexDigit(text[i * 2]);
+      const int low = hexDigit(text[i * 2 + 1]);
       if (high < 0 || low < 0) {
         return false;
       }
-      out.push_back(static_cast<uint8_t>((high << 4) | low));
+      out[i] = static_cast<uint8_t>((high << 4) | low);
     }
     return true;
   }
