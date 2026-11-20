@@ -58,7 +58,7 @@ namespace {
   }
 
   // One line per trace run that ended at or after sinceMs, e.g.
-  // "[trace] 76762+39ms rx 01D0 x19 rssi 34" or "[trace] 76810+950ms rearm x20 stuck 0 rssi 5".
+  // "[trace] 76762+39ms: rx 01D0 x19 rssi: 34" or "[trace] 76810+950ms: rearm x20 stuck 0 rssi: 5".
   void logTrace(uint32_t sinceMs) {
     for (size_t i = 0; i < radio.traceCount(); i++) {
       const auto& e = radio.traceAt(i);
@@ -73,6 +73,7 @@ namespace {
         case Kind::Empty: what = F("empty"); break;
         case Kind::Oversize: what = F("oversize"); break;
         case Kind::Rearm: what = F("rearm"); break;
+        default: what = F("unknown"); break;
       }
       what += String(F(" x")) + String(e.count);
       if (e.kind == Kind::Rearm) {
