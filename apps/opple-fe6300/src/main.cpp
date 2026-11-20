@@ -110,11 +110,31 @@ namespace {
   }
 
   void logReceived() {
+    const auto before = radio.rxStats();
     OppleFE6300::RxPacket packet;
-    if (!radio.receive(packet)) {
+    const bool reported = radio.receive(packet);
+    // A gap is trace-worthy when the press was skipped (this side may have
+    // missed it, or the remote jumped the counter) or when the burst carried
+    // error packets (CRC / empty / oversize): the last one does not always come
+    // with a skip, so it has to count on its own.
+    const bool gapActivity = packet.skipped > 0 ||
+      before.crcErrors != radio.rxStats().crcErrors ||
+      before.empty != radio.rxStats().empty ||
+      before.oversize != radio.rxStats().oversize;
+    const uint32_t sinceMs = previousPressMs;
+    // From the previous press on: did its burst stop early, was anything loud
+    // on air meanwhile, did re-arms find the chip stuck in a packet.
+    // Printed by logPendingTrace() once the air is quiet; gaps in a row share
+    // one trace from the earliest.
+    if (gapActivity && !tracePending) {
+      tracePending = true;
+      traceSinceMs = sinceMs;
+    }
+    if (!reported) {
+      // A burst repeat can carry error events; the gap belongs to the press
+      // either way, so the armed trace above still holds.
       return;
     }
-    const uint32_t sinceMs = previousPressMs;
     previousPressMs = millis();
     const auto known = packet.key != nullptr;
     auto line = console.log()
@@ -138,14 +158,6 @@ namespace {
         .section(F("empty"), String(rx.empty))
         .section(F("oversize"), String(rx.oversize))
         .section(packet.own ? F("own remote") : F("other remote"));
-      // From the previous press on: did its burst stop early, was anything
-      // loud on air meanwhile, did re-arms find the chip stuck in a packet.
-      // Printed by logPendingTrace() once the air is quiet; gaps in a row
-      // share one trace from the earliest.
-      if (!tracePending) {
-        tracePending = true;
-        traceSinceMs = sinceMs;
-      }
     }
     if (known && packet.own) {
       onPressed(F("remote"), packet.key->name);
