@@ -58,7 +58,7 @@ namespace {
   }
 
   // One line per trace run that ended at or after sinceMs, e.g.
-  // "[trace] 76762+39ms rx 01D0 x19 rssi 34" or "[trace] 76810+950ms rearm x20 stuck 0 rssi 5".
+  // "[trace] 76762+39ms: rx 01D0 x19 rssi: 34" or "[trace] 76810+950ms: rearm x20 stuck 0 rssi: 5".
   void logTrace(uint32_t sinceMs) {
     for (size_t i = 0; i < radio.traceCount(); i++) {
       const auto& e = radio.traceAt(i);
@@ -73,6 +73,7 @@ namespace {
         case Kind::Empty: what = F("empty"); break;
         case Kind::Oversize: what = F("oversize"); break;
         case Kind::Rearm: what = F("rearm"); break;
+        default: what = F("unknown"); break;
       }
       what += String(F(" x")) + String(e.count);
       if (e.kind == Kind::Rearm) {
@@ -96,6 +97,12 @@ namespace {
   bool tracePending = false;
   uint32_t traceSinceMs = 0;  // Start of the earliest gap not printed yet.
 
+  // Idle polling spins without sleeping: without this the loop would busy-wait
+  // as fast as possible, burning CPU and starving the ESP8266 background tasks.
+  // 1 ms is far below the 50 ms re-arm and the ~13 ms burst period, so pacing
+  // does not change what the receiver does.
+  constexpr uint32_t LOOP_PACE_MS = 1;
+
   void logPendingTrace() {
     if (tracePending && millis() - radio.lastPacketMs() >= TRACE_QUIET_MS) {
       tracePending = false;
@@ -104,11 +111,31 @@ namespace {
   }
 
   void logReceived() {
+    const auto before = radio.rxStats();
     OppleFE6300::RxPacket packet;
-    if (!radio.receive(packet)) {
+    const bool reported = radio.receive(packet);
+    // A gap is trace-worthy when the press was skipped (this side may have
+    // missed it, or the remote jumped the counter) or when the burst carried
+    // error packets (CRC / empty / oversize): the last one does not always come
+    // with a skip, so it has to count on its own.
+    const bool gapActivity = packet.skipped > 0 ||
+      before.crcErrors != radio.rxStats().crcErrors ||
+      before.empty != radio.rxStats().empty ||
+      before.oversize != radio.rxStats().oversize;
+    const uint32_t sinceMs = previousPressMs;
+    // From the previous press on: did its burst stop early, was anything loud
+    // on air meanwhile, did re-arms find the chip stuck in a packet.
+    // Printed by logPendingTrace() once the air is quiet; gaps in a row share
+    // one trace from the earliest.
+    if (gapActivity && !tracePending) {
+      tracePending = true;
+      traceSinceMs = sinceMs;
+    }
+    if (!reported) {
+      // A burst repeat can carry error events; the gap belongs to the press
+      // either way, so the armed trace above still holds.
       return;
     }
-    const uint32_t sinceMs = previousPressMs;
     previousPressMs = millis();
     const auto known = packet.key != nullptr;
     auto line = console.log()
@@ -132,14 +159,6 @@ namespace {
         .section(F("empty"), String(rx.empty))
         .section(F("oversize"), String(rx.oversize))
         .section(packet.own ? F("own remote") : F("other remote"));
-      // From the previous press on: did its burst stop early, was anything
-      // loud on air meanwhile, did re-arms find the chip stuck in a packet.
-      // Printed by logPendingTrace() once the air is quiet; gaps in a row
-      // share one trace from the earliest.
-      if (!tracePending) {
-        tracePending = true;
-        traceSinceMs = sinceMs;
-      }
     }
     if (known && packet.own) {
       onPressed(F("remote"), packet.key->name);
@@ -184,4 +203,5 @@ void setup(void) {
 void loop(void) {
   logReceived();
   logPendingTrace();
+  delay(LOOP_PACE_MS);
 }
