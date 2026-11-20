@@ -96,6 +96,12 @@ namespace {
   bool tracePending = false;
   uint32_t traceSinceMs = 0;  // Start of the earliest gap not printed yet.
 
+  // Idle polling spins without sleeping: without this the loop would busy-wait
+  // as fast as possible, burning CPU and starving the ESP8266 background tasks.
+  // 1 ms is far below the 50 ms re-arm and the ~13 ms burst period, so pacing
+  // does not change what the receiver does.
+  constexpr uint32_t LOOP_PACE_MS = 1;
+
   void logPendingTrace() {
     if (tracePending && millis() - radio.lastPacketMs() >= TRACE_QUIET_MS) {
       tracePending = false;
@@ -184,4 +190,5 @@ void setup(void) {
 void loop(void) {
   logReceived();
   logPendingTrace();
+  delay(LOOP_PACE_MS);
 }
