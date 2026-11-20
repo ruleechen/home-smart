@@ -4,11 +4,15 @@
 #include <OppleFE6300.h>
 #include <OppleFE6300State.h>
 #include <OppleHelper.h>
+#include <AppMain/AppMain.h>
 
 using namespace Victor;
+using namespace Victor::Components;
 using OppleHelper::hex;
 using OppleHelper::hex16;
 using OppleHelper::hex32;
+
+AppMain* appMain = nullptr;
 
 namespace {
 
@@ -168,16 +172,8 @@ namespace {
 } // namespace
 
 void setup(void) {
-  console.begin(115200);
-
-  // Mounted here until the app moves to AppMain, which mounts it itself.
-  // On ESP8266 a partition that fails to mount is auto-formatted, so a missing
-  // filesystem image shows up below as zero commands, not as a mount failure.
-  if (!LittleFS.begin()) {
-    console.error()
-      .bracket(F("fs"))
-      .section(F("mount failed"));
-  }
+  appMain = new AppMain();
+  appMain->setup();
 
   if (radio.begin()) {
     console.log()
@@ -198,10 +194,35 @@ void setup(void) {
       .section(F("register check failed; radio disabled"));
   }
   logStatus();
+
+  // Web: the buttons are key presses on the heater, so they go through the same
+  // send path as the remote's; the heater ignores command names it does not know.
+  appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
+    states.push_back({ .text = F("Heater"), .value = heater.describe() });
+    buttons.push_back({ .text = F("Power Off"), .value = F("powerOff") });
+    buttons.push_back({ .text = F("Heat"), .value = F("heat") });
+    buttons.push_back({ .text = F("Blow"), .value = F("blow") });
+    buttons.push_back({ .text = F("Light"), .value = F("light") });
+    buttons.push_back({ .text = F("Bath"), .value = F("bath") });
+    buttons.push_back({ .text = F("Dry"), .value = F("dry") });
+    buttons.push_back({ .text = F("Ventilate"), .value = F("ventilate") });
+  };
+  appMain->webPortal->onServicePost = [](const String& value) {
+    console.log()
+      .bracket(F("service"))
+      .section(F("post"), value);
+    if (heater.apply(value)) {
+      const auto result = radio.send(value);
+      console.log()
+        .bracket(F("send"))
+        .section(F("result"), OppleFE6300::describe(result));
+    }
+  };
 }
 
 void loop(void) {
   logReceived();
   logPendingTrace();
   delay(LOOP_PACE_MS);
+  appMain->loop(-1);
 }
