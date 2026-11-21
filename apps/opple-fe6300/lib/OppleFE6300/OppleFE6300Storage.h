@@ -17,19 +17,23 @@ struct OppleFE6300Model {
   // fields, and the counter to start from (see below). key is left 0.
   OppleFE6300Packet packet;
   std::vector<OppleFE6300Key> keys;
+  // Number of identical packets sent for each command; defaults for older configs.
+  uint8_t burstCount = 12;
+  // Minimum start-to-start interval between packets in a burst.
+  uint16_t burstPeriodMs = 13;
 };
 
 // Remote config in LittleFS (variant/<name>/data/opple-fe6300.json, packed into
-// the FS image), one entry per packet field, in packet order:
-//   { "remote": "A3714D01", "prefix": "00000000", "length": "0013",
-//     "counter": "0000", "padding": "0000", "type": "03",
-//     "key": { "<name>": "37", ... }, "postfix": "005701" }
+// the FS image), containing packet fields and transmit settings:
+//   { "packet": { "remote": "A3714D01", "prefix": "00000000",
+//     "length": "0013", "counter": "0000", "padding": "0000",
+//     "type": "03", "keys": { "<name>": "37", ... },
+//     "postfix": "005701" }, "burstCount": 12, "burstPeriodMs": 13 }
 // Every value is hex with exactly the field's bytes (see OppleFE6300Packet).
 // The counter is listed for readability: one counter for the whole remote, +1
 // per press, so it is runtime state. OppleFE6300 sets it when sending and uses
 // the configured value only as a start until the remote has been heard.
-// A malformed or missing field loads no key at all; a malformed key code skips
-// that key. Both are reported on the console.
+// Packet and transmit settings are read directly from these configured values.
 class OppleFE6300Storage : public Victor::Components::FileStorage<OppleFE6300Model> {
  public:
   explicit OppleFE6300Storage(const char* filePath = "/opple-fe6300.json");

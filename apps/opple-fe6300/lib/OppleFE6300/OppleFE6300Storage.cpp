@@ -10,56 +10,49 @@ OppleFE6300Storage::OppleFE6300Storage(const char* filePath) : FileStorage(fileP
 }
 
 void OppleFE6300Storage::_serialize(const OppleFE6300Model* model, DynamicJsonDocument& doc) {
+  JsonObject packet = doc.createNestedObject(F("packet"));
   const auto& p = model->packet;
-  doc[F("remote")] = OppleHelper::hex32(p.remote);
-  doc[F("prefix")] = hex(p.prefix, sizeof(p.prefix));
-  doc[F("length")] = hex(p.length, sizeof(p.length));
-  doc[F("counter")] = OppleHelper::hex16(p.counter);
-  doc[F("padding")] = hex(p.padding, sizeof(p.padding));
-  doc[F("type")] = hex(&p.type, sizeof(p.type));
-  const JsonObject keys = doc.createNestedObject(F("key"));
+  packet[F("remote")] = OppleHelper::hex32(p.remote);
+  packet[F("prefix")] = hex(p.prefix, sizeof(p.prefix));
+  packet[F("length")] = hex(p.length, sizeof(p.length));
+  packet[F("counter")] = OppleHelper::hex16(p.counter);
+  packet[F("padding")] = hex(p.padding, sizeof(p.padding));
+  packet[F("type")] = hex(&p.type, sizeof(p.type));
+
+  const JsonObject keys = packet.createNestedObject(F("keys"));
   for (const auto& key : model->keys) {
     keys[key.name] = hex(&key.code, sizeof(key.code));
   }
-  doc[F("postfix")] = hex(p.postfix, sizeof(p.postfix));
+  packet[F("postfix")] = hex(p.postfix, sizeof(p.postfix));
+
+  // others
+  doc[F("burstCount")] = model->burstCount;
+  doc[F("burstPeriodMs")] = model->burstPeriodMs;
 }
 
 void OppleFE6300Storage::_deserialize(OppleFE6300Model* model, const DynamicJsonDocument& doc) {
-  // Reads one field of exactly size bytes into out; false (and reported) when
-  // missing or malformed.
-  const auto readField = [&](const __FlashStringHelper* name, uint8_t* out, size_t size) {
-    const char* text = doc[name];
-    if (parseHex(text, out, size)) {
-      return true;
-    }
-    _error().section(F("invalid field"), String(name) + '=' + (text == nullptr ? "(missing)" : text));
-    return false;
-  };
-
+  const JsonObjectConst packet = doc[F("packet")];
   auto& p = model->packet;
   uint8_t remote[4];
   uint8_t counter[2];
-  // Every field is read, so all bad ones are reported at once.
-  bool valid = readField(F("remote"), remote, sizeof(remote));
-  valid = readField(F("prefix"), p.prefix, sizeof(p.prefix)) && valid;
-  valid = readField(F("length"), p.length, sizeof(p.length)) && valid;
-  valid = readField(F("counter"), counter, sizeof(counter)) && valid;
-  valid = readField(F("padding"), p.padding, sizeof(p.padding)) && valid;
-  valid = readField(F("type"), &p.type, sizeof(p.type)) && valid;
-  valid = readField(F("postfix"), p.postfix, sizeof(p.postfix)) && valid;
-  if (!valid) {
-    return;
-  }
+  parseHex(packet[F("remote")], remote, sizeof(remote));
+  parseHex(packet[F("prefix")], p.prefix, sizeof(p.prefix));
+  parseHex(packet[F("length")], p.length, sizeof(p.length));
+  parseHex(packet[F("counter")], counter, sizeof(counter));
+  parseHex(packet[F("padding")], p.padding, sizeof(p.padding));
+  parseHex(packet[F("type")], &p.type, sizeof(p.type));
+  parseHex(packet[F("postfix")], p.postfix, sizeof(p.postfix));
   p.remote = OppleHelper::readBE32(remote);
   p.counter = OppleHelper::readBE16(counter);
 
-  const JsonObjectConst keys = doc[F("key")];
+  const JsonObjectConst keys = packet[F("keys")];
   for (const JsonPairConst item : keys) {
     uint8_t code;
-    if (!parseHex(item.value().as<const char*>(), &code, sizeof(code))) {
-      _error().section(F("invalid key"), item.key().c_str());
-      continue;
-    }
+    parseHex(item.value().as<const char*>(), &code, sizeof(code));
     model->keys.push_back({item.key().c_str(), code});
   }
+
+  // others
+  model->burstCount = doc[F("burstCount")].as<uint8_t>();
+  model->burstPeriodMs = doc[F("burstPeriodMs")].as<uint16_t>();
 }

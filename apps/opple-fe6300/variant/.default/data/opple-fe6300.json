@@ -1,18 +1,22 @@
 {
-  "remote": "A3714D01",
-  "prefix": "00000000",
-  "length": "0013",
-  "counter": "0000",
-  "padding": "0000",
-  "type": "03",
-  "key": {
-    "powerOff": "50",
-    "blow": "3B",
-    "heat": "3F",
-    "light": "37",
-    "bath": "5A",
-    "dry": "90",
-    "ventilate": "39"
+  "packet": {
+    "remote": "A3714D01",
+    "prefix": "00000000",
+    "length": "0013",
+    "counter": "0000",
+    "padding": "0000",
+    "type": "03",
+    "keys": {
+      "powerOff": "50",
+      "blow": "3B",
+      "heat": "3F",
+      "light": "37",
+      "bath": "5A",
+      "dry": "90",
+      "ventilate": "39"
+    },
+    "postfix": "005701"
   },
-  "postfix": "005701"
+  "burstCount": 12,
+  "burstPeriodMs": 13
 }

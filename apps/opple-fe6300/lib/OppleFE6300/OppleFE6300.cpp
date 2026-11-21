@@ -59,10 +59,6 @@ namespace {
     {45, 0x0152},  // Not written by the SDK.
   };
 
-  // The remote repeats each packet about 12 times, one TX start every ~13 ms.
-  constexpr uint8_t BURST_COUNT = 12;
-  constexpr uint32_t BURST_PERIOD_MS = 13;
-
   // Re-arm RX when no packet has come in for this long. The chip has been seen
   // going deaf; a burst lasts ~170 ms with a packet every ~3 ms, so a quick
   // re-arm still catches most of a burst the chip stopped hearing, while a
@@ -153,13 +149,13 @@ OppleFE6300::TxResult OppleFE6300::send(const String& name) {
   _listenConfigured = false;
 
   auto result = TxResult::Ok;
-  for (uint8_t i = 0; i < BURST_COUNT; i++) {
+  for (uint8_t i = 0; i < _model->burstCount; i++) {
     const uint32_t startedMs = millis();
     result = _sendPacket(packet, sizeof(packet));
     if (result != TxResult::Ok) {
       break;
     }
-    while (millis() - startedMs < BURST_PERIOD_MS) {
+    while (millis() - startedMs < _model->burstPeriodMs) {
       delay(1);
     }
   }
