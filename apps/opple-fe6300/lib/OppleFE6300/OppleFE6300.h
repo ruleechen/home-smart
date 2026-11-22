@@ -181,9 +181,8 @@ class OppleFE6300 {
   uint32_t _ownAddress = 0;
   bool _hasAirSequence = false;
   uint16_t _airSequence = 0;
-  // The first local command after hearing the original remote jumps ahead by
-  // sequenceGap values to reduce overlap between the two transmitters.
-  bool _advancePastRemote = false;
+  // The first local command after hearing the original remote applies sequenceGap.
+  bool _applyGapAfterRemote = false;
 
   const OppleFE6300Key* _findKey(const String& name) const;
   const OppleFE6300Key* _findKey(uint8_t code) const;

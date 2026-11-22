@@ -20,9 +20,9 @@ struct OppleFE6300Model {
   // Number of identical packets sent for each command; defaults for older configs.
   uint8_t burstCount = 15;
   // Minimum start-to-start interval between packets in a burst.
-  uint16_t burstPeriodMs = 13;
-  // Counter values to skip ahead after hearing the original remote.
-  uint16_t sequenceGap = 100;
+  uint8_t burstPeriodMs = 13;
+  // Signed 16-bit counter offset after hearing the original remote.
+  int16_t sequenceGap = 100;
 };
 
 // Remote config in LittleFS (variant/<name>/data/opple-fe6300.json, packed into
@@ -37,8 +37,7 @@ struct OppleFE6300Model {
 // remote, +1 per press, so it is runtime state. The configured value is the
 // initial base;
 // each new command increments it. After a same-address remote packet, the next
-// local command advances sequenceGap values past that counter before continuing
-// by one.
+// local command applies sequenceGap to that counter before continuing by one.
 // Packet and transmit settings are read directly from these configured values.
 class OppleFE6300Storage : public Victor::Components::FileStorage<OppleFE6300Model> {
  public:
