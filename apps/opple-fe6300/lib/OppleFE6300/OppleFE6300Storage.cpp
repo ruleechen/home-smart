@@ -55,6 +55,6 @@ void OppleFE6300Storage::_deserialize(OppleFE6300Model* model, const DynamicJson
 
   // others
   model->burstCount = doc[F("burstCount")].as<uint8_t>();
-  model->burstPeriodMs = doc[F("burstPeriodMs")].as<uint16_t>();
-  model->sequenceGap = doc[F("sequenceGap")].as<uint16_t>();
+  model->burstPeriodMs = doc[F("burstPeriodMs")].as<uint8_t>();
+  model->sequenceGap = doc[F("sequenceGap")].as<int16_t>();
 }

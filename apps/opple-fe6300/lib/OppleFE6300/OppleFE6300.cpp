@@ -273,7 +273,7 @@ bool OppleFE6300::receive(RxPacket& packet) {
     if (packet.own) {
       _airSequence = packet.sequence();
       _hasAirSequence = true;
-      _advancePastRemote = true;
+      _applyGapAfterRemote = true;
     }
   }
   _lastRx = packet;
@@ -414,16 +414,19 @@ const OppleFE6300Key* OppleFE6300::_findKey(uint8_t code) const {
 }
 
 // One new counter is used per command; repeated packets in that command's burst
-// keep the same value. Start from the configured base, or jump sequenceGap values
-// ahead of the original remote's latest counter once, then advance by one per command.
-// Counter arithmetic wraps modulo 16 bits.
+// keep the same value. Start from the configured base, or apply the signed
+// sequenceGap to the original remote's latest counter once, then advance by one
+// per command. Counter arithmetic wraps modulo 16 bits.
 uint16_t OppleFE6300::_nextSequence(uint16_t start) {
   const uint16_t base = _hasAirSequence ? _airSequence : start;
-  const uint16_t increment = _advancePastRemote ? _model->sequenceGap : 1;
-  const uint16_t sequence = static_cast<uint16_t>(base + increment);
+  const int32_t offset = _applyGapAfterRemote
+    ? static_cast<int32_t>(_model->sequenceGap)
+    : 1;
+  const int32_t nextSequence = static_cast<int32_t>(base) + offset;
+  const uint16_t sequence = static_cast<uint16_t>(nextSequence);
   _airSequence = sequence;
   _hasAirSequence = true;
-  _advancePastRemote = false;
+  _applyGapAfterRemote = false;
   return sequence;
 }
 
