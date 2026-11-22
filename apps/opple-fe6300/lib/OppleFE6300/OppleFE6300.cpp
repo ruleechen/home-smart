@@ -11,23 +11,36 @@ namespace {
   constexpr uint32_t SPI_FREQUENCY_HZ = 4000000;
 
   constexpr uint8_t REG_CHANNEL = 7;
+  constexpr uint8_t REG_CURRENT_CONTROL = 9;
+  constexpr uint8_t REG_RSSI_CONTROL = 11;
+  constexpr uint8_t REG_PACKET_FORMAT = 32;
+  constexpr uint8_t REG_SYNC_WORD = 36;  // 36..39
+  constexpr uint8_t REG_SYNC_THRESHOLD = 40;
+  constexpr uint8_t REG_PACKET_CONFIG = 41;
+  constexpr uint8_t REG_DATA_RATE = 44;
+  constexpr uint8_t REG_DATA_RATE_OPTIONS = 45;
+  constexpr uint8_t REG_STATUS = 48;
+  constexpr uint8_t REG_FIFO = 50;
+  constexpr uint8_t REG_FIFO_CONTROL = 52;
+
   constexpr uint16_t CHANNEL_MASK = 0x007F;
   constexpr uint16_t TX_ENABLE = 0x0100;
   constexpr uint16_t RX_ENABLE = 0x0080;
 
-  constexpr uint8_t REG_SYNC_WORD = 36;  // 36..39
-  constexpr uint8_t REG_STATUS = 48;
   constexpr uint16_t STATUS_CRC_ERROR = 0x8000;
   constexpr uint16_t STATUS_SYNC_WORD = 0x0080;  // SYNCWORD_RECV, RX only.
   constexpr uint16_t STATUS_PKT_FLAG = 0x0040;  // Logical flag, independent of the GPIO polarity bit.
-  constexpr uint8_t REG_FIFO = 50;
-  constexpr uint8_t REG_FIFO_CONTROL = 52;
+
+  constexpr uint16_t PACKET_CONFIG_CRC_ON = 0x8000;
+  constexpr uint16_t PACKET_CONFIG_PACK_LEN_ENABLE = 0x2000;
+  constexpr uint16_t PACKET_CONFIG_FW_TERM_TX = 0x1000;
+  constexpr uint16_t PACKET_CONFIG_AUTO_ACK = 0x0800;
+
   // Clears both FIFO pointers. The remote writes this before every packet; clearing
   // only one side lets the pointers drift apart once TX and RX share the FIFO.
-  constexpr uint16_t FIFO_CLEAR_BOTH = 0x8080;
-
-  constexpr uint8_t REG_PACKET_CONFIG = 41;
-  constexpr uint16_t PACKET_CONFIG_AUTO_ACK = 0x0800;
+  constexpr uint16_t FIFO_CLEAR_TX_POINTER = 0x8000;
+  constexpr uint16_t FIFO_CLEAR_RX_POINTER = 0x0080;
+  constexpr uint16_t FIFO_CLEAR_BOTH = FIFO_CLEAR_TX_POINTER | FIFO_CLEAR_RX_POINTER;
 
   // Register 41 leaves PKT_FIFO_POLARITY clear: PKT goes high when TX completes
   // or a packet has been received.
@@ -40,23 +53,34 @@ namespace {
   // ---- Captured from the original remote's SPI bus (照明1 / 照明2) ----
 
   constexpr uint8_t CHANNEL = 74;  // 2402 + 74 = 2476 MHz
+  static_assert(CHANNEL <= CHANNEL_MASK, "LT8920 channel must fit in 7 bits");
 
   // Registers 36..39. Register 32 selects a 32-bit sync word, so only 36 and 39
   // go on air; 37/38 are written as captured anyway.
   constexpr uint16_t SYNC_WORD[4] = {0x050A, 0x0380, 0x5A5A, 0x55AA};
 
   // CRC | PACK_LEN | FW_TERM_TX | AUTO_ACK (SDK: 0xB000, no AUTO_ACK).
-  constexpr uint16_t REMOTE_PACKET_CONFIG = 0xB800;
+  constexpr uint16_t REMOTE_PACKET_CONFIG = PACKET_CONFIG_CRC_ON |
+    PACKET_CONFIG_PACK_LEN_ENABLE |
+    PACKET_CONFIG_FW_TERM_TX |
+    PACKET_CONFIG_AUTO_ACK;
+
+  constexpr uint16_t REMOTE_TX_POWER_GAIN = 0x4800;
+  constexpr uint16_t REMOTE_RSSI_CONTROL = 0x0008;
+  constexpr uint16_t REMOTE_PREAMBLE_SYNC_CONFIG = 0x4800;
+  constexpr uint16_t REMOTE_SYNC_THRESHOLD_CONFIG = 0x4402;
+  constexpr uint16_t REMOTE_DATA_RATE_CONFIG = 0x0100;
+  constexpr uint16_t REMOTE_DATA_RATE_OPTIONS = 0x0152;
 
   // Init writes that differ from the SDK's begin(), applied after it.
   constexpr Register REMOTE_REGISTERS[] = {
-    {9, 0x4800},   // Power/gain (SDK: 0x4000).
-    {11, 0x0008},  // SDK: 0x0000.
-    {32, 0x4800},  // 3-byte preamble, 32-bit sync word (SDK: 0x5000, 48-bit).
-    {40, 0x4402},  // Sync word error threshold (SDK: 0x4401).
+    {REG_CURRENT_CONTROL, REMOTE_TX_POWER_GAIN},  // SDK: 0x4000.
+    {REG_RSSI_CONTROL, REMOTE_RSSI_CONTROL},      // SDK: 0x0000.
+    {REG_PACKET_FORMAT, REMOTE_PREAMBLE_SYNC_CONFIG},  // 3-byte preamble, 32-bit sync word (SDK: 0x5000, 48-bit).
+    {REG_SYNC_THRESHOLD, REMOTE_SYNC_THRESHOLD_CONFIG},  // SDK: 0x4401.
     {REG_PACKET_CONFIG, REMOTE_PACKET_CONFIG},
-    {44, 0x0100},  // 1 Mbps (SDK: 0x0101).
-    {45, 0x0152},  // Not written by the SDK.
+    {REG_DATA_RATE, REMOTE_DATA_RATE_CONFIG},  // 1 Mbps (SDK: 0x0101).
+    {REG_DATA_RATE_OPTIONS, REMOTE_DATA_RATE_OPTIONS},  // Not written by the SDK.
   };
 
   // Re-arm RX when no packet has come in for this long. The chip has been seen

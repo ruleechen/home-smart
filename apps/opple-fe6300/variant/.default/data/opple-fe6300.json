@@ -17,6 +17,6 @@
     },
     "postfix": "005701"
   },
-  "burstCount": 12,
-  "burstPeriodMs": 13
+  "burstCount": 5,
+  "burstPeriodMs": 15
 }
