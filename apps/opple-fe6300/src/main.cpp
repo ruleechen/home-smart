@@ -6,6 +6,7 @@
 #include <OppleHelper.h>
 #include <AppMain/AppMain.h>
 #include <GlobalHelpers.h>
+#include <arduino_homekit_server.h>
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -14,6 +15,24 @@ using OppleHelper::hex16;
 using OppleHelper::hex32;
 
 AppMain* appMain = nullptr;
+
+extern "C" homekit_characteristic_t currentHeaterState;
+extern "C" homekit_characteristic_t targetHeaterState;
+extern "C" homekit_characteristic_t accessoryManufacturer;
+extern "C" homekit_characteristic_t accessorySerialNumber;
+extern "C" homekit_characteristic_t accessoryModel;
+extern "C" homekit_characteristic_t accessoryVersion;
+extern "C" homekit_characteristic_t accessoryIdentify;
+extern "C" homekit_characteristic_t accessoryNameInfo;
+extern "C" homekit_server_config_t serverConfig;
+extern "C" void onAccessoryIdentify(void (*callback)(const homekit_value_t value));
+
+bool isIdentified = false;
+
+void identify(const homekit_value_t value) {
+  isIdentified = !isIdentified;
+  builtinLed.toggle();
+}
 
 namespace {
 
@@ -39,6 +58,18 @@ namespace {
       console.log()
         .bracket(F("state"))
         .section(source, heater.describe());
+    }
+  }
+
+  // Maps a HomeKit heater target state to a heater command name. The heater
+  // keys are toggles, so a target maps to a press like the web buttons do.
+  String heaterCommandOf(uint8_t state) {
+    switch (state) {
+      case 0: return String(F("powerOff"));
+      case 1: return String(F("heat"));
+      case 2: return String(F("blow"));
+      case 3: return String(F("dry"));
+      default: return String(F("powerOff"));
     }
   }
 
@@ -211,9 +242,27 @@ void setup(void) {
         .section(F("sequence"), hasSentSequence ? hex16(d.txSequence) : String(F("-")));
     }
   };
+
+  // HomeKit: the heater target becomes a key press, sent through the same path
+  // as the web buttons and the physical remote; the current state is inferred.
+  targetHeaterState.setter = [](const homekit_value_t value) {
+    const auto command = heaterCommandOf(static_cast<uint8_t>(value.uint8_value));
+    console.log()
+      .bracket(F("homekit"))
+      .section(F("target"), String(static_cast<uint8_t>(value.uint8_value)));
+    if (heater.apply(command)) {
+      const auto result = radio.send(command);
+      console.log()
+        .bracket(F("send"))
+        .section(F("result"), OppleFE6300::describe(result));
+    }
+  };
+  arduino_homekit_setup(&serverConfig);
+  onAccessoryIdentify(identify);
 }
 
 void loop(void) {
+  arduino_homekit_loop();
   logReceived();
   logPendingTrace();
   appMain->loop(-1);
