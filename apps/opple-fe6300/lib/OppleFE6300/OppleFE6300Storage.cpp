@@ -15,7 +15,7 @@ void OppleFE6300Storage::_serialize(const OppleFE6300Model* model, DynamicJsonDo
   packet[F("remote")] = OppleHelper::hex32(p.remote);
   packet[F("prefix")] = hex(p.prefix, sizeof(p.prefix));
   packet[F("length")] = hex(p.length, sizeof(p.length));
-  packet[F("counter")] = OppleHelper::hex16(p.counter);
+  packet[F("sequence")] = OppleHelper::hex16(p.sequence);
   packet[F("padding")] = hex(p.padding, sizeof(p.padding));
   packet[F("type")] = hex(&p.type, sizeof(p.type));
 
@@ -28,22 +28,23 @@ void OppleFE6300Storage::_serialize(const OppleFE6300Model* model, DynamicJsonDo
   // others
   doc[F("burstCount")] = model->burstCount;
   doc[F("burstPeriodMs")] = model->burstPeriodMs;
+  doc[F("sequenceGap")] = model->sequenceGap;
 }
 
 void OppleFE6300Storage::_deserialize(OppleFE6300Model* model, const DynamicJsonDocument& doc) {
   const JsonObjectConst packet = doc[F("packet")];
   auto& p = model->packet;
   uint8_t remote[4];
-  uint8_t counter[2];
+  uint8_t sequence[2];
   parseHex(packet[F("remote")], remote, sizeof(remote));
   parseHex(packet[F("prefix")], p.prefix, sizeof(p.prefix));
   parseHex(packet[F("length")], p.length, sizeof(p.length));
-  parseHex(packet[F("counter")], counter, sizeof(counter));
+  parseHex(packet[F("sequence")], sequence, sizeof(sequence));
   parseHex(packet[F("padding")], p.padding, sizeof(p.padding));
   parseHex(packet[F("type")], &p.type, sizeof(p.type));
   parseHex(packet[F("postfix")], p.postfix, sizeof(p.postfix));
   p.remote = OppleHelper::readBE32(remote);
-  p.counter = OppleHelper::readBE16(counter);
+  p.sequence = OppleHelper::readBE16(sequence);
 
   const JsonObjectConst keys = packet[F("keys")];
   for (const JsonPairConst item : keys) {
@@ -55,4 +56,5 @@ void OppleFE6300Storage::_deserialize(OppleFE6300Model* model, const DynamicJson
   // others
   model->burstCount = doc[F("burstCount")].as<uint8_t>();
   model->burstPeriodMs = doc[F("burstPeriodMs")].as<uint16_t>();
+  model->sequenceGap = doc[F("sequenceGap")].as<uint16_t>();
 }

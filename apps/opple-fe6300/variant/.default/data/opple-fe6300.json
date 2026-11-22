@@ -3,7 +3,7 @@
     "remote": "A3714D01",
     "prefix": "00000000",
     "length": "0013",
-    "counter": "0000",
+    "sequence": "0000",
     "padding": "0000",
     "type": "03",
     "keys": {
@@ -17,6 +17,7 @@
     },
     "postfix": "005701"
   },
-  "burstCount": 5,
-  "burstPeriodMs": 15
+  "burstCount": 15,
+  "burstPeriodMs": 13,
+  "sequenceGap": 100
 }

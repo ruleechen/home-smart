@@ -11,7 +11,7 @@
 //   0..3    remote   A3 71 4D 01    remote address (another remote: A3 BF 57 01)
 //   4..7    prefix   00 00 00 00    fixed
 //   8..9    length   00 13          fixed (0x13 = 19, the payload length?)
-//   10..11  counter  00 33          press counter, big-endian, one per remote,
+//   10..11  sequence 00 33          press counter, big-endian, one per remote,
 //                                   +1 per press of any key, same for every
 //                                   repeat of one press
 //   12..13  padding  00 00          fixed
@@ -26,7 +26,7 @@ struct OppleFE6300Packet {
   uint32_t remote = 0;
   uint8_t prefix[4] = {};
   uint8_t length[2] = {};
-  uint16_t counter = 0;
+  uint16_t sequence = 0;
   uint8_t padding[2] = {};
   uint8_t type = 0;
   uint8_t key = 0;
@@ -38,7 +38,7 @@ struct OppleFE6300Packet {
   static bool fromBytes(const uint8_t* bytes, size_t length, OppleFE6300Packet& packet);
 
   // True when the fixed fields (prefix, length, padding, type, postfix) are
-  // equal: other is in the same format, whatever its remote, counter and key.
+  // equal: other is in the same format, whatever its remote, sequence and key.
   bool sameFormat(const OppleFE6300Packet& other) const;
 };
 
