@@ -7,7 +7,7 @@ namespace {
   constexpr size_t REMOTE_AT = 0;
   constexpr size_t PREFIX_AT = 4;
   constexpr size_t LENGTH_AT = 8;
-  constexpr size_t COUNTER_AT = 10;
+  constexpr size_t SEQUENCE_AT = 10;
   constexpr size_t PADDING_AT = 12;
   constexpr size_t TYPE_AT = 14;
   constexpr size_t KEY_AT = 15;
@@ -24,7 +24,7 @@ void OppleFE6300Packet::toBytes(uint8_t bytes[SIZE]) const {
   OppleHelper::writeBE32(bytes + REMOTE_AT, remote);
   memcpy(bytes + PREFIX_AT, prefix, sizeof(prefix));
   memcpy(bytes + LENGTH_AT, length, sizeof(length));
-  OppleHelper::writeBE16(bytes + COUNTER_AT, counter);
+  OppleHelper::writeBE16(bytes + SEQUENCE_AT, sequence);
   memcpy(bytes + PADDING_AT, padding, sizeof(padding));
   bytes[TYPE_AT] = type;
   bytes[KEY_AT] = key;
@@ -38,7 +38,7 @@ bool OppleFE6300Packet::fromBytes(const uint8_t* bytes, size_t length, OppleFE63
   packet.remote = OppleHelper::readBE32(bytes + REMOTE_AT);
   memcpy(packet.prefix, bytes + PREFIX_AT, sizeof(packet.prefix));
   memcpy(packet.length, bytes + LENGTH_AT, sizeof(packet.length));
-  packet.counter = OppleHelper::readBE16(bytes + COUNTER_AT);
+  packet.sequence = OppleHelper::readBE16(bytes + SEQUENCE_AT);
   memcpy(packet.padding, bytes + PADDING_AT, sizeof(packet.padding));
   packet.type = bytes[TYPE_AT];
   packet.key = bytes[KEY_AT];

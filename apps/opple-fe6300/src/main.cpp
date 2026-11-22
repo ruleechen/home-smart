@@ -5,6 +5,7 @@
 #include <OppleFE6300State.h>
 #include <OppleHelper.h>
 #include <AppMain/AppMain.h>
+#include <GlobalHelpers.h>
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -57,7 +58,7 @@ namespace {
       .section(F("crc"), String(d.rx.crcErrors))
       .section(F("empty"), String(d.rx.empty))
       .section(F("oversize"), String(d.rx.oversize))
-      .section(F("seq"), d.hasTxSequence ? hex16(d.txSequence) : String(F("-")))
+      .section(F("sequence"), d.hasTxSequence ? hex16(d.txSequence) : String(F("-")))
       .section(F("state"), heater.describe());
   }
 
@@ -119,8 +120,8 @@ namespace {
     auto line = console.log()
       .bracket(F("rx"))
       .section(known ? packet.key->name : String(F("unknown")))
-      .section(F("remote"), hex32(packet.address()))
-      .section(F("seq"), hex16(packet.sequence()))
+      .section(F("remote"), packet.remoteFormat ? hex32(packet.address()) : String(F("-")))
+      .section(F("sequence"), packet.remoteFormat ? hex16(packet.sequence()) : String(F("-")))
       .section(F("prev copies"), String(packet.previousCopies));
     if (!known) {
       // The raw bytes only matter for a key code not in opple-fe6300.json yet.
@@ -128,11 +129,11 @@ namespace {
     }
     if (packet.skipped > 0) {
       // Not an error: mostly the remote skipping values on rapid presses. The
-      // counters and the trace show whether this side missed presses instead.
+      // sequence and the trace show whether this side missed presses instead.
       const auto& rx = radio.rxStats();
       console.log()
         .bracket(F("rx"))
-        .section(F("counter skipped"), String(packet.skipped))
+        .section(F("sequence skipped"), String(packet.skipped))
         .section(F("crc"), String(rx.crcErrors))
         .section(F("empty"), String(rx.empty))
         .section(F("oversize"), String(rx.oversize))
@@ -180,10 +181,16 @@ void setup(void) {
   // Web: the buttons are key presses on the heater, so they go through the same
   // send path as the remote's; the heater ignores command names it does not know.
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
-    states.push_back({ .text = F("Heater"), .value = heater.describe() });
+    states.push_back({ .text = F("Blow"),      .value = GlobalHelpers::toOnOffName(heater.isOn(F("blow"))) });
+    states.push_back({ .text = F("Heat"),      .value = GlobalHelpers::toOnOffName(heater.isOn(F("heat"))) });
+    states.push_back({ .text = F("Light"),     .value = GlobalHelpers::toOnOffName(heater.isOn(F("light"))) });
+    states.push_back({ .text = F("Bath"),      .value = GlobalHelpers::toOnOffName(heater.isOn(F("bath"))) });
+    states.push_back({ .text = F("Dry"),       .value = GlobalHelpers::toOnOffName(heater.isOn(F("dry"))) });
+    states.push_back({ .text = F("Ventilate"), .value = GlobalHelpers::toOnOffName(heater.isOn(F("ventilate"))) });
+    states.push_back({ .text = F("Sequence"), .value = hex16(radio.sequence()) });
     buttons.push_back({ .text = F("Power Off"), .value = F("powerOff") });
-    buttons.push_back({ .text = F("Heat"), .value = F("heat") });
     buttons.push_back({ .text = F("Blow"), .value = F("blow") });
+    buttons.push_back({ .text = F("Heat"), .value = F("heat") });
     buttons.push_back({ .text = F("Light"), .value = F("light") });
     buttons.push_back({ .text = F("Bath"), .value = F("bath") });
     buttons.push_back({ .text = F("Dry"), .value = F("dry") });
@@ -195,9 +202,13 @@ void setup(void) {
       .section(F("post"), value);
     if (heater.apply(value)) {
       const auto result = radio.send(value);
+      const auto d = radio.diagnostics();
+      const auto hasSentSequence = result != OppleFE6300::TxResult::NotReady &&
+        result != OppleFE6300::TxResult::UnknownCommand && d.hasTxSequence;
       console.log()
         .bracket(F("send"))
-        .section(F("result"), OppleFE6300::describe(result));
+        .section(F("result"), OppleFE6300::describe(result))
+        .section(F("sequence"), hasSentSequence ? hex16(d.txSequence) : String(F("-")));
     }
   };
 }

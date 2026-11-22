@@ -137,6 +137,9 @@ class OppleFE6300 {
     uint16_t txSequence;       // Counter of the last own-remote packet on air, from either side.
   };
   Diagnostics diagnostics();
+  // Latest sequence for the configured remote, or the configured starting value
+  // before any packet from that remote has been seen or sent.
+  uint16_t sequence() const;
 
   static const __FlashStringHelper* describe(TxResult result);
 
@@ -174,13 +177,13 @@ class OppleFE6300 {
   size_t _remoteCount = 0;
   size_t _nextRemoteSlot = 0;
 
-  // Own remote (the configured address): its latest counter, and the
-  // latest counter on air with its address, from it or from this side.
+  // Latest counter on air with the configured address, from either side.
   uint32_t _ownAddress = 0;
-  bool _hasRemoteSequence = false;
-  uint16_t _remoteSequence = 0;
   bool _hasAirSequence = false;
   uint16_t _airSequence = 0;
+  // The first local command after hearing the original remote jumps ahead by
+  // sequenceGap values to reduce overlap between the two transmitters.
+  bool _advancePastRemote = false;
 
   const OppleFE6300Key* _findKey(const String& name) const;
   const OppleFE6300Key* _findKey(uint8_t code) const;
