@@ -4,8 +4,8 @@
 #include <functional>
 #include <Arduino.h>
 #include <ESP8266httpUpdate.h>
-#include "Console.h"
-#include "GlobalHelpers.h"
+#include <Console/Console.h>
+#include <VictorHelpers.h>
 #include "Storage/OtaStorage.h"
 
 namespace Victor::Components {

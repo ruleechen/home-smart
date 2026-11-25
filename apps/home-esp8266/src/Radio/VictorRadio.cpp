@@ -66,7 +66,7 @@ namespace Victor::Components {
       return;
     }
     const auto clonedEmit = new RadioEmit({
-      .name = GlobalHelpers::randomString(4), // radom id
+      .name = VictorHelpers::randomString(4), // radom id
       .value = emit->value,
       .channel = emit->channel,
       .press = emit->press,
@@ -205,7 +205,7 @@ namespace Victor::Components {
       case ENTRY_WIFI: {
         switch (command->action) {
           case ENTRY_WIFI_JOIN: {
-            const auto credential = GlobalHelpers::splitString(command->parameters, F("/"));
+            const auto credential = VictorHelpers::splitString(command->parameters, F("/"));
             if (credential.size() == 2) {
               const auto ssid = credential[0];
               const auto pswd = credential[1];
@@ -304,7 +304,7 @@ namespace Victor::Components {
   RadioCommandParsed* VictorRadio::_parseCommand(const String& value) {
     auto cloned = String(value); // clone
     cloned.replace(F(":"), F("-"));
-    const auto parts = GlobalHelpers::splitString(cloned, F("-"));
+    const auto parts = VictorHelpers::splitString(cloned, F("-"));
     if (parts.size() < 2) {
       return nullptr;
     }

@@ -86,7 +86,7 @@ namespace Victor::Components {
   }
 
   void VictorOTA::_handleProgress(int progress, int total) {
-    _log().section(F("progress"), GlobalHelpers::toPercentage(progress / (total / 100)));
+    _log().section(F("progress"), VictorHelpers::toPercentage(progress / (total / 100)));
   }
 
   void VictorOTA::_handleError(int error) {

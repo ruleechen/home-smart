@@ -3,7 +3,7 @@
 #include <arduino_homekit_server.h>
 
 #include <AppMain/AppMain.h>
-#include <GlobalHelpers.h>
+#include <VictorHelpers.h>
 #include <Pin/Storage/PinStorage.h>
 #include <Storage/I2cStorage/I2cStorage.h>
 #include <Button/ActionButtonInterrupt.h>
@@ -149,7 +149,7 @@ void measureHT(const HTConfig* config, const bool connective, const unsigned lon
       .bracket(F("ht"))
       .section(F("h"), String(humidity))
       .section(F("t"), String(temperature))
-      .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+      .section(F("notify"), VictorHelpers::toYesNoName(notify));
     // write to AQ
     if (aq != nullptr) {
       aq->setRelHumidity(humidity, temperature);
@@ -203,7 +203,7 @@ void measureAQ(const AQConfig* config, const bool connective, const unsigned lon
       .bracket(F("aq"))
       .section(F("co2"), String(co2))
       .section(F("tvoc"), String(tvoc))
-      .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+      .section(F("notify"), VictorHelpers::toYesNoName(notify));
   }
 }
 
@@ -215,14 +215,14 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),      .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("Identified"),   .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("Identified"),   .value = VictorHelpers::toYesNoName(isIdentified) });
     states.push_back({ .text = F("Temperature"),  .value = String(temperatureState.value.float_value) + F("°C") });
-    states.push_back({ .text = F("Humidity"),     .value = GlobalHelpers::toPercentage(humidityState.value.float_value) });
+    states.push_back({ .text = F("Humidity"),     .value = VictorHelpers::toPercentage(humidityState.value.float_value) });
     states.push_back({ .text = F("eCO2 Level"),   .value = String(carbonDioxideLevelState.value.float_value) + F("ppm/㎥") });
     states.push_back({ .text = F("eCO2"),         .value = toCarbonDioxideName(carbonDioxideState.value.uint8_value) });
     states.push_back({ .text = F("TVOC Density"), .value = String(vocDensityState.value.float_value) + F("ppb/㎥") });
     states.push_back({ .text = F("Air Quality"),  .value = toAirQualityName(airQualityState.value.uint8_value) });
-    states.push_back({ .text = F("Paired"),       .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Paired"),       .value = VictorHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"),      .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") }); // UnPair HomeKit

@@ -2,7 +2,7 @@
 #include <arduino_homekit_server.h>
 
 #include <AppMain/AppMain.h>
-#include <GlobalHelpers.h>
+#include <VictorHelpers.h>
 #include <Sensor/DigitalSensor.h>
 
 using namespace Victor;
@@ -52,7 +52,7 @@ void setOccupancyState(const OccupancyDetected occupancy, const bool notify) {
   }
   console.log()
     .section(F("occupancy"), toOccupancyName(occupancy))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void setActiveState(const bool value, const bool notify) {
@@ -61,8 +61,8 @@ void setActiveState(const bool value, const bool notify) {
     homekit_characteristic_notify(&activeState, activeState.value);
   }
   console.log()
-    .section(F("active"), GlobalHelpers::toYesNoName(value))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("active"), VictorHelpers::toYesNoName(value))
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void setup(void) {
@@ -73,10 +73,10 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("Identified"), .value = VictorHelpers::toYesNoName(isIdentified) });
     states.push_back({ .text = F("Occupancy"),  .value = toOccupancyName(occupancyState.value.uint8_value) });
-    states.push_back({ .text = F("Active"),     .value = GlobalHelpers::toYesNoName(activeState.value.bool_value) });
-    states.push_back({ .text = F("Paired"),     .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Active"),     .value = VictorHelpers::toYesNoName(activeState.value.bool_value) });
+    states.push_back({ .text = F("Paired"),     .value = VictorHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"),    .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") });

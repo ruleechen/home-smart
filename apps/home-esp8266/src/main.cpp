@@ -1,9 +1,9 @@
 #include <Arduino.h>
 
 #include "AppMain/AppMain.h"
-// #include "Button/ActionButtonInput.h"
-#include "Button/ActionButtonInterrupt.h"
-#include "Timer/IntervalOverAuto.h"
+// #include <Button/ActionButtonInput.h>
+#include <Button/ActionButtonInterrupt.h>
+#include <Timer/IntervalOverAuto.h>
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -18,13 +18,15 @@ void setup(void) {
   appMain->setup();
 
   // setup radio
-  appMain->radioPortal->onEmit = [](const RadioEmit* emit) {
-    builtinLed.flash();
-    console.log()
-      .bracket(F("radio"))
-      .section(F("sent"), emit->value)
-      .section(F("via channel"), String(emit->channel));
-  };
+  #if VICTOR_FEATURES_RADIO
+    appMain->radioPortal->onEmit = [](const RadioEmit* emit) {
+      builtinLed.flash();
+      console.log()
+        .bracket(F("radio"))
+        .section(F("sent"), emit->value)
+        .section(F("via channel"), String(emit->channel));
+    };
+  #endif
 
   // setup web
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
@@ -74,6 +76,7 @@ void loop(void) {
   appMain->loop();
   button->loop();
   // loop radio
+  #if VICTOR_FEATURES_RADIO
   if (false) {
     auto value = String(F(""));
     uint8_t channel = 1;
@@ -84,4 +87,5 @@ void loop(void) {
       .section(F("received"), value)
       .section(F("from channel"), String(channel));
   }
+  #endif
 }

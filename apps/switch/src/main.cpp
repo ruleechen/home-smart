@@ -2,7 +2,7 @@
 #include <arduino_homekit_server.h>
 
 #include <AppMain/AppMain.h>
-#include <GlobalHelpers.h>
+#include <VictorHelpers.h>
 #include <Timer/TimesCounter.h>
 #include <BinaryIO/BinaryIO.h>
 # if VICTOR_FEATURES_OCCUPANCY
@@ -64,7 +64,7 @@ BinaryIO* binaryIO = nullptr;
     }
     console.log()
       .section(F("occupancy"), toOccupancyName(occupancy))
-      .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+      .section(F("notify"), VictorHelpers::toYesNoName(notify));
   }
 # endif
 
@@ -80,8 +80,8 @@ void setOnState(const String actName, const bool value, const bool notify) {
   binaryIO->setOutputState(value);
   console.log()
     .section(F("act"), actName)
-    .section(F("state"), GlobalHelpers::toOnOffName(value))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("state"), VictorHelpers::toOnOffName(value))
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void setup(void) {
@@ -100,14 +100,14 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
-    states.push_back({ .text = F("Switch"),     .value = GlobalHelpers::toOnOffName(onState.value.bool_value) });
+    states.push_back({ .text = F("Identified"), .value = VictorHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("Switch"),     .value = VictorHelpers::toOnOffName(onState.value.bool_value) });
     # if VICTOR_FEATURES_OCCUPANCY
       states.push_back({ .text = F("Occupancy"),  .value = toOccupancyName(occupancyState.value.uint8_value) });
     # endif
-    states.push_back({ .text = F("Last Act"),   .value = GlobalHelpers::toMillisAgo(millis() - lastActMillis) });
+    states.push_back({ .text = F("Last Act"),   .value = VictorHelpers::toMillisAgo(millis() - lastActMillis) });
     states.push_back({ .text = F("Act Name"),   .value = lastActName });
-    states.push_back({ .text = F("Paired"),     .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Paired"),     .value = VictorHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"),    .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") });

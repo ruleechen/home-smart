@@ -1,11 +1,11 @@
 #include <Arduino.h>
 #include <LittleFS.h>
-#include <Console.h>
+#include <AppMain/AppMain.h>
+#include <Console/Console.h>
 #include <OppleFE6300.h>
 #include <OppleFE6300State.h>
 #include <OppleHelper.h>
-#include <AppMain/AppMain.h>
-#include <GlobalHelpers.h>
+#include <VictorHelpers.h>
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -181,12 +181,12 @@ void setup(void) {
   // Web: the buttons are key presses on the heater, so they go through the same
   // send path as the remote's; the heater ignores command names it does not know.
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
-    states.push_back({ .text = F("Blow"),      .value = GlobalHelpers::toOnOffName(heater.isOn(F("blow"))) });
-    states.push_back({ .text = F("Heat"),      .value = GlobalHelpers::toOnOffName(heater.isOn(F("heat"))) });
-    states.push_back({ .text = F("Light"),     .value = GlobalHelpers::toOnOffName(heater.isOn(F("light"))) });
-    states.push_back({ .text = F("Bath"),      .value = GlobalHelpers::toOnOffName(heater.isOn(F("bath"))) });
-    states.push_back({ .text = F("Dry"),       .value = GlobalHelpers::toOnOffName(heater.isOn(F("dry"))) });
-    states.push_back({ .text = F("Ventilate"), .value = GlobalHelpers::toOnOffName(heater.isOn(F("ventilate"))) });
+    states.push_back({ .text = F("Blow"),      .value = VictorHelpers::toOnOffName(heater.isOn(F("blow"))) });
+    states.push_back({ .text = F("Heat"),      .value = VictorHelpers::toOnOffName(heater.isOn(F("heat"))) });
+    states.push_back({ .text = F("Light"),     .value = VictorHelpers::toOnOffName(heater.isOn(F("light"))) });
+    states.push_back({ .text = F("Bath"),      .value = VictorHelpers::toOnOffName(heater.isOn(F("bath"))) });
+    states.push_back({ .text = F("Dry"),       .value = VictorHelpers::toOnOffName(heater.isOn(F("dry"))) });
+    states.push_back({ .text = F("Ventilate"), .value = VictorHelpers::toOnOffName(heater.isOn(F("ventilate"))) });
     states.push_back({ .text = F("Sequence"), .value = hex16(radio.sequence()) });
     buttons.push_back({ .text = F("Power Off"), .value = F("powerOff") });
     buttons.push_back({ .text = F("Blow"), .value = F("blow") });
