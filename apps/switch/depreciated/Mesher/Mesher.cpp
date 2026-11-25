@@ -29,7 +29,7 @@ namespace Victor::Components {
 
   // Mesher
   Mesher::Mesher() {
-    _id = GlobalHelpers::randomString(8);
+    _id = VictorHelpers::randomString(8);
   }
   void Mesher::setLoader(IMeshLoader* loader) {
     _loader = loader;

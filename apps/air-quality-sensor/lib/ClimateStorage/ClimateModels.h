@@ -1,6 +1,8 @@
 #ifndef ClimateModels_h
 #define ClimateModels_h
 
+#include <Arduino.h>
+
 namespace Victor::Components {
 
   enum MeasureState {

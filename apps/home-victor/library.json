@@ -1,0 +1,49 @@
+{
+  "name": "home-victor",
+  "version": "1.0.0",
+  "description": "Home IoT foundation on Arduino",
+  "keywords": [
+    "arduino"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ruleechen/home-smart/tree/main/apps/home-victor"
+  },
+  "authors": [
+    {
+      "name": "Rulee Chen",
+      "email": "rulee@live.cn",
+      "url": "https://github.com/ruleechen",
+      "maintainer": true
+    }
+  ],
+  "dependencies": {
+    "bblanchon/ArduinoJson": "6.18.5"
+  },
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "arduino",
+  "examples": [
+    {
+      "name": "fs",
+      "base": "examples/fs",
+      "files": [
+        "main.cpp"
+      ]
+    }
+  ],
+  "export": {
+    "exclude": [
+      "src/main.cpp"
+    ],
+    "include": [
+      "data/*",
+      "examples/*",
+      "include/*",
+      "lib/*",
+      "src/*",
+      "LICENSE",
+      "README.md"
+    ]
+  }
+}

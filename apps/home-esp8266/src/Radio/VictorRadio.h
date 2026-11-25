@@ -2,11 +2,9 @@
 #define VictorRadio_h
 
 #include <Arduino.h>
-#include "GlobalHelpers.h"
-#include "Console.h"
-#include "OTA/VictorOTA.h"
-#include "WiFi/VictorWiFi.h"
-#include "AppMain/Storage/AppStorage.h"
+#include <VictorHelpers.h>
+#include <Console/Console.h>
+#include <Storage/AppStorage/AppStorage.h>
 #include "Storage/RadioStorage.h"
 
 #ifndef VICTOR_RADIO_DOUBLE_PRESS_MIN

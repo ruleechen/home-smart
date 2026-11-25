@@ -11,7 +11,7 @@ namespace Victor::Components {
   }
 
   void OtaStorage::_deserialize(OtaSetting* model, const DynamicJsonDocument& doc) {
-    model->remote = String(doc[F("remote")]);
+    model->remote = doc[F("remote")].as<const char*>();
   }
 
 } // namespace Victor::Components

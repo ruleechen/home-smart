@@ -1,4 +1,6 @@
 #include "VictorOTA.h"
+#include <functional>
+#include <VictorHelpers.h>
 
 namespace Victor::Components {
 
@@ -14,7 +16,11 @@ namespace Victor::Components {
   }
 
   String VictorOTA::getCurrentVersion() const {
-    return VICTOR_FIRMWARE_VERSION;
+    #ifdef VICTOR_FIRMWARE_VERSION
+      return VICTOR_FIRMWARE_VERSION;
+    #else
+      return F("unknown");
+    #endif
   }
 
   String VictorOTA::checkNewVersion() {
@@ -86,7 +92,7 @@ namespace Victor::Components {
   }
 
   void VictorOTA::_handleProgress(int progress, int total) {
-    _log().section(F("progress"), GlobalHelpers::toPercentage(progress / (total / 100)));
+    _log().section(F("progress"), VictorHelpers::toPercentage(progress / (total / 100)));
   }
 
   void VictorOTA::_handleError(int error) {

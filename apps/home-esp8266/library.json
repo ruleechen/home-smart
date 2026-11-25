@@ -19,7 +19,8 @@
     }
   ],
   "dependencies": {
-    "bblanchon/ArduinoJson": "6.18.5"
+    "bblanchon/ArduinoJson": "6.18.5",
+    "apps/home-victor": "*"
   },
   "license": "MIT",
   "frameworks": "arduino",

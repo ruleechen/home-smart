@@ -1,4 +1,6 @@
 #include "VictorWiFi.h"
+#include <BuiltinLed/BuiltinLed.h>
+#include <Storage/AppStorage/AppStorage.h>
 
 namespace Victor::Components {
 
@@ -144,9 +146,14 @@ namespace Victor::Components {
   }
 
   String VictorWiFi::getHostName() {
+    #ifdef VICTOR_FIRMWARE_SERVICE
+      const auto serviceName = VICTOR_FIRMWARE_SERVICE;
+    #else
+      const auto serviceName = F("unknown");
+    #endif
     const auto setting = appStorage.load();
     auto service = (setting == nullptr || setting->brand.isEmpty())
-      ? VICTOR_FIRMWARE_SERVICE
+      ? serviceName
       : setting->brand;
     service.trim();
     service.replace(' ', '-');

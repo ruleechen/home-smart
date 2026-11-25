@@ -2,10 +2,11 @@
 #include <arduino_homekit_server.h>
 
 #include <AppMain/AppMain.h>
-#include <GlobalHelpers.h>
+#include <VictorHelpers.h>
 #include <Pin/DigitalOutput.h>
 #include <Sensor/DigitalSensor.h>
 #include <Button/ActionButtonInterrupt.h>
+#include <Storage/PinStorage/PinStorage.h>
 #include <Storage/DigitalStateStorage/DigitalStateStorage.h>
 
 using namespace Victor;
@@ -141,7 +142,7 @@ void setValveTypeState(const String actName, const ValveType value, const bool n
   console.log()
     .section(F("act"), actName)
     .section(F("state"), toValveTypeName(value))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void setInUseState(const String actName, const InUse value, const bool notify) {
@@ -154,7 +155,7 @@ void setInUseState(const String actName, const InUse value, const bool notify) {
   console.log()
     .section(F("act"), actName)
     .section(F("state"), toInUseName(value))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void saveActiveState(const Active value) {
@@ -180,7 +181,7 @@ void setActiveState(const String actName, const Active value, const bool notify)
   console.log()
     .section(F("act"), actName)
     .section(F("state"), toActiveName(value))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void setInUse(const String actName, const InUse inUse, const bool notify) {
@@ -238,13 +239,13 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("Identified"), .value = VictorHelpers::toYesNoName(isIdentified) });
     states.push_back({ .text = F("Active"),     .value = toActiveName(activeState.value.uint8_value) });
     states.push_back({ .text = F("In Use"),     .value = toInUseName(inUseState.value.uint8_value) });
     states.push_back({ .text = F("Valve Type"), .value = toValveTypeName(valveTypeState.value.uint8_value) });
-    states.push_back({ .text = F("Last Act"),   .value = GlobalHelpers::toMillisAgo(millis() - lastActMillis) });
+    states.push_back({ .text = F("Last Act"),   .value = VictorHelpers::toMillisAgo(millis() - lastActMillis) });
     states.push_back({ .text = F("Act Name"),   .value = lastActName });
-    states.push_back({ .text = F("Paired"),     .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Paired"),     .value = VictorHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"),    .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") });

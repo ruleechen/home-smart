@@ -1,4 +1,10 @@
 #include "AppMain.h"
+#include <LittleFS.h>
+#include <Console/Console.h>
+#include <BuiltinLed/BuiltinLed.h>
+#include <Storage/AppStorage/AppStorage.h>
+#include "OTA/VictorOTA.h"
+#include "WiFi/VictorWiFi.h"
 
 namespace Victor::Components {
 
@@ -31,6 +37,9 @@ namespace Victor::Components {
         .bracket(F("fs"))
         .section(F("mount failed"));
     }
+
+    // bind to the generic fs layer
+    victorFS.begin(LittleFS);
 
     const auto appSetting = appStorage.load();
     if (appSetting != nullptr) {

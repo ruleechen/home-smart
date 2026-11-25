@@ -1,6 +1,8 @@
 #ifndef AQSensor_h
 #define AQSensor_h
 
+#include <Arduino.h>
+
 #include <SparkFun_SGP30_Arduino_Library.h>
 #include <Timer/IntervalOverAuto.h>
 #include <Timer/IntervalOver.h>

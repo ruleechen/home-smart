@@ -99,7 +99,7 @@ void setTargetDoorState(const TargetDoorState targetState, const bool notify) {
   console.log()
     .bracket(F("door"))
     .section(F("target"), toDoorStateName(targetState))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void setCurrentDoorState(const CurrentDoorState newState, const bool notify) {
@@ -152,7 +152,7 @@ void setCurrentDoorState(const CurrentDoorState newState, const bool notify) {
   console.log()
     .bracket(F("door"))
     .section(F("current"), toDoorStateName(newState))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void setup(void) {
@@ -184,11 +184,11 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),     .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("Identified"),  .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("Identified"),  .value = VictorHelpers::toYesNoName(isIdentified) });
     states.push_back({ .text = F("Target"),      .value = toDoorStateName(targetDoorState.value.uint8_value) });
     states.push_back({ .text = F("Current"),     .value = toDoorStateName(currentDoorState.value.uint8_value) });
-    states.push_back({ .text = F("Obstruction"), .value = GlobalHelpers::toYesNoName(obstructionState.value.bool_value) });
-    states.push_back({ .text = F("Paired"),      .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Obstruction"), .value = VictorHelpers::toYesNoName(obstructionState.value.bool_value) });
+    states.push_back({ .text = F("Paired"),      .value = VictorHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"),     .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"),     .value = F("UnPair") });

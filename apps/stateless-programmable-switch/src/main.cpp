@@ -2,9 +2,10 @@
 #include <arduino_homekit_server.h>
 
 #include <AppMain/AppMain.h>
-#include <GlobalHelpers.h>
+#include <VictorHelpers.h>
 #include <Timer/TimesCounter.h>
 #include <Button/ActionButtonInterrupt.h>
+#include <Storage/PinStorage/PinStorage.h>
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -67,7 +68,7 @@ void setEventState(const uint8_t index, const ProgrammableSwitchEvent value, con
   console.log()
     .section(F("button"), String(index))
     .section(F("state"), toProgrammableSwitchEventName(value))
-    .section(F("notify"), GlobalHelpers::toYesNoName(notify));
+    .section(F("notify"), VictorHelpers::toYesNoName(notify));
 }
 
 void buttonAction(const uint8_t index, const ButtonAction action) {
@@ -106,11 +107,11 @@ void setup(void) {
   appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
     // states
     states.push_back({ .text = F("Service"),    .value = VICTOR_ACCESSORY_SERVICE_NAME });
-    states.push_back({ .text = F("Identified"), .value = GlobalHelpers::toYesNoName(isIdentified) });
+    states.push_back({ .text = F("Identified"), .value = VictorHelpers::toYesNoName(isIdentified) });
     states.push_back({ .text = F("State1"),     .value = toProgrammableSwitchEventName(eventState1.value.uint8_value) });
     states.push_back({ .text = F("State2"),     .value = toProgrammableSwitchEventName(eventState2.value.uint8_value) });
     states.push_back({ .text = F("State3"),     .value = toProgrammableSwitchEventName(eventState3.value.uint8_value) });
-    states.push_back({ .text = F("Paired"),     .value = GlobalHelpers::toYesNoName(homekit_is_paired()) });
+    states.push_back({ .text = F("Paired"),     .value = VictorHelpers::toYesNoName(homekit_is_paired()) });
     states.push_back({ .text = F("Clients"),    .value = String(arduino_homekit_connected_clients_count()) });
     // buttons
     buttons.push_back({ .text = F("UnPair"), .value = F("UnPair") });

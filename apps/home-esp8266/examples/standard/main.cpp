@@ -1,7 +1,8 @@
 #include <Arduino.h>
 
-#include "Console.h"
-#include "BuiltinLed.h"
+#include <Console/Console.h>
+#include <BuiltinLed/BuiltinLed.h>
+
 #include "OTA/VictorOTA.h"
 #include "WiFi/VictorWiFi.h"
 #include "Radio/VictorRadio.h"
@@ -20,6 +21,9 @@ void setup(void) {
       .bracket(F("fs"))
       .section(F("mount failed"));
   }
+
+  // bind to the generic fs layer
+  victorFS.begin(LittleFS);
 
   builtinLed.setup("/led.json");
   builtinLed.turnOn();

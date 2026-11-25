@@ -4,10 +4,8 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include "Console.h"
-#include "BuiltinLed.h"
-#include "AppMain/Storage/AppStorage.h"
-#include "Storage/WiFiStorage.h"
+#include <Console/Console.h>
+#include <Storage/WiFiStorage/WiFiStorage.h>
 
 namespace Victor::Components {
   class VictorWiFi {
