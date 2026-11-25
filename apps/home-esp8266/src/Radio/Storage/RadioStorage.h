@@ -1,9 +1,8 @@
 #ifndef RadioStorage_h
 #define RadioStorage_h
 
-#include <Storage/FileStorage.h>
-
 #include "RadioModels.h"
+#include <Storage/FileStorage.h>
 
 namespace Victor::Components {
   class RadioStorage : public FileStorage<RadioModel> {

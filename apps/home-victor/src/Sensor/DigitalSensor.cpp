@@ -1,4 +1,6 @@
 #include "DigitalSensor.h"
+#include "Console/Console.h"
+#include "Storage/PinStorage/PinStorage.h"
 
 namespace Victor::Components {
 
@@ -12,7 +14,7 @@ namespace Victor::Components {
       if (config->interruptMode > 0) {
         _changed = STATE_CHANGE_NO;
         const auto interruptPin = digitalPinToInterrupt(config->pin);
-        attachScheduledInterrupt(interruptPin, [&](const InterruptInfo info) {
+        Victor::HAL::attachScheduledInterrupt(interruptPin, [&](const Victor::HAL::InterruptInfo info) {
           this->_interruptHandler(info);
         }, config->interruptMode);
       }
@@ -38,7 +40,12 @@ namespace Victor::Components {
       : false;
   }
 
-  void DigitalSensor::_interruptHandler(const InterruptInfo info) {
+  void DigitalSensor::loop() {
+    Victor::HAL::processScheduledInterrupts();
+    StateSensor<bool>::loop();
+  }
+
+  void DigitalSensor::_interruptHandler(const Victor::HAL::InterruptInfo info) {
     _changed = STATE_CHANGE_YES;
     console.log()
       .bracket(F("interrupt"))

@@ -1,6 +1,15 @@
 #include "BuiltinLed.h"
+#include "Storage/PinStorage/PinStorage.h"
 
 namespace Victor::Components {
+namespace {
+    BuiltinLed* g_twinkleLed = nullptr;
+    void twinkleCallback() {
+        if (g_twinkleLed != nullptr) {
+            g_twinkleLed->toggle();
+        }
+    }
+} // namespace
 
   BuiltinLed::BuiltinLed() {
     _ticker = new Ticker();
@@ -54,9 +63,8 @@ namespace Victor::Components {
   void BuiltinLed::twinkle(uint16_t duration) {
     toggle();
     _ticker->detach();
-    _ticker->attach_ms(duration, [&]() {
-      toggle();
-    });
+    g_twinkleLed = this;
+    _ticker->attach_ms(duration, twinkleCallback);
   }
 
   void BuiltinLed::stop() {

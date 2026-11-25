@@ -1,7 +1,7 @@
 #ifndef DigitalStateConfig_h
 #define DigitalStateConfig_h
 
-#include <Storage/StateConfig.h>
+#include "Storage/StateConfig.h"
 
 namespace Victor::Components {
 

@@ -1,4 +1,5 @@
 #include "BinaryIO.h"
+#include "Storage/PinStorage/PinStorage.h"
 
 namespace Victor::Components {
 

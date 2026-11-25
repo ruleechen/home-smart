@@ -12,8 +12,6 @@
 #if VICTOR_FEATURES_RADIO
   #include "Radio/Storage/RadioStorage.h"
 #endif
-#include "OTA/VictorOTA.h"
-#include "WiFi/VictorWiFi.h"
 
 #ifndef VICTOR_FILE_SIZE_LIMIT
 #define VICTOR_FILE_SIZE_LIMIT 2048 // 2k

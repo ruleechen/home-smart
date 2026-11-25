@@ -5,6 +5,7 @@
 #include <VictorHelpers.h>
 #include <Timer/TimesCounter.h>
 #include <Button/ActionButtonInterrupt.h>
+#include <Storage/PinStorage/PinStorage.h>
 
 using namespace Victor;
 using namespace Victor::Components;

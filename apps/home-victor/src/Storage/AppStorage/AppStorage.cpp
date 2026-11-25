@@ -14,9 +14,8 @@ namespace Victor::Components {
   }
 
   void AppStorage::_deserialize(AppSetting* model, const DynamicJsonDocument& doc) {
-    const char* name = doc[F("name")];
-    model->name        = String(name);
-    model->brand       = String(doc[F("brand")]);
+    model->name        = doc[F("name")].as<const char*>();
+    model->brand       = doc[F("brand")].as<const char*>();
     model->sleepMillis = doc[F("sleep")];
     // heartbeat
     const auto heartbeat = doc[F("heartbeat")];

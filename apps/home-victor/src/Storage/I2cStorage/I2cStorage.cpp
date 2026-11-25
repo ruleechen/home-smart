@@ -23,10 +23,9 @@ namespace Victor::Components {
     // chip select pin
     const auto enArr   = doc[F("en")];
     if (!enArr.isNull()) {
-      model->chipSelect = new PinConfig({
-        .pin = enArr[0],
-        .effectiveValue = enArr[1],
-      });
+      model->chipSelect = new PinConfig();
+      model->chipSelect->pin = enArr[0];
+      model->chipSelect->effectiveValue = enArr[1];
     }
   }
 

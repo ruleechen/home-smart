@@ -1,4 +1,5 @@
 #include "TimesCounter.h"
+#include <Arduino.h>
 
 namespace Victor::Components {
 

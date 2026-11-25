@@ -1,4 +1,6 @@
 #include "VictorRadio.h"
+#include "OTA/VictorOTA.h"
+#include "WiFi/VictorWiFi.h"
 
 namespace Victor::Components {
 

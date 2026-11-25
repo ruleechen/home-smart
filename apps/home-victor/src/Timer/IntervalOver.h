@@ -1,8 +1,6 @@
 #ifndef IntervalOver_h
 #define IntervalOver_h
 
-#include <Arduino.h>
-
 namespace Victor::Components {
   class IntervalOver {
    public:

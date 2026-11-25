@@ -2,9 +2,7 @@
 #define ActionButtonInterrupt_h
 
 #include <vector>
-#include <FunctionalInterrupt.h>
-
-#include "Console/Console.h"
+#include "HAL/HalInterrupt.h"
 #include "Button/ActionButtonInput.h"
 
 // should be a plural
@@ -29,7 +27,7 @@ namespace Victor::Components {
    private:
     bool _lastInputValue;
     std::vector<InterruptContext*> _contexts = {};
-    void _interruptHandler(const InterruptInfo info);
+    void _interruptHandler(const Victor::HAL::InterruptInfo info);
   };
 
 } // namespace Victor::Components

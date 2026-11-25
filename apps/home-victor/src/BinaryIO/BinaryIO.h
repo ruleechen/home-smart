@@ -1,11 +1,9 @@
 #ifndef BinaryIO_h
 #define BinaryIO_h
 
-#include "Pin/Storage/PinStorage.h"
-#include "Pin/DigitalInput.h"
 #include "Pin/DigitalOutput.h"
-#include "Storage/DigitalStateStorage/DigitalStateStorage.h"
 #include "Button/ActionButtonInput.h"
+#include "Storage/DigitalStateStorage/DigitalStateStorage.h"
 
 namespace Victor::Components {
   struct BinaryIOProps {

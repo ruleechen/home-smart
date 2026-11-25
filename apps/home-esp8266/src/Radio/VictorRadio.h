@@ -5,8 +5,6 @@
 #include <VictorHelpers.h>
 #include <Console/Console.h>
 #include <Storage/AppStorage/AppStorage.h>
-#include "OTA/VictorOTA.h"
-#include "WiFi/VictorWiFi.h"
 #include "Storage/RadioStorage.h"
 
 #ifndef VICTOR_RADIO_DOUBLE_PRESS_MIN

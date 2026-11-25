@@ -1,7 +1,7 @@
 #ifndef I2cSetting_h
 #define I2cSetting_h
 
-#include "Pin/Storage/PinConfig.h"
+#include "Storage/PinStorage/PinConfig.h"
 
 namespace Victor::Components {
 

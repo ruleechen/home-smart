@@ -1,11 +1,12 @@
 #include "ActionButtonInterrupt.h"
+#include "Console/Console.h"
 
 namespace Victor::Components {
 
   ActionButtonInterrupt::ActionButtonInterrupt(PinConfig* config) : ActionButtonInput(config) {
     _lastInputValue = _input->getValue();
     const auto interruptPin = digitalPinToInterrupt(config->pin);
-    attachScheduledInterrupt(interruptPin, [&](const InterruptInfo info) {
+    Victor::HAL::attachScheduledInterrupt(interruptPin, [&](const Victor::HAL::InterruptInfo info) {
       this->_interruptHandler(info);
     }, CHANGE);
   }
@@ -15,6 +16,7 @@ namespace Victor::Components {
   }
 
   void ActionButtonInterrupt::loop() {
+    Victor::HAL::processScheduledInterrupts();
     if (_contexts.size() > 1) { // at least 2
       // every loop apply 2 interrupt contexts
       for (size_t i = 0; i + 1 < _contexts.size(); i = i + 2) {
@@ -32,7 +34,7 @@ namespace Victor::Components {
     }
   }
 
-  void ActionButtonInterrupt::_interruptHandler(const InterruptInfo info) {
+  void ActionButtonInterrupt::_interruptHandler(const Victor::HAL::InterruptInfo info) {
     if (_contexts.size() < VICTOR_DIGITAL_INPUT_MAX_CHANGES) {
       const auto inputValue = _input->getValue();
       if (inputValue != _lastInputValue) {

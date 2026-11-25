@@ -1,9 +1,12 @@
 #include <Arduino.h>
 
-#include "AppMain/AppMain.h"
-// #include <Button/ActionButtonInput.h>
+#include <Console/Console.h>
+#include <BuiltinLed/BuiltinLed.h>
 #include <Button/ActionButtonInterrupt.h>
 #include <Timer/IntervalOverAuto.h>
+
+#include "AppMain/AppMain.h"
+#include "WiFi/VictorWiFi.h"
 
 using namespace Victor;
 using namespace Victor::Components;
@@ -29,15 +32,17 @@ void setup(void) {
   #endif
 
   // setup web
-  appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
-    states.push_back({  .text = F("Text1"),   .value = F("value1") });
-    buttons.push_back({ .text = F("Button1"), .value = F("action1") });
-  };
-  appMain->webPortal->onServicePost = [](const String& value) {
-    console.log()
-      .bracket(F("service"))
-      .section(F("post"), value);
-  };
+  #if VICTOR_FEATURES_WEB
+    appMain->webPortal->onServiceGet = [](std::vector<TextValueModel>& states, std::vector<TextValueModel>& buttons) {
+      states.push_back({  .text = F("Text1"),   .value = F("value1") });
+      buttons.push_back({ .text = F("Button1"), .value = F("action1") });
+    };
+    appMain->webPortal->onServicePost = [](const String& value) {
+      console.log()
+        .bracket(F("service"))
+        .section(F("post"), value);
+    };
+  #endif
 
   // input button
   // button = new ActionButtonInput(0, 0);

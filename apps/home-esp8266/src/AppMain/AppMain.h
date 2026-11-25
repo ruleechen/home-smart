@@ -1,13 +1,7 @@
 #ifndef AppMain_h
 #define AppMain_h
 
-#include <Console/Console.h>
-#include <BuiltinLed/BuiltinLed.h>
-#include <Storage/AppStorage/AppStorage.h>
 #include <Timer/IntervalOverAuto.h>
-
-#include "OTA/VictorOTA.h"
-#include "WiFi/VictorWiFi.h"
 
 #if VICTOR_FEATURES_WEB
   #include "Web/VictorWeb.h"

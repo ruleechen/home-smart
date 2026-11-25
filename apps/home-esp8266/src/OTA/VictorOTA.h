@@ -1,11 +1,9 @@
 #ifndef VictorOTA_h
 #define VictorOTA_h
 
-#include <functional>
 #include <Arduino.h>
 #include <ESP8266httpUpdate.h>
 #include <Console/Console.h>
-#include <VictorHelpers.h>
 #include "Storage/OtaStorage.h"
 
 namespace Victor::Components {

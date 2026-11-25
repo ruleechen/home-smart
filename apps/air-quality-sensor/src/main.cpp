@@ -4,7 +4,7 @@
 
 #include <AppMain/AppMain.h>
 #include <VictorHelpers.h>
-#include <Pin/Storage/PinStorage.h>
+#include <Storage/PinStorage/PinStorage.h>
 #include <Storage/I2cStorage/I2cStorage.h>
 #include <Button/ActionButtonInterrupt.h>
 

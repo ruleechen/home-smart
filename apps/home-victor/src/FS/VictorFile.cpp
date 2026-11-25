@@ -81,7 +81,7 @@ namespace Victor {
   }
 
   bool VictorFile::isFile() {
-    return _file.isFile();
+    return _file && !_file.isDirectory();
   }
 
   File& VictorFile::file() {

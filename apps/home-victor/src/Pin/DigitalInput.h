@@ -2,8 +2,7 @@
 #define DigitalInput_h
 
 #include <Arduino.h>
-
-#include "Pin/Storage/PinConfig.h"
+#include "Storage/PinStorage/PinConfig.h"
 
 namespace Victor::Components {
   class DigitalInput {

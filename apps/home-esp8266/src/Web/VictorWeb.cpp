@@ -1,4 +1,6 @@
 #include "VictorWeb.h"
+#include "OTA/VictorOTA.h"
+#include "WiFi/VictorWiFi.h"
 
 namespace Victor::Components {
 
@@ -80,16 +82,33 @@ namespace Victor::Components {
     String json;
     serializeJson(doc, json);
     // replace
+    #ifdef VICTOR_FIRMWARE_SERVICE
+      const auto title = VICTOR_FIRMWARE_SERVICE;
+    #else
+      const auto title = F("unknown");
+    #endif
     html.replace(F("{json}"), json);
-    html.replace(F("{title}"), VICTOR_FIRMWARE_SERVICE);
+    html.replace(F("{title}"), title);
     html.replace(F("{timestamp}"), String(UNIX_TIME));
   }
 
   void VictorWeb::_getPageData(DynamicJsonDocument& res) {
+    #ifdef VICTOR_FIRMWARE_SERVICE
+      const auto firmwareService = VICTOR_FIRMWARE_SERVICE;
+    #else
+      const auto firmwareService = F("unknown");
+    #endif
+
+    #ifdef VICTOR_FIRMWARE_VERSION
+      const auto firmwareVersion = VICTOR_FIRMWARE_VERSION;
+    #else
+      const auto firmwareVersion = F("unknown");
+    #endif
+
     res[F("unixTime")] = UNIX_TIME;
     res[F("firmwareManufacturer")] = VICTOR_FIRMWARE_MANUFACTURER;
-    res[F("firmwareService")] = VICTOR_FIRMWARE_SERVICE;
-    res[F("firmwareVersion")] = VICTOR_FIRMWARE_VERSION;
+    res[F("firmwareService")] = firmwareService;
+    res[F("firmwareVersion")] = firmwareVersion;
     res[F("maxEditSize")] = VICTOR_FILE_SIZE_LIMIT;
     if (onPageData != nullptr) {
       onPageData(res);

@@ -1,9 +1,7 @@
 #include <Arduino.h>
-
 #include <LittleFS.h>
-
+#include <FS/VictorFS.h>
 #include <Console/Console.h>
-#include <VictorFS/VictorFS.h>
 
 using namespace Victor;
 

@@ -1,8 +1,8 @@
 #ifndef I2cStorage_h
 #define I2cStorage_h
 
-#include "Storage/FileStorage.h"
 #include "I2cSetting.h"
+#include "Storage/FileStorage.h"
 
 namespace Victor::Components {
 

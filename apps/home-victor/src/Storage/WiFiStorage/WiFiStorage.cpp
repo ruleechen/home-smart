@@ -14,8 +14,8 @@ namespace Victor::Components {
   }
 
   void WiFiStorage::_deserialize(WiFiSetting* model, const DynamicJsonDocument& doc) {
-    model->ssid           = String(doc[F("ssid")]);
-    model->pswd           = String(doc[F("pswd")]);
+    model->ssid           = doc[F("ssid")].as<const char*>();
+    model->pswd           = doc[F("pswd")].as<const char*>();
     model->autoMode       = doc[F("auto")] == 1;
     model->dtimMultiplier = doc[F("dtim")];
   }

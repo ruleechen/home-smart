@@ -2,8 +2,7 @@
 #define VictorFS_h
 
 #include <FS.h>
-
-#include "VictorFS/VictorFile.h"
+#include "FS/VictorFile.h"
 
 namespace Victor {
 

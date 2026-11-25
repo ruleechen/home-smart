@@ -2,7 +2,6 @@
 #define StateSensor_h
 
 #include <Arduino.h>
-
 #include "Timer/IntervalOver.h"
 
 namespace Victor::Components {
@@ -90,9 +89,8 @@ namespace Victor::Components {
           _debounce->start(now);
         }
         if (onBeforeReadState != nullptr) {
-          const auto ev = new ReadStateEvent<TState>({
-            .state = _state,
-          });
+          auto ev = new ReadStateEvent<TState>();
+          ev->state = _state;
           onBeforeReadState(ev);
           if (ev->cancel) {
             delete ev;

@@ -5,9 +5,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <Console/Console.h>
-#include <BuiltinLed/BuiltinLed.h>
 #include <Storage/WiFiStorage/WiFiStorage.h>
-#include <Storage/AppStorage/AppStorage.h>
 
 namespace Victor::Components {
   class VictorWiFi {

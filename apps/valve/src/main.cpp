@@ -6,6 +6,7 @@
 #include <Pin/DigitalOutput.h>
 #include <Sensor/DigitalSensor.h>
 #include <Button/ActionButtonInterrupt.h>
+#include <Storage/PinStorage/PinStorage.h>
 #include <Storage/DigitalStateStorage/DigitalStateStorage.h>
 
 using namespace Victor;
